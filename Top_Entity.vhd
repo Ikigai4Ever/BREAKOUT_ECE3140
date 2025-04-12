@@ -58,9 +58,11 @@ architecture Behavioral of test is
     signal colSignal   : integer;
 
     -- Paddle Position from Rotary Encoder
-    signal RE_Val      : integer := 0;
-	 signal prevA		  : STD_LOGIC := '0';
-	 signal prevB       : STD_LOGIC := '0';
+    signal RE_Val       : integer := 0;
+	signal prevA	    : STD_LOGIC := '0';
+	signal prevB        : STD_LOGIC := '0';
+    signal ChA_clean    : STD_LOGIC := '0';
+    signal ChB_clean    : STD_LOGIC := '0';
 	 
     constant DEBOUNCE_DELAY : integer := 5; -- Reduced debounce delay for responsiveness
     signal debounce_counter : integer := 0;
@@ -329,8 +331,23 @@ end process;
     end process;
 
     -- VGA Signal Routing
-    --U1: vga_pll_25_175 port map(CLK, pll_out_clk);
+    U1: vga_pll_25_175 port map(CLK, pll_out_clk);
     U2: vga_controller port map(pll_out_clk, '1', h_sync_m, v_sync_m, dispEn, colSignal, rowSignal, open, open);
     U3: hw_image_generator port map(dispEn, rowSignal, colSignal, RE_Val, red_m, green_m, blue_m);
+
+    -- Debouncers for the rortary encoder signals
+    debounce_ChA: entity work.Debounce
+        port map (
+            clk   => CLK,
+            noisy => ChA,
+            clean => ChA_clean
+        );
+
+    debounce_ChB: entity work.Debounce
+        port map (
+            clk   => CLK,
+            noisy => ChB,
+            clean => ChB_clean
+        );
 
 end Behavioral;  
