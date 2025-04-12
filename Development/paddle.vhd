@@ -9,7 +9,8 @@ use IEEE.numeric_std.all;
 
 entity paddle is
     generic(pos : unsigned_integer := 0;     -- used for keeping the position of the leftmost pixel
-            paddleWidth : std_logic_vector(7 downto 0) := "00011001");  -- paddle size is 25 pixels long  
+            paddleWidth : std_logic_vector(7 downto 0) := "00011001"  -- paddle size is 25 pixels long
+    );    
 
     -- port IN: used for two different channels form rotary encoder
     -- port OUT: used for the left and right pixel positions to display on the VGA port
