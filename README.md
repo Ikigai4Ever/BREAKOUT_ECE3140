@@ -12,8 +12,9 @@ Have the shift be based on the middlemost pixel of the paddle, with the same dis
 
 The ball will be made to move in one of four quadrants. These are saved as integers so that the scaling of the ball can be changed when contacting another block.
 
-Ball size:
+Ball size: 6x6 pixels
 
+    x x x x x x
     x x x x x x
     x x x x x x
     x x x x x x
