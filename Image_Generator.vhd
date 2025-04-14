@@ -158,10 +158,10 @@ begin
                 blue  <= X"FF";
             else 
               
-              
+
                 if quad1 = 1 then 
-                    ball_posL = ball_top  + 1;
-                    ball_posT = ball_left + 1;
+                    ball_posL <= ball_top  + 1;
+                    ball_posT <= ball_left + 1;
                 end if;
 
                 -- Loop over rows and columns
