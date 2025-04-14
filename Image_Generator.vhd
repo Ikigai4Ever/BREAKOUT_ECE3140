@@ -35,6 +35,11 @@ architecture behavior of hw_image_generator is
     constant paddle_right   : integer := 350;
 	constant paddle_width   : integer := 60;
 
+    constant ball_top       : integer := 237;
+    constant ball_bottom    : integer := 243;
+    constant ball_left      : integer := 317;
+    constant ball_right     : integer := 323;
+
     constant border_width  : integer := 15;
     constant BORDER_TOP   : integer := 0 + border_width; 
     constant BORDER_LEFT  : integer := -2 + border_width;
@@ -117,6 +122,17 @@ begin
     process(disp_ena, row, column, encoder_value, fib1, fib2)
         variable paddle_posL : integer;
         variable paddle_posR : integer;
+
+        variable ball_posL  : integer;
+        variable ball_posR  : integer;
+        variable ball_posT  : integer;
+        variable ball_posB  : integer;
+
+        variable quad1  : integer;
+        variable quad2  : integer;
+        variable quad3  : integer;
+        variable quad4  : integer;
+
     begin
         -- Default color to black
         red   <= X"00";
