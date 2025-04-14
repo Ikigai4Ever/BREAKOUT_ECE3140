@@ -39,8 +39,8 @@ end top;
 
 architecture Behavioral of top is
 
-    constant paddle_movl  : integer := 15;
-    constant paddle_movr  : integer := 625;
+    constant paddle_movl  : integer := 10;
+    constant paddle_movr  : integer := 630;
 
     -- VGA Signals
     signal pll_out_clk : std_logic;
@@ -102,6 +102,8 @@ architecture Behavioral of top is
     end component;
 
 begin
+
+
 
     
 --Rotary encoder process with debouncing, rate limiting, and clamping
