@@ -39,8 +39,8 @@ end top;
 
 architecture Behavioral of top is
 
-    constant paddle_movl  : integer := 40;
-    constant paddle_movr  : integer := 600;
+    constant paddle_movl  : integer := 30;
+    constant paddle_movr  : integer := 610;
 
     -- VGA Signals
     signal pll_out_clk : std_logic;

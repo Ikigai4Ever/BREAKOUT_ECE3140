@@ -23,9 +23,9 @@ architecture behavior of hw_image_generator is
 
     constant block_start_x : integer := 25;
     constant block_start_y : integer := 100;
-    constant block_width   : integer := 35;
+    constant block_width   : integer := 37;
     constant block_height  : integer := 10;
-    constant block_width_spacing : integer := 7;
+    constant block_width_spacing : integer := 5;
     constant block_height_spacing : integer := 5; 
 
 
