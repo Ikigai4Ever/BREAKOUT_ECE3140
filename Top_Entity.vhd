@@ -14,7 +14,7 @@ entity test is
         -- Clocks and control
         CLK        : in  STD_LOGIC;
         KEY0       : in  STD_LOGIC; -- active-low reset/control
-		  KEY1 		 : in  STD_LOGIC;
+		KEY1 	   : in  STD_LOGIC;
 		  
         ChA        : in  STD_LOGIC; -- CLK on RE
         ChB        : in  STD_LOGIC; -- DT on RE
@@ -40,16 +40,6 @@ architecture Behavioral of test is
 
     constant paddle_movl  : integer := -100;
     constant paddle_movr  : integer := 100;
-
-    -- Fibonacci Signals
-    signal fib0, fib1 : unsigned(31 downto 0) := (others => '0');
-    signal clk_div    : integer := 0;
-    signal tick       : std_logic := '0';
-    signal tick_pulse : std_logic := '0';
-
-    constant CLK_FREQ      : integer := 50000000; -- 50 MHz
-    constant FORWARD_TICKS : integer := CLK_FREQ;
-    constant REVERSE_TICKS : integer := CLK_FREQ * 4 / 10;
 
     -- VGA Signals
     signal pll_out_clk : std_logic;
@@ -153,12 +143,6 @@ begin
         end if;
     end if;
 end process;
-
-    -- Fibonacci Display
-    process(fib0)
-    begin
-        display_number(fib0, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
-    end process;
 
     -- VGA Signal Routing
     U1: vga_pll_25_175 port map(CLK, pll_out_clk);
