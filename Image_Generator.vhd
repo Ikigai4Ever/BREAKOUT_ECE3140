@@ -139,6 +139,9 @@ begin
         green <= X"00";
         blue  <= X"00"; 
 
+        ball_posR <= ball_posL + 6;
+        ball_posB <= ball_posT + 6;
+
         if disp_ena = '1' then            -- Paddle position based on encoder_value
             paddle_posL := encoder_value - paddle_width / 2;
             paddle_posR := encoder_value + paddle_width / 2;
@@ -154,6 +157,12 @@ begin
                 green <= X"FF";
                 blue  <= X"FF";
             else 
+              
+              
+                if quad1 = 1 then 
+                    ball_posL = ball_top  + 1;
+                    ball_posT = ball_left + 1;
+                end if;
 
                 -- Loop over rows and columns
                 for row_idx in 0 to 7 loop
