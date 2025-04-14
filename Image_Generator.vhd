@@ -134,6 +134,7 @@ begin
         variable quad4  : integer;
 
     begin
+        quad1 := 1;
         -- Default color to black
         red   <= X"00";
         green <= X"00";
@@ -162,6 +163,11 @@ begin
                 if quad1 = 1 then 
                     ball_posL <= ball_top  + 1;
                     ball_posT <= ball_left + 1;
+                end if;
+                if row >= ball_posT and row <= ball_posB and column >= ball_posL and column <= ball_posR then
+                    red   <= "11111111";
+                    green <= "11111111";
+                    blue  <= "11111111";
                 end if;
 
                 -- Loop over rows and columns
