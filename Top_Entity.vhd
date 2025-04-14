@@ -48,11 +48,16 @@ architecture Behavioral of test is
     signal colSignal   : integer;
 
     -- Paddle Position from Rotary Encoder
-    signal RE_Val       : integer := 0;
+    signal encoder_value: integer := 320;
 	signal prevA	    : STD_LOGIC := '0';
 	signal prevB        : STD_LOGIC := '0';
     signal ChA_clean    : STD_LOGIC := '0';
     signal ChB_clean    : STD_LOGIC := '0';
+    constant mov_speed : integer := 20; 
+    constant paddle_start_x : integer := 320;
+    constant border_right : integer := 630; -- Value from the image generator
+    constant border_left  : integer := 10;  -- Value from the image generator
+    constant paddle_length : integer := 50; -- Paddle length
 	 
     constant DEBOUNCE_DELAY : integer := 5; -- Reduced debounce delay for responsiveness
     signal debounce_counter : integer := 0;
