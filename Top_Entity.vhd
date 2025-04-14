@@ -90,32 +90,6 @@ architecture Behavioral of test is
         return seg;
     end function;
 
-    -- Display Procedure
-    procedure display_number(signal num : unsigned(31 downto 0);
-                             signal HEX : out std_logic_vector(6 downto 0);
-                             signal HEX1 : out std_logic_vector(6 downto 0);
-                             signal HEX2 : out std_logic_vector(6 downto 0);
-                             signal HEX3 : out std_logic_vector(6 downto 0);
-                             signal HEX4 : out std_logic_vector(6 downto 0);
-                             signal HEX5 : out std_logic_vector(6 downto 0)) is
-        variable n : integer := to_integer(num);
-        variable d0, d1, d2, d3, d4, d5 : integer;
-    begin
-        d0 := n mod 10; n := n / 10;
-        d1 := n mod 10; n := n / 10;
-        d2 := n mod 10; n := n / 10;
-        d3 := n mod 10; n := n / 10;
-        d4 := n mod 10; n := n / 10;
-        d5 := n mod 10;
-
-        HEX  <= to_7seg(d0);
-        HEX1 <= to_7seg(d1);
-        HEX2 <= to_7seg(d2);
-        HEX3 <= to_7seg(d3);
-        HEX4 <= to_7seg(d4);
-        HEX5 <= to_7seg(d5);
-    end procedure;
-
     -- VGA Components
     component vga_pll_25_175
         port (
@@ -152,130 +126,6 @@ architecture Behavioral of test is
 
 begin
 
-    -- Fibonacci Clock Divider
-    process(CLK)
-    begin
-        if rising_edge(CLK) then
-            clk_div <= clk_div + 1;
-            if (KEY0 = '1' and clk_div >= FORWARD_TICKS) or
-               (KEY0 = '0' and clk_div >= REVERSE_TICKS) then
-                tick <= '1';
-                clk_div <= 0;
-            else
-                tick <= '0';
-            end if;
-        end if;
-    end process;
-
-    process(CLK)
-    begin
-        if rising_edge(CLK) then
-            tick_pulse <= tick;
-        end if;
-    end process;
-
-    process(CLK)
-        variable next_fib : unsigned(31 downto 0);
-    begin
-        if rising_edge(CLK) then
-            if tick_pulse = '1' then
-                if fib0 = 0 and fib1 = 0 then
-                    fib0 <= to_unsigned(0, 32);
-                    fib1 <= to_unsigned(1, 32);
-                elsif KEY0 = '1' then
-                    next_fib := fib0 + fib1;
-                    if next_fib <= to_unsigned(999999, 32) then
-                        fib0 <= fib1;
-                        fib1 <= next_fib;
-                    else
-                        fib0 <= to_unsigned(0, 32);
-                        fib1 <= to_unsigned(1, 32);
-                    end if;
-                else
-                    if fib1 > fib0 then
-                        next_fib := fib1 - fib0;
-                        fib1 <= fib0;
-                        fib0 <= next_fib;
-                    else
-                        fib0 <= to_unsigned(0, 32);
-                        fib1 <= to_unsigned(1, 32);
-                    end if;
-                end if;
-            end if;
-        end if;
-    end process;
-	 
-	 		--	if (ChA = '1' and ChB = '0') and RE_Val < paddle_movr then 
-		--		RE_Val <= RE_Val + (1/4);
-		--	elsif (ChB = '1' and ChA = '0') and RE_Val > paddle_movl then
-		--		RE_Val <= RE_Val - (1/4);
-		--	else 
-		--		RE_Val <= RE_Val;
-		--	end if;
-
---process(ChA, KEY1)
---		begin
---		if KEY1 = '0' then
---			RE_Val <= 0;
---		else
---			if rising_edge(ChA) then
---			if rising_edge(ChA) then
---				if (rising_edge(ChA) and ChB = '0') and RE_Val < paddle_movr then 
---					RE_Val <= RE_Val + 2;
-				--else
-					--RE_Val <= RE_Val;
---				elsif (rising_edge(ChA) and ChB = '1') and RE_Val > paddle_movl then 
---					RE_Val <= RE_Val - 2;
-				--else
-					--RE_Val <= RE_Val;
---				end if;
---			end if;
---			end if;
---		end if;
---	end process;
-
---process(pll_out_clk, ChA)
- --   begin
---			if rising_edge(ChA) then 
- --           if KEY1 = '0' then
- --              RE_Val <= 0;
---            else
-                -- detect change in encoder A
---						 if ChA /= prevA then
---							prevA <= ChA;
---							prevB <= ChB;
---							if (ChA = prevB) and (RE_Val < paddle_movr) then 
---								RE_Val <= RE_Val + 1;
---							elsif (ChB = prevA) and (RE_Val > paddle_movl) then
---								RE_Val <= RE_Val - 1;
---							else 
---								RE_Val <= RE_Val;
---							end if;
---						 else 
---							prevA <= prevA;
---							prevB <= prevB;
---						
---						 end if;
---				end if;
---			end if;
---    end process;
-
---process(ChA)
-	--begin
---	 if rising_edge(ChA) then
---		if KEY1 = '0' then
---         RE_Val <= 0;
- --     else
---			if (ChB = '1') and RE_Val < paddle_movr then
---				RE_Val <= RE_Val + 1;
---			elsif (ChB = '0') and RE_Val > paddle_movl then
---				RE_Val <= RE_Val - 1;
-			--else 
-				--RE_Val <= RE_Val;
---			end if;
---		end if;
---	end if;
---end process;
 
 --Rotary encoder process with debouncing, rate limiting, and clamping
 --Rotary encoder process with optimized debouncing and rate limiting
@@ -283,43 +133,23 @@ process(CLK)
 begin
     if rising_edge(CLK) then
         if KEY1 = '0' then
-            RE_Val <= 0;
+            encoder_value <= paddle_start_x;
+            prevA <= '0';
         else
-            -- Debouncing logic
-            if debounce_counter < DEBOUNCE_DELAY then
-                debounce_counter <= debounce_counter + 1;
-            else
-                debounce_counter <= 0;
-
-                -- Rate limiting logic
-                if rate_limit_counter < RATE_LIMIT then
-                    rate_limit_counter <= rate_limit_counter + 1;
-                else
-                    rate_limit_counter <= 0;
-
-                    -- Clockwise rotation detection
-                    if (ChA = '1' and ChB = '0' and prevA = '0' and prevB = '0') or
-                       (ChA = '1' and ChB = '1' and prevA = '1' and prevB = '0') or
-                       (ChA = '0' and ChB = '1' and prevA = '1' and prevB = '1') or
-                       (ChA = '0' and ChB = '0' and prevA = '0' and prevB = '1') then
-                        if (RE_Val < paddle_movr) then
-                            RE_Val <= RE_Val + 1;
-                        end if;
-                    -- Counter-clockwise rotation detection
-                    elsif (ChA = '0' and ChB = '0' and prevA = '1' and prevB = '0') or
-                          (ChA = '0' and ChB = '1' and prevA = '0' and prevB = '0') or
-                          (ChA = '1' and ChB = '1' and prevA = '0' and prevB = '1') or
-                          (ChA = '1' and ChB = '0' and prevA = '1' and prevB = '1') then
-                        if (RE_Val > paddle_movl) then
-                            RE_Val <= RE_Val - 1;
-                        end if;
+            -- Detect rising edge on ChA
+            if (prevA = '0') and (ChA_clean = '1') then
+                -- Determine direction using ChB
+                if ChB_clean = '0' then  -- Clockwise
+                    if (encoder_value < paddle_movr) and ((encoder_value + paddle_length) < border_right) then
+                        encoder_value <= encoder_value + mov_speed;  -- Adjust movement speed
+                    end if;
+                else  -- Counter-clockwise
+                    if (encoder_value > paddle_movl) and ((encoder_value - paddle_length) > border_left)  then
+                        encoder_value <= encoder_value - mov_speed;
                     end if;
                 end if;
-            end if;
-
-            -- Always update previous values
-            prevA <= ChA;
-            prevB <= ChB;
+            end if; 
+            prevA <= ChA_clean;
         end if;
     end if;
 end process;
