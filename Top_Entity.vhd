@@ -1,6 +1,7 @@
--- Combined Top-Level VHDL for VGA and Fibonacci Display
---
--- Integrates VGA image generation with Fibonacci computation and 7-segment display
+--Name: Ty Ahrens 
+--Date: 4/13/2025
+--Purpose: Top-level entity for the VGA image generator and Fibonacci sequence display
+--         Integrates VGA image generation with Fibonacci computation and 7-segment display
 --
 -- Author: Based on work by Tyler McCormick and extended
 -- Date: 2025-04-08
@@ -9,37 +10,37 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity test is
+entity top is
     Port (
         -- Clocks and control
-        CLK        : in  STD_LOGIC;
-        KEY0       : in  STD_LOGIC; -- active-low reset/control
-		KEY1 	   : in  STD_LOGIC;
+        CLK         : in  STD_LOGIC;
+        KEY0        : in  STD_LOGIC;
+		KEY1 	    : in  STD_LOGIC;
 		  
-        ChA        : in  STD_LOGIC; -- CLK on RE
-        ChB        : in  STD_LOGIC; -- DT on RE
+        ChA         : in  STD_LOGIC; -- CLK on RE
+        ChB         : in  STD_LOGIC; -- DT on RE
 
         -- 7-Segment Display
-        HEX0       : out STD_LOGIC_VECTOR(6 downto 0);
-        HEX1       : out STD_LOGIC_VECTOR(6 downto 0);
-        HEX2       : out STD_LOGIC_VECTOR(6 downto 0);
-        HEX3       : out STD_LOGIC_VECTOR(6 downto 0);
-        HEX4       : out STD_LOGIC_VECTOR(6 downto 0);
-        HEX5       : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX0        : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX1        : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX2        : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX3        : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX4        : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX5        : out STD_LOGIC_VECTOR(6 downto 0);
 
         -- VGA Outputs
-        h_sync_m   : out STD_LOGIC;
-        v_sync_m   : out STD_LOGIC;
-        red_m      : out STD_LOGIC_VECTOR(7 downto 0);
-        green_m    : out STD_LOGIC_VECTOR(7 downto 0);
-        blue_m     : out STD_LOGIC_VECTOR(7 downto 0)
+        h_sync_m    : out STD_LOGIC;
+        v_sync_m    : out STD_LOGIC;
+        red_m       : out STD_LOGIC_VECTOR(7 downto 0);
+        green_m     : out STD_LOGIC_VECTOR(7 downto 0);
+        blue_m      : out STD_LOGIC_VECTOR(7 downto 0)
     );
-end test;
+end top;
 
-architecture Behavioral of test is
+architecture Behavioral of top is
 
-    constant paddle_movl  : integer := -100;
-    constant paddle_movr  : integer := 100;
+    constant paddle_movl  : integer := 40;
+    constant paddle_movr  : integer := 600;
 
     -- VGA Signals
     signal pll_out_clk : std_logic;
@@ -58,32 +59,11 @@ architecture Behavioral of test is
     constant border_right : integer := 630; -- Value from the image generator
     constant border_left  : integer := 10;  -- Value from the image generator
     constant paddle_length : integer := 50; -- Paddle length
-	 
+    
     constant DEBOUNCE_DELAY : integer := 5; -- Reduced debounce delay for responsiveness
     signal debounce_counter : integer := 0;
     signal rate_limit_counter : integer := 0;
     constant RATE_LIMIT : integer := 1; -- Reduced rate limit for smoother operation
-	 
-
-    -- 7-segment decoder
-    function to_7seg(d : integer) return std_logic_vector is
-        variable seg : std_logic_vector(6 downto 0);
-    begin
-        case d is
-            when 0 => seg := "1000000";
-            when 1 => seg := "1111001";
-            when 2 => seg := "0100100";
-            when 3 => seg := "0110000";
-            when 4 => seg := "0011001";
-            when 5 => seg := "0010010";
-            when 6 => seg := "0000010";
-            when 7 => seg := "1111000";
-            when 8 => seg := "0000000";
-            when 9 => seg := "0010000";
-            when others => seg := "1111111";
-        end case;
-        return seg;
-    end function;
 
     -- VGA Components
     component vga_pll_25_175
@@ -93,6 +73,7 @@ architecture Behavioral of test is
         );
     end component;
 
+    -- VGA Controller component
     component vga_controller
         port (
             pixel_clk : in  STD_LOGIC;
@@ -107,21 +88,22 @@ architecture Behavioral of test is
         );
     end component;
 
+    -- Image generator from homework 7
     component hw_image_generator
         port (
-            disp_ena : in  STD_LOGIC;
-            row      : in  INTEGER;
-            column   : in  INTEGER;
-            RE_Val   : in  integer;
-            red      : out STD_LOGIC_VECTOR(7 downto 0);
-            green    : out STD_LOGIC_VECTOR(7 downto 0);
-            blue     : out STD_LOGIC_VECTOR(7 downto 0)
+            disp_ena        : in  STD_LOGIC;
+            row             : in  INTEGER;
+            column          : in  INTEGER;
+            encoder_value   : in  INTEGER;
+            red             : out STD_LOGIC_VECTOR(7 downto 0);
+            green           : out STD_LOGIC_VECTOR(7 downto 0);
+            blue            : out STD_LOGIC_VECTOR(7 downto 0)
         );
     end component;
 
 begin
 
-
+    
 --Rotary encoder process with debouncing, rate limiting, and clamping
 --Rotary encoder process with optimized debouncing and rate limiting
 process(CLK)
@@ -149,20 +131,21 @@ begin
     end if;
 end process;
 
+    
     -- VGA Signal Routing
     U1: vga_pll_25_175 port map(CLK, pll_out_clk);
     U2: vga_controller port map(pll_out_clk, '1', h_sync_m, v_sync_m, dispEn, colSignal, rowSignal, open, open);
-    U3: hw_image_generator port map(dispEn, rowSignal, colSignal, RE_Val, red_m, green_m, blue_m);
+    U3: hw_image_generator port map(dispEn, rowSignal, colSignal, encoder_value, red_m, green_m, blue_m);
 
     -- Debouncers for the rortary encoder signals
-    debounce_ChA: entity work.Debounce
+    debounce_ChA : entity work.Debounce
         port map (
             clk   => CLK,
             noisy => ChA,
             clean => ChA_clean
         );
 
-    debounce_ChB: entity work.Debounce
+    debounce_ChB : entity work.Debounce
         port map (
             clk   => CLK,
             noisy => ChB,
