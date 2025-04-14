@@ -35,10 +35,10 @@ architecture behavior of hw_image_generator is
     constant paddle_right   : integer := 350;
 	constant paddle_width   : integer := 60;
 
-    constant ball_top       : integer := 237;
-    constant ball_bottom    : integer := 243;
-    constant ball_left      : integer := 317;
-    constant ball_right     : integer := 323;
+    signal ball_top       : integer := 237;
+    signal ball_bottom    : integer := 243;
+    signal ball_left      : integer := 317;
+    signal ball_right     : integer := 323;
 
     constant border_width  : integer := 15;
     constant BORDER_TOP   : integer := 0 + border_width; 
