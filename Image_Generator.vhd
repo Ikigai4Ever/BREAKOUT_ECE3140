@@ -119,7 +119,7 @@ architecture behavior of hw_image_generator is
 	 
 
 begin	 	 
-    process(disp_ena, row, column, encoder_value, ball_posL, ball_posT)
+    process(disp_ena, row, column, encoder_value, ball_left, ball_top)
         variable paddle_posL : integer;
         variable paddle_posR : integer;
 
