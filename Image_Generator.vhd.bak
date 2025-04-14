@@ -60,8 +60,8 @@ architecture behavior of hw_image_generator is
     -- Row array constants for FOR loop
     type row_array is array(0 to 7) of integer;
     constant row_tops : row_array := (
-        row1_top, row2_top, row3_top, row4_top,
-        row5_top, row6_top, row7_top, row8_top
+        row1_bottom, row2_bottom, row3_bottom, row4_bottom,
+        row5_bottom, row6_bottom, row7_bottom, row8_bottom
     );
     constant row_bottoms : row_array := (
         row1_bottom, row2_bottom, row3_bottom, row4_bottom,
@@ -114,7 +114,7 @@ architecture behavior of hw_image_generator is
 	 
 
 begin	 	 
-    process(disp_ena, row, column, encoder_value)
+    process(disp_ena, row, column, encoder_value, fib1, fib2)
         variable paddle_posL : integer;
         variable paddle_posR : integer;
     begin
@@ -145,7 +145,8 @@ begin
                         if row >= row_tops(row_idx) and row <= row_bottoms(row_idx) and
                            column >= column_lefts(col_idx) and column <= column_rights(col_idx) then
                                 red <= X"FF"; green <= X"FF"; blue <= X"FF";  -- Bright white
-                           end if;
+                            end if;
+                        end if;
                     end loop;
                 end loop;
             end if;
