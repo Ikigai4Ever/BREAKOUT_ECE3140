@@ -35,10 +35,10 @@ architecture behavior of hw_image_generator is
     constant paddle_right   : integer := 350;
 	constant paddle_width   : integer := 60;
 
-    signal ball_top       : integer := 237;
-    signal ball_bottom    : integer := 243;
-    signal ball_left      : integer := 317;
-    signal ball_right     : integer := 323;
+    constant ball_top       : integer := 237;
+    constant ball_bottom    : integer := 243;
+    constant ball_left      : integer := 317;
+    constant ball_right     : integer := 323;
 
     constant border_width  : integer := 15;
     constant BORDER_TOP   : integer := 0 + border_width; 
@@ -119,7 +119,7 @@ architecture behavior of hw_image_generator is
 	 
 
 begin	 	 
-    process(disp_ena, row, column, encoder_value, ball_left, ball_top)
+    process(disp_ena, row, column, encoder_value)
         variable paddle_posL : integer;
         variable paddle_posR : integer;
 
@@ -140,12 +140,12 @@ begin
         green <= X"00";
         blue  <= X"00"; 
 
-        ball_posR := ball_posL + 6;
-        ball_posB := ball_posT + 6;
-
         if disp_ena = '1' then            -- Paddle position based on encoder_value
             paddle_posL := encoder_value - paddle_width / 2;
             paddle_posR := encoder_value + paddle_width / 2;
+
+            ball_posR := ball_posL + 6;
+            ball_posB := ball_posT + 6;
 
             -- Paddle coloring (White)
             if row >= paddle_top and row <= paddle_bottom and column >= paddle_posL  and column <= paddle_posR then
@@ -158,13 +158,11 @@ begin
                 green <= X"FF";
                 blue  <= X"FF";
             else 
-              
-
-                if quad1 = 1 then 
-                    ball_posL := ball_top  + 1;
-                    ball_posT := ball_left + 1;
-                end if;
                 if row >= ball_posT and row <= ball_posB and column >= ball_posL and column <= ball_posR then
+                    if quad1 = 1 then 
+                        ball_posL := ball_top  + 1;
+                        ball_posT := ball_left + 1;
+                    end if;
                     red   <= "11111111";
                     green <= "11111111";
                     blue  <= "11111111";
