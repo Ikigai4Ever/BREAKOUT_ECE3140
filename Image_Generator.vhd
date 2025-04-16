@@ -13,6 +13,8 @@ entity hw_image_generator is
         row             : in  INTEGER;
         column          : in  INTEGER;
 	    encoder_value   : in  INTEGER;
+        delay_done      : in  INTEGER;
+        SW1             : in STD_LOGIC;
         red             : out STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
         green           : out STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
         blue            : out STD_LOGIC_VECTOR(7 downto 0) := (others => '0')
@@ -39,6 +41,16 @@ architecture behavior of hw_image_generator is
     constant ball_bottom    : integer := 243;
     constant ball_left      : integer := 317;
     constant ball_right     : integer := 323;
+
+    
+    signal ball_top_range : integer range -225 to 234 := 0;
+    signal ball_left_range : integer range -305 to 299 := 0;
+
+    signal quad1  : STD_LOGIC;
+    signal quad2  : STD_LOGIC;
+    signal quad3  : STD_LOGIC;
+    signal quad4  : STD_LOGIC;
+
 
     constant border_width  : integer := 15;
     constant BORDER_TOP   : integer := 0 + border_width; 
@@ -119,6 +131,34 @@ architecture behavior of hw_image_generator is
 	 
 
 begin	 	 
+
+    process(delay_done)
+
+        if SW1 = '0' then 
+            ball_top_range <= 0;
+            ball_left_range <= 0;
+            quad1 <= '1';
+        else 
+             if quad1 = '1' then
+                ball_left_range <= ball_left_range + 1;
+                ball_top_range  <= ball_top_range - 1;
+            elsif quad2 = '1' then
+                ball_left_range <= ball_left_range - 1;
+                ball_top_range  <= ball_top_range - 1;
+            elsif quad3 = '1' then
+                ball_left_range <= ball_left_range - 1;
+                ball_top_range  <= ball_top_range + 1;
+            elsif quad4 = '1' then
+                ball_left_range <= ball_left_range + 1;
+                ball_top_range  <= ball_top_range + 1;
+            else 
+                ball_left_range <= ball_left_range + 1;
+                ball_top_range  <= ball_top_range + 1;
+            end if;
+        end if;
+    end process;
+
+
     process(disp_ena, row, column, encoder_value)
         variable paddle_posL : integer;
         variable paddle_posR : integer;
@@ -128,13 +168,10 @@ begin
         variable ball_posT  : integer;
         variable ball_posB  : integer;
 
-        variable quad1  : integer;
-        variable quad2  : integer;
-        variable quad3  : integer;
-        variable quad4  : integer;
-
     begin
-        quad1 := 1;
+        ball_posL = ball_left + ball_left_range;
+        ball_posT = ball_top + ball_top_range;
+
         -- Default color to black
         red   <= X"00";
         green <= X"00";
@@ -159,10 +196,6 @@ begin
                 blue  <= X"FF";
             else 
                 if row >= ball_posT and row <= ball_posB and column >= ball_posL and column <= ball_posR then
-                    if quad1 = 1 then 
-                        ball_posL := ball_top  + 1;
-                        ball_posT := ball_left + 1;
-                    end if;
                     red   <= "11111111";
                     green <= "11111111";
                     blue  <= "11111111";

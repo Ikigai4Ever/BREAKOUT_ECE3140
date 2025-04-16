@@ -16,6 +16,7 @@ entity top is
         CLK         : in  STD_LOGIC;
         KEY0        : in  STD_LOGIC;
 		KEY1 	    : in  STD_LOGIC;
+        SW1         : in  STD_LOGIC;
 		  
         ChA         : in  STD_LOGIC; -- CLK on RE
         ChB         : in  STD_LOGIC; -- DT on RE
@@ -65,6 +66,11 @@ architecture Behavioral of top is
     signal rate_limit_counter : integer := 0;
     constant RATE_LIMIT : integer := 1; -- Reduced rate limit for smoother operation
 
+    signal counter : unsigned(22 downto 0) := (others => '0'); -- 2^23 > 5 million
+
+    signal delay_done : STD_LOGIC;
+
+
     -- VGA Components
     component vga_pll_25_175
         port (
@@ -95,6 +101,8 @@ architecture Behavioral of top is
             row             : in  INTEGER;
             column          : in  INTEGER;
             encoder_value   : in  INTEGER;
+            delay_done      : in STD_LOGIC;
+            sw1             : in STD_LOGIC;
             red             : out STD_LOGIC_VECTOR(7 downto 0);
             green           : out STD_LOGIC_VECTOR(7 downto 0);
             blue            : out STD_LOGIC_VECTOR(7 downto 0)
@@ -103,7 +111,20 @@ architecture Behavioral of top is
 
 begin
 
+ process(clk)
+    begin
+        if rising_edge(clk) then
+            if counter = 4999999 then
+                delay_done <= '1';
+                counter <= (others => '0');
+            else
+                counter <= counter + 1;
+                delay_done <= '0';
+            end if;
+        end if;
+    end process;
 
+            
 
     
 --Rotary encoder process with debouncing, rate limiting, and clamping
@@ -137,7 +158,7 @@ end process;
     -- VGA Signal Routing
     U1: vga_pll_25_175 port map(CLK, pll_out_clk);
     U2: vga_controller port map(pll_out_clk, '1', h_sync_m, v_sync_m, dispEn, colSignal, rowSignal, open, open);
-    U3: hw_image_generator port map(dispEn, rowSignal, colSignal, encoder_value, red_m, green_m, blue_m);
+    U3: hw_image_generator port map(dispEn, rowSignal, colSignal, encoder_value, delay_done, SW1, red_m, green_m, blue_m);
 
     -- Debouncers for the rortary encoder signals
     debounce_ChA : entity work.Debounce
