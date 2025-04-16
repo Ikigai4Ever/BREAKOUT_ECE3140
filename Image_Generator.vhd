@@ -64,6 +64,10 @@ architecture behavior of hw_image_generator is
     signal quad3  : STD_LOGIC := '1';
     signal quad4  : STD_LOGIC := '0';
 	signal paddle_collision : STD_LOGIC := '0';
+    signal borderl_collision : STD_LOGIC := '0';
+    signal bordert_collision : STD_LOGIC := '0';
+    signal borderr_collision : STD_LOGIC := '0';
+    
 
 
     constant border_width  : integer := 15;
@@ -162,6 +166,36 @@ begin
                     quad3 <= '0';
                     quad4 <= '0';
 
+                elsif ((borderl_collision = '1') and (quad3 = '1')) then
+                    quad1 <= '0';
+                    quad2 <= '0';
+                    quad3 <= '0';
+                    quad4 <= '1';
+                elsif ((borderl_collision = '1') and (quad2 = '1')) then
+                    quad1 <= '1';
+                    quad2 <= '0';
+                    quad3 <= '0';
+                    quad4 <= '0';
+                elsif ((borderr_collision = '1') and (quad4 = '1')) then
+                    quad1 <= '0';
+                    quad2 <= '0';
+                    quad3 <= '1';
+                    quad4 <= '0';
+                elsif ((borderr_collision = '1') and (quad1 = '1')) then
+                    quad1 <= '0';
+                    quad2 <= '1';
+                    quad3 <= '0';
+                    quad4 <= '0';
+                elsif ((bordert_collision = '1') and (quad1 = '1')) then
+                    quad1 <= '0';
+                    quad2 <= '0';
+                    quad3 <= '0';
+                    quad4 <= '1';
+                elsif ((bordert_collision = '1') and (quad2 = '1')) then
+                    quad1 <= '0';
+                    quad2 <= '0';
+                    quad3 <= '1';
+                    quad4 <= '0';
                 else 
                     if quad1 = '1' then
                         ball_left_range <= ball_left_range + 1;
@@ -228,6 +262,17 @@ begin
                 paddle_collision <= '1';
             else 
                 paddle_collision <= '0';
+            end if;
+            if ball_posL = BORDER_LEFT then
+                borderl_collision <= '1';
+            if ball_posR = BORDER_RIGHT then
+                borderr_collision <= '1';
+            if ball_posT = BORDER_TOP then
+                bordert_collision <= '1';
+            else
+                borderl_collision <= '0';
+                borderr_collision <= '0';
+                bordert_collision <= '0';
             end if;
 
             -- Paddle coloring (White)
