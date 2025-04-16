@@ -51,7 +51,7 @@ architecture behavior of hw_image_generator is
     signal quad3  : STD_LOGIC;
     signal quad4  : STD_LOGIC;
 
-    signal paddle_collision : STD_LOGIC;
+    signal paddle_collision : STD_LOGIC := '0';
 
 
     constant border_width  : integer := 15;
@@ -137,6 +137,12 @@ begin
     process(disp_ena, delay_done)
     begin
         if disp_ena = '1' and rising_edge(delay_done) then
+            if paddle_top = ball_posB then
+                paddle_collision <= '1';
+            else 
+                paddle_collision <= '0';
+            end if;
+
             if SW1 = '0' then 
                 ball_top_range <= ball_top_range;
                 ball_left_range <= ball_left_range;
@@ -199,11 +205,6 @@ begin
                 red   <= X"FF";
                 green <= X"FF";
                 blue  <= X"FF";  
-                if paddle_top = ball_bottom then
-                    paddle_collision <= '1';
-                else 
-                    paddle_collision <= '0';
-                end if;
 
             -- Border coloring (White)
             elsif row <= BORDER_TOP or column <= BORDER_LEFT or column >= BORDER_RIGHT then
