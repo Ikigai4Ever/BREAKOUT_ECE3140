@@ -206,7 +206,8 @@ begin
             ball_posR := ball_posL + 6;
             ball_posB := ball_posT + 6;
 
-            if paddle_top = 450 then
+            if ball_posB >= paddle_top and ball_posT <= paddle_bottom and
+                ball_posR >= paddle_posL and ball_posL <= paddle_posR then
                 paddle_collision <= '1';
             else 
                 paddle_collision <= '0';
