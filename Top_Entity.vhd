@@ -101,8 +101,8 @@ architecture Behavioral of top is
             row             : in  INTEGER;
             column          : in  INTEGER;
             encoder_value   : in  INTEGER;
-            delay_done      : in STD_LOGIC;
-            sw1             : in STD_LOGIC;
+            delay_done      : in  STD_LOGIC;
+            sw1             : in  STD_LOGIC;
             red             : out STD_LOGIC_VECTOR(7 downto 0);
             green           : out STD_LOGIC_VECTOR(7 downto 0);
             blue            : out STD_LOGIC_VECTOR(7 downto 0)
@@ -114,7 +114,7 @@ begin
  process(clk)
     begin
         if rising_edge(clk) then
-            if counter = 4999999 then
+            if counter = 499999 then
                 delay_done <= '1';
                 counter <= (others => '0');
             else

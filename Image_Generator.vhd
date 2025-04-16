@@ -14,7 +14,7 @@ entity hw_image_generator is
         column          : in  INTEGER;
 	    encoder_value   : in  INTEGER;
         delay_done      : in  STD_LOGIC;
-        SW1             : in STD_LOGIC;
+        SW1             : in  STD_LOGIC;
         red             : out STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
         green           : out STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
         blue            : out STD_LOGIC_VECTOR(7 downto 0) := (others => '0')
@@ -63,6 +63,8 @@ architecture behavior of hw_image_generator is
     signal quad2  : STD_LOGIC;
     signal quad3  : STD_LOGIC;
     signal quad4  : STD_LOGIC;
+
+    signal paddle_collision : STD_LOGIC;
 
 
     constant border_width  : integer := 15;
@@ -147,11 +149,17 @@ begin
 
     process(disp_ena, delay_done)
     begin
-        if disp_ena = '1' then
+        if disp_ena = '1' and rising_edge(delay_done) then
             if SW1 = '0' then 
-                ball_top_range <= 0;
-                ball_left_range <= 0;
-                quad1 <= '1';
+                ball_top_range <= ball_top_range;
+                ball_left_range <= ball_left_range;
+                quad3 <= '1';
+            elsif (paddle_collision = '1') and (quad3 = '1') then
+                quad1 <= '0';
+                quad2 <= '1';
+                quad3 <= '0';
+                quad4 <= '0';
+
             else 
                 if quad1 = '1' then
                     ball_left_range <= ball_left_range + 1;
@@ -166,8 +174,8 @@ begin
                     ball_left_range <= ball_left_range + 1;
                     ball_top_range  <= ball_top_range + 1;
                 else 
-                    ball_left_range <= ball_left_range + 1;
-                    ball_top_range  <= ball_top_range + 1;
+                    ball_left_range <= ball_left_range;
+                    ball_top_range  <= ball_top_range;
                 end if;
             end if;
         end if;
@@ -204,6 +212,12 @@ begin
                 red   <= X"FF";
                 green <= X"FF";
                 blue  <= X"FF";  
+                if paddle_top = ball_bottom then
+                    paddle_collision <= '1';
+                else 
+                    paddle_collision <= '0';
+                end if;
+
             -- Border coloring (White)
             elsif row <= BORDER_TOP or column <= BORDER_LEFT or column >= BORDER_RIGHT then
                 red   <= X"FF";
