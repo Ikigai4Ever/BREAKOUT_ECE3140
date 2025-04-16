@@ -27,20 +27,20 @@ architecture behavior of hw_image_generator is
     constant block_start_y : integer := 100;
     constant block_width   : integer := 37;
     constant block_height  : integer := 10;
-    constant block_width_spacing : integer := 7;
+    constant block_width_spacing : integer := 5;
     constant block_height_spacing : integer := 5;
 
     --Player 1 Life Remaining
-    constant life1_top    : integer := 20;
-    constant life1_bottom : integer := 55; 
-    constant life1_left   : integer := column2_left;
-    constant life1_right  : integer := column2_right; 
+--    constant life1_top    : integer := 20;
+--    constant life1_bottom : integer := 55; 
+--    constant life1_left   : integer := column2_left;
+--    constant life1_right  : integer := column2_right; 
 
     --Player 2 Life Remaining
-    constant life2_top    : integer := 20;
-    constant life2_bottom : integer := 55; 
-    constant life2_left   : integer := column9_left;
-    constant life2_right  : integer := column9_right; 
+--    constant life2_top    : integer := 20;
+--    constant life2_bottom : integer := 55; 
+--    constant life2_left   : integer := column9_left;
+--    constant life2_right  : integer := column9_right; 
 
 
 
@@ -63,8 +63,7 @@ architecture behavior of hw_image_generator is
     signal quad2  : STD_LOGIC;
     signal quad3  : STD_LOGIC;
     signal quad4  : STD_LOGIC;
-
-    signal paddle_collision : STD_LOGIC := '0';
+	 signal paddle_collision : STD_LOGIC := '0';
 
 
     constant border_width  : integer := 15;
@@ -150,11 +149,6 @@ begin
     process(disp_ena, delay_done)
     begin
         if disp_ena = '1' and rising_edge(delay_done) then
-            if paddle_top = ball_posB then
-                paddle_collision <= '1';
-            else 
-                paddle_collision <= '0';
-            end if;
 
             if SW1 = '0' then 
                 ball_top_range <= ball_top_range;
@@ -193,14 +187,11 @@ begin
         variable paddle_posR : integer;
 
         variable ball_posL  : integer;
-        variable ball_posR  : integer;t
+        variable ball_posR  : integer;
         variable ball_posT  : integer;
         variable ball_posB  : integer;
 
     begin
-        ball_posL := ball_left + ball_left_range;
-        ball_posT := ball_top + ball_top_range;
-
         -- Default color to black
         red   <= X"00";
         green <= X"00";
@@ -210,8 +201,16 @@ begin
             paddle_posL := encoder_value - paddle_width / 2;
             paddle_posR := encoder_value + paddle_width / 2;
 
+            ball_posL := ball_left + ball_left_range;
+            ball_posT := ball_top + ball_top_range;
             ball_posR := ball_posL + 6;
             ball_posB := ball_posT + 6;
+
+            if paddle_top = 450 then
+                paddle_collision <= '1';
+            else 
+                paddle_collision <= '0';
+            end if;
 
             -- Paddle coloring (White)
             if row >= paddle_top and row <= paddle_bottom and column >= paddle_posL  and column <= paddle_posR then
