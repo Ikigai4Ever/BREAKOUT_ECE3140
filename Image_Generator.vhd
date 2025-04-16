@@ -267,11 +267,12 @@ begin
             else 
                 paddle_collision <= '0';
             end if;
+
             if ball_posL = BORDER_LEFT then
                 borderl_collision <= '1';
-            if ball_posR = BORDER_RIGHT then
+            elsif ball_posR = BORDER_RIGHT then
                 borderr_collision <= '1';
-            if ball_posT = BORDER_TOP then
+            elsif ball_posT = BORDER_TOP then
                 bordert_collision <= '1';
             else
                 borderl_collision <= '0';
@@ -303,7 +304,7 @@ begin
                         if row >= row_tops(row_idx) and row <= row_bottoms(row_idx) and
                            column >= column_lefts(col_idx) and column <= column_rights(col_idx) then
                                 red <= X"FF"; green <= X"FF"; blue <= X"FF";  -- Bright white
-                           end if;
+                        end if;
                     end loop;
                 end loop;
             end if;
