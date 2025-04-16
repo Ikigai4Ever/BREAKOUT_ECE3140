@@ -114,7 +114,7 @@ begin
  process(clk)
     begin
         if rising_edge(clk) then
-            if counter = 4999999 then
+            if counter = 499999999 then
                 delay_done <= '1';
                 counter <= (others => '0');
             else
