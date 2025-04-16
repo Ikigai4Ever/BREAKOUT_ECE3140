@@ -132,28 +132,30 @@ architecture behavior of hw_image_generator is
 
 begin	 	 
 
-    process(delay_done)
-	 begin
-        if SW1 = '0' then 
-            ball_top_range <= 0;
-            ball_left_range <= 0;
-            quad1 <= '1';
-        else 
-             if quad1 = '1' then
-                ball_left_range <= ball_left_range + 1;
-                ball_top_range  <= ball_top_range - 1;
-            elsif quad2 = '1' then
-                ball_left_range <= ball_left_range - 1;
-                ball_top_range  <= ball_top_range - 1;
-            elsif quad3 = '1' then
-                ball_left_range <= ball_left_range - 1;
-                ball_top_range  <= ball_top_range + 1;
-            elsif quad4 = '1' then
-                ball_left_range <= ball_left_range + 1;
-                ball_top_range  <= ball_top_range + 1;
+    process(disp_ena, delay_done)
+    begin
+        if disp_ena = '1' then
+            if SW1 = '0' then 
+                ball_top_range <= 0;
+                ball_left_range <= 0;
+                quad1 <= '1';
             else 
-                ball_left_range <= ball_left_range;
-                ball_top_range  <= ball_top_range;
+                if quad1 = '1' then
+                    ball_left_range <= ball_left_range + 1;
+                    ball_top_range  <= ball_top_range - 1;
+                elsif quad2 = '1' then
+                    ball_left_range <= ball_left_range - 1;
+                    ball_top_range  <= ball_top_range - 1;
+                elsif quad3 = '1' then
+                    ball_left_range <= ball_left_range - 1;
+                    ball_top_range  <= ball_top_range + 1;
+                elsif quad4 = '1' then
+                    ball_left_range <= ball_left_range + 1;
+                    ball_top_range  <= ball_top_range + 1;
+                else 
+                    ball_left_range <= ball_left_range;
+                    ball_top_range  <= ball_top_range;
+                end if;
             end if;
         end if;
     end process;
@@ -178,8 +180,8 @@ begin
         blue  <= X"00"; 
 
         if disp_ena = '1' then            -- Paddle position based on encoder_value
-            paddle_posL := (encoder_value - paddle_width) / 2;
-            paddle_posR := (encoder_value + paddle_width) / 2;
+            paddle_posL := encoder_value - paddle_width / 2;
+            paddle_posR := encoder_value + paddle_width / 2;
 
             ball_posR := ball_posL + 6;
             ball_posB := ball_posT + 6;
