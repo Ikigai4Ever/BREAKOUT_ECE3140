@@ -28,21 +28,7 @@ architecture behavior of hw_image_generator is
     constant block_width   : integer := 37;
     constant block_height  : integer := 10;
     constant block_width_spacing : integer := 7;
-    constant block_height_spacing : integer := 5;
-
-    --Player 1 Life Remaining
-    constant life1_top    : integer := 20;
-    constant life1_bottom : integer := 55; 
-    constant life1_left   : integer := column2_left;
-    constant life1_right  : integer := column2_right; 
-
-    --Player 2 Life Remaining
-    constant life2_top    : integer := 20;
-    constant life2_bottom : integer := 55; 
-    constant life2_left   : integer := column9_left;
-    constant life2_right  : integer := column9_right; 
-
-
+    constant block_height_spacing : integer := 5; 
 
 	constant paddle_top     : integer := 450;
     constant paddle_bottom  : integer := 460;
