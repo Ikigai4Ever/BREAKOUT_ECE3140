@@ -51,6 +51,8 @@ architecture behavior of hw_image_generator is
     signal quad3  : STD_LOGIC;
     signal quad4  : STD_LOGIC;
 
+    paddle_collision : STD_LOGIC;
+
 
     constant border_width  : integer := 15;
     constant BORDER_TOP   : integer := 0 + border_width; 
@@ -139,6 +141,12 @@ begin
                 ball_top_range;
                 ball_left_range;
                 quad1 <= '1';
+            elsif paddle_collision = '1' and quad3 = '1' then
+                quad1 = '0';
+                quad2 = '2';
+                quad3 = '0';
+                quad4 = '0';
+
             else 
                 if quad1 = '1' then
                     ball_left_range <= ball_left_range + 1;
@@ -191,6 +199,12 @@ begin
                 red   <= X"FF";
                 green <= X"FF";
                 blue  <= X"FF";  
+                if paddle_top = ball_bottom then
+                    paddle_collision <= '1';
+                else 
+                    paddle_collision <= '0';
+                end if;
+
             -- Border coloring (White)
             elsif row <= BORDER_TOP or column <= BORDER_LEFT or column >= BORDER_RIGHT then
                 red   <= X"FF";
