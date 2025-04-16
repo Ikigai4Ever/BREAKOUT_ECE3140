@@ -134,7 +134,7 @@ begin
 
     process(disp_ena, delay_done)
     begin
-        if disp_ena = '1' then
+        if disp_ena = '1' and rising_edge(delay_done) then
             if SW1 = '0' then 
                 ball_top_range <= 0;
                 ball_left_range <= 0;
