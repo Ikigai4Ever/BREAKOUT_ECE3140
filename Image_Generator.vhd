@@ -159,7 +159,7 @@ begin
                 quad2 <= '0';
                 quad3 <= '0';
                 quad4 <= '0';
-                paddle _collision = '0';
+                paddle_collision = '0';
 
             else 
                 if quad1 = '1' then
