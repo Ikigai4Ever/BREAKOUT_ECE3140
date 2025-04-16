@@ -159,6 +159,7 @@ begin
                 quad2 <= '0';
                 quad3 <= '0';
                 quad4 <= '0';
+                paddle _collision = '0';
 
             else 
                 if quad1 = '1' then
@@ -206,8 +207,7 @@ begin
             ball_posR := ball_posL + 6;
             ball_posB := ball_posT + 6;
 
-            if ball_posB >= paddle_top and ball_posT <= paddle_bottom and
-                ball_posR >= paddle_posL and ball_posL <= paddle_posR then
+            if ball_posB = paddle_top and ball_posR >= paddle_posL and ball_posL <= paddle_posR then
                 paddle_collision <= '1';
             else 
                 paddle_collision <= '0';
