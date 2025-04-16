@@ -177,6 +177,7 @@ begin
                         quad2 <= '0';
                         quad3 <= '0';
                         quad4 <= '0';
+                    end if;
                 else 
                     if quad1 = '1' then
                         ball_left_range <= ball_left_range + 1;
