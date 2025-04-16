@@ -31,6 +31,9 @@ set_location_assignment PIN_N1 -to v_sync_m
 set_location_assignment PIN_B8 -to KEY0
 set_location_assignment PIN_A7 -to KEY1
 
+# KEYS
+set_location_assignment PIN_C10 -to SW1
+
 # HEX0
 set_location_assignment PIN_C14 -to HEX0[0]
 set_location_assignment PIN_E15 -to HEX0[1]

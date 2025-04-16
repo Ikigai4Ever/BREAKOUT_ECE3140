@@ -13,7 +13,7 @@ entity hw_image_generator is
         row             : in  INTEGER;
         column          : in  INTEGER;
 	    encoder_value   : in  INTEGER;
-        delay_done      : in  INTEGER;
+        delay_done      : in  STD_LOGIC;
         SW1             : in  STD_LOGIC;
         red             : out STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
         green           : out STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
@@ -133,7 +133,7 @@ architecture behavior of hw_image_generator is
 begin	 	 
 
     process(delay_done)
-    
+	 begin
         if SW1 = '0' then 
             ball_top_range <= 0;
             ball_left_range <= 0;
@@ -169,8 +169,8 @@ begin
         variable ball_posB  : integer;
 
     begin
-        ball_posL = ball_left + ball_left_range;
-        ball_posT = ball_top + ball_top_range;
+        ball_posL := ball_left + ball_left_range;
+        ball_posT := ball_top + ball_top_range;
 
         -- Default color to black
         red   <= X"00";
@@ -178,8 +178,8 @@ begin
         blue  <= X"00"; 
 
         if disp_ena = '1' then            -- Paddle position based on encoder_value
-            paddle_posL := encoder_value - paddle_width / 2;
-            paddle_posR := encoder_value + paddle_width / 2;
+            paddle_posL := (encoder_value - paddle_width) / 2;
+            paddle_posR := (encoder_value + paddle_width) / 2;
 
             ball_posR := ball_posL + 6;
             ball_posB := ball_posT + 6;
