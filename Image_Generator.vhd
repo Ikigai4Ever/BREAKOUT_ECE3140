@@ -59,10 +59,10 @@ architecture behavior of hw_image_generator is
     signal ball_top_range : integer range -225 to 234 := 0;
     signal ball_left_range : integer range -305 to 299 := 0;
 
-    signal quad1  : STD_LOGIC;
-    signal quad2  : STD_LOGIC;
-    signal quad3  : STD_LOGIC;
-    signal quad4  : STD_LOGIC;
+    signal quad1  : STD_LOGIC := '0';
+    signal quad2  : STD_LOGIC := '0';
+    signal quad3  : STD_LOGIC := '1';
+    signal quad4  : STD_LOGIC := '0';
 	signal paddle_collision : STD_LOGIC := '0';
 
 
@@ -146,41 +146,57 @@ architecture behavior of hw_image_generator is
 
 begin	 	 
 
-    process(disp_ena, paddle_collision, delay_done)
+    process(paddle_collision, delay_done)
     begin
-        if (disp_ena = '1') then
             if rising_edge(delay_done) then
                 if SW1 = '0' then 
                     ball_top_range <= ball_top_range;
                     ball_left_range <= ball_left_range;
-                    quad3 <= '1';
+                    quad1 <= quad1;
+                    quad2 <= quad2;
+                    quad3 <= quad3;
+                    quad4 <= quad4;
                 elsif ((paddle_collision = '1') and (quad3 = '1')) then
-                    quad1 <= '1';
-                    quad2 <= '0';
+                    quad1 <= '0';
+                    quad2 <= '1';
                     quad3 <= '0';
                     quad4 <= '0';
-                    paddle_collision <= '0';
 
                 else 
                     if quad1 = '1' then
                         ball_left_range <= ball_left_range + 1;
                         ball_top_range  <= ball_top_range - 1;
+                        quad2 <= '0';
+                        quad3 <= '0';
+                        quad4 <= '0';
                     elsif quad2 = '1' then
                         ball_left_range <= ball_left_range - 1;
                         ball_top_range  <= ball_top_range - 1;
+                        quad1 <= '0';
+                        quad3 <= '0';
+                        quad4 <= '0';
                     elsif quad3 = '1' then
                         ball_left_range <= ball_left_range - 1;
                         ball_top_range  <= ball_top_range + 1;
+                        quad1 <= '0';
+                        quad2 <= '0';
+                        quad4 <= '0';
                     elsif quad4 = '1' then
                         ball_left_range <= ball_left_range + 1;
                         ball_top_range  <= ball_top_range + 1;
+                        quad1 <= '0';
+                        quad2 <= '0';
+                        quad3 <= '0';
                     else 
                         ball_left_range <= ball_left_range;
                         ball_top_range  <= ball_top_range;
+                        quad1 <= quad1;
+                        quad2 <= quad2;
+                        quad3 <= quad3;
+                        quad4 <= quad4;
                     end if;
                 end if;
             end if;
-        end if;
     end process;
 
 
