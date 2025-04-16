@@ -63,7 +63,7 @@ architecture behavior of hw_image_generator is
     signal quad2  : STD_LOGIC;
     signal quad3  : STD_LOGIC;
     signal quad4  : STD_LOGIC;
-	 signal paddle_collision : STD_LOGIC := '0';
+	signal paddle_collision : STD_LOGIC := '0';
 
 
     constant border_width  : integer := 15;
@@ -154,7 +154,7 @@ begin
                 ball_top_range <= ball_top_range;
                 ball_left_range <= ball_left_range;
                 quad3 <= '1';
-            elsif (paddle_collision = '1') and (quad3 = '1') then
+            elsif ((paddle_collision = '1') and (quad3 = '1')) then
                 quad1 <= '0';
                 quad2 <= '1';
                 quad3 <= '0';
