@@ -136,8 +136,8 @@ begin
     begin
         if disp_ena = '1' and rising_edge(delay_done) then
             if SW1 = '0' then 
-                ball_top_range <= 0;
-                ball_left_range <= 0;
+                ball_top_range;
+                ball_left_range;
                 quad1 <= '1';
             else 
                 if quad1 = '1' then
