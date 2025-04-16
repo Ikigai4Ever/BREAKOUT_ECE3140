@@ -14,7 +14,7 @@ entity hw_image_generator is
         column          : in  INTEGER;
 	    encoder_value   : in  INTEGER;
         delay_done      : in  INTEGER;
-        SW1             : in STD_LOGIC;
+        SW1             : in  STD_LOGIC;
         red             : out STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
         green           : out STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
         blue            : out STD_LOGIC_VECTOR(7 downto 0) := (others => '0')
@@ -133,7 +133,7 @@ architecture behavior of hw_image_generator is
 begin	 	 
 
     process(delay_done)
-
+    
         if SW1 = '0' then 
             ball_top_range <= 0;
             ball_left_range <= 0;
@@ -152,8 +152,8 @@ begin
                 ball_left_range <= ball_left_range + 1;
                 ball_top_range  <= ball_top_range + 1;
             else 
-                ball_left_range <= ball_left_range + 1;
-                ball_top_range  <= ball_top_range + 1;
+                ball_left_range <= ball_left_range;
+                ball_top_range  <= ball_top_range;
             end if;
         end if;
     end process;
