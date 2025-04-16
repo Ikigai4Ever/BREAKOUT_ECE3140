@@ -160,12 +160,27 @@ begin
                     quad2 <= quad2;
                     quad3 <= quad3;
                     quad4 <= quad4;
-                elsif ((paddle_collision = '1') and (quad3 = '1')) then
-                    quad1 <= '0';
-                    quad2 <= '1';
-                    quad3 <= '0';
-                    quad4 <= '0';
-
+                elsif (paddle_collision = '1') then
+                    if (quad1 = '1') and (quad2 = '0') and (quad3 = '0') and (quad4 = '0') then
+                        quad1 <= '0';
+                        quad2 <= '0';
+                        quad3 <= '0';
+                        quad4 <= '1';
+                    elsif (quad1 = '0') and (quad2 = '1') and (quad3 = '0') and (quad4 = '0') then
+                        quad1 <= '0';
+                        quad2 <= '0';
+                        quad3 <= '1';
+                        quad4 <= '0';
+                    elsif (quad1 = '0') and (quad2 = '0') and (quad3 = '1') and (quad4 = '0') then
+                        quad1 <= '0';
+                        quad2 <= '1';
+                        quad3 <= '0';
+                        quad4 <= '0';                
+                    elsif (quad1 = '0') and (quad2 = '0') and (quad3 = '0') and (quad4 = '1') then
+                        quad1 <= '1';
+                        quad2 <= '0';
+                        quad3 <= '0';
+                        quad4 <= '0';
                 elsif ((borderl_collision = '1') and (quad3 = '1')) then
                     quad1 <= '0';
                     quad2 <= '0';
