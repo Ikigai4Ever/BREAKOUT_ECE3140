@@ -146,37 +146,38 @@ architecture behavior of hw_image_generator is
 
 begin	 	 
 
-    process(disp_ena, delay_done)
+    process(disp_ena, paddle_collision, delay_done)
     begin
-        if disp_ena = '1' and rising_edge(delay_done) then
-
-            if SW1 = '0' then 
-                ball_top_range <= ball_top_range;
-                ball_left_range <= ball_left_range;
-                quad3 <= '1';
-            elsif ((paddle_collision = '1') and (quad3 = '1')) then
-                quad1 <= '1';
-                quad2 <= '0';
-                quad3 <= '0';
-                quad4 <= '0';
-                paddle_collision = '0';
-
-            else 
-                if quad1 = '1' then
-                    ball_left_range <= ball_left_range + 1;
-                    ball_top_range  <= ball_top_range - 1;
-                elsif quad2 = '1' then
-                    ball_left_range <= ball_left_range - 1;
-                    ball_top_range  <= ball_top_range - 1;
-                elsif quad3 = '1' then
-                    ball_left_range <= ball_left_range - 1;
-                    ball_top_range  <= ball_top_range + 1;
-                elsif quad4 = '1' then
-                    ball_left_range <= ball_left_range + 1;
-                    ball_top_range  <= ball_top_range + 1;
-                else 
+        if (disp_ena = '1') then
+            if rising_edge(delay_done) then
+                if SW1 = '0' then 
+                    ball_top_range <= ball_top_range;
                     ball_left_range <= ball_left_range;
-                    ball_top_range  <= ball_top_range;
+                    quad3 <= '1';
+                elsif ((paddle_collision = '1') and (quad3 = '1')) then
+                    quad1 <= '1';
+                    quad2 <= '0';
+                    quad3 <= '0';
+                    quad4 <= '0';
+                    paddle_collision <= '0';
+
+                else 
+                    if quad1 = '1' then
+                        ball_left_range <= ball_left_range + 1;
+                        ball_top_range  <= ball_top_range - 1;
+                    elsif quad2 = '1' then
+                        ball_left_range <= ball_left_range - 1;
+                        ball_top_range  <= ball_top_range - 1;
+                    elsif quad3 = '1' then
+                        ball_left_range <= ball_left_range - 1;
+                        ball_top_range  <= ball_top_range + 1;
+                    elsif quad4 = '1' then
+                        ball_left_range <= ball_left_range + 1;
+                        ball_top_range  <= ball_top_range + 1;
+                    else 
+                        ball_left_range <= ball_left_range;
+                        ball_top_range  <= ball_top_range;
+                    end if;
                 end if;
             end if;
         end if;
