@@ -155,8 +155,8 @@ begin
                 ball_left_range <= ball_left_range;
                 quad3 <= '1';
             elsif ((paddle_collision = '1') and (quad3 = '1')) then
-                quad1 <= '0';
-                quad2 <= '1';
+                quad1 <= '1';
+                quad2 <= '0';
                 quad3 <= '0';
                 quad4 <= '0';
 
