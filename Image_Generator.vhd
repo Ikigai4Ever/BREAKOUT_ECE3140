@@ -67,6 +67,7 @@ architecture behavior of hw_image_generator is
     signal borderl_collision : STD_LOGIC := '0';
     signal bordert_collision : STD_LOGIC := '0';
     signal borderr_collision : STD_LOGIC := '0';
+   -- signal block_collision   : STD_LOGIC_VECTOR(111 downto 0) := 0;
     
 
 
