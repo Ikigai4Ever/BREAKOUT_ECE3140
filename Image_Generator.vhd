@@ -53,7 +53,7 @@ architecture behavior of hw_image_generator is
     -- Generic Paddle Dimensions
     constant paddle_left    : integer := 290;
     constant paddle_right   : integer := 350;
-	constant paddle_width   : integer := 60;
+	constant paddle_width   : integer := 50;
 
     -- Ball Constraints
     constant ball_width     : integer := 6;
@@ -307,12 +307,14 @@ begin
                 red   <= X"FF";
                 green <= X"FF";
                 blue  <= X"FF";
-            elsif row >= paddle_top_player2 and row <= paddle_bottom_player2 and column >= paddle_posL_player2  and column <= paddle_posR_player2 then
+            end if;
+            if row >= paddle_top_player2 and row <= paddle_bottom_player2 and column >= paddle_posL_player2  and column <= paddle_posR_player2 then
                 red   <= X"00";
                 green <= X"FF";
-                blue  <= X"FF";  
+                blue  <= X"FF";
+            end if;  
             -- Border coloring (White)
-            elsif row <= BORDER_TOP or column <= BORDER_LEFT or column >= BORDER_RIGHT then
+            if row <= BORDER_TOP or column <= BORDER_LEFT or column >= BORDER_RIGHT then
                 red   <= X"FF";
                 green <= X"FF";
                 blue  <= X"FF";

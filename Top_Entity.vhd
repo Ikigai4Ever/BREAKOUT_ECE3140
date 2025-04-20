@@ -52,8 +52,9 @@ architecture Behavioral of top is
     signal colSignal   : integer;
 
     -- Paddle Position from Rotary Encoder
-    signal encoder_value_player1 : integer := 320;
-    signal encoder_value_player2 : integer := 320;
+	 constant paddle_start_x : integer := 320;
+    signal encoder_value_player1: integer := paddle_start_x;
+    signal encoder_value_player2: integer := paddle_start_x;
 	signal prevA_player1	    : STD_LOGIC := '0';
 	signal prevB_player1        : STD_LOGIC := '0';
     signal prevA_player2	    : STD_LOGIC := '0';
@@ -61,9 +62,8 @@ architecture Behavioral of top is
     signal ChA_clean_player1    : STD_LOGIC := '0';
     signal ChB_clean_player1    : STD_LOGIC := '0';
     signal ChA_clean_player2    : STD_LOGIC := '0';
-    signal ChB_clean_player2 : STD_LOGIC := '0';
+    signal ChB_clean_player2    : STD_LOGIC := '0';
     constant mov_speed : integer := 20; 
-    constant paddle_start_x : integer := 320;
     constant border_right : integer := 630; -- Value from the image generator
     constant border_left  : integer := 10;  -- Value from the image generator
     constant paddle_length : integer := 50; -- Paddle length
@@ -168,7 +168,7 @@ begin
             end if;
 
             -- Detect if Player 2 is active
-            if (prevB_player2 = '0') and (ChA_clean_player2 = '1') then
+            if (prevA_player2 = '0') and (ChA_clean_player2 = '1') then
                 -- Determine direction using ChB
                 if ChB_clean_player2 = '0' then  -- Clockwise
                     if (encoder_value_player2 < paddle_movr) and ((encoder_value_player2 + paddle_length) < border_right) then
