@@ -70,8 +70,15 @@ architecture Behavioral of top is
 
     signal delay_done : STD_LOGIC;
 
+    -- Dual Boot Component
+    component dual_boot is
+		port (
+			clk_clk       : in std_logic := 'X'; -- clk
+			reset_reset_n : in std_logic := 'X'  -- reset_n
+		);
+	end component dual_boot;
 
-    -- VGA Components
+    -- VGA Component
     component vga_pll_25_175
         port (
             inclk0 : in  STD_LOGIC := '0';
@@ -156,6 +163,12 @@ end process;
 
     
     -- VGA Signal Routing
+    U0 : component dual_boot
+		port map (
+			clk_clk       => CONNECTED_TO_clk_clk,       --   clk.clk
+			reset_reset_n => CONNECTED_TO_reset_reset_n  -- reset.reset_n
+		);
+
     U1: vga_pll_25_175 port map(CLK, pll_out_clk);
     U2: vga_controller port map(pll_out_clk, '1', h_sync_m, v_sync_m, dispEn, colSignal, rowSignal, open, open);
     U3: hw_image_generator port map(dispEn, rowSignal, colSignal, encoder_value, delay_done, SW1, red_m, green_m, blue_m);
