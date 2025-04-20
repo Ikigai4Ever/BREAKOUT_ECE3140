@@ -1,5 +1,5 @@
 --Name: Ty Ahrens 
---Date: 4/13/2025
+--Date: 4/20/2025
 --Purpose: Top-level entity for the VGA image generator and Fibonacci sequence display
 --         Integrates VGA image generation with Fibonacci computation and 7-segment display
 --
@@ -42,8 +42,8 @@ end top;
 
 architecture Behavioral of top is
 
-    constant paddle_movl  : integer := 10;
-    constant paddle_movr  : integer := 630;
+    constant paddle_movl  : integer := 0;
+    constant paddle_movr  : integer := 640;
 
     -- VGA Signals
     signal pll_out_clk : std_logic;
@@ -63,9 +63,9 @@ architecture Behavioral of top is
     signal ChB_clean_player1    : STD_LOGIC := '0';
     signal ChA_clean_player2    : STD_LOGIC := '0';
     signal ChB_clean_player2    : STD_LOGIC := '0';
-    constant mov_speed : integer := 20; 
-    constant border_right : integer := 630; -- Value from the image generator
-    constant border_left  : integer := 10;  -- Value from the image generator
+    constant mov_speed : integer := 20; -- Movement speed of the paddle
+    constant border_right : integer := 640; -- Value from the image generator
+    constant border_left  : integer := 0;  -- Value from the image generator
     constant paddle_length : integer := 50; -- Paddle length
     
     constant DEBOUNCE_DELAY : integer := 5; -- Reduced debounce delay for responsiveness

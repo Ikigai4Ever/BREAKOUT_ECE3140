@@ -1,5 +1,5 @@
 --Name: Ty Ahrens 
---Date: 4/13/2025
+--Date: 4/20/2025
 --Purpose: Generate an image for the blocks, paddle, and border
 
 library IEEE;
