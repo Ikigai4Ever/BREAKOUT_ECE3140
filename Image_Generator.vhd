@@ -43,17 +43,24 @@ architecture behavior of hw_image_generator is
 --    constant life2_right  : integer := column9_right; 
 
 
-
-	constant paddle_top     : integer := 450;
-    constant paddle_bottom  : integer := 460;
+    -- Player 1 Paddle
+	constant paddle_top_player1     : integer := 450;
+    constant paddle_bottom_player1  : integer := 460;
+    -- Player 2 Paddle
+    constant paddle_top_player2     : integer := 420;
+    constant paddle_bottom_player2  : integer := 430;
+    -- Generic Paddle Dimensions
     constant paddle_left    : integer := 290;
     constant paddle_right   : integer := 350;
 	constant paddle_width   : integer := 60;
 
+    -- Ball Constraints
+    constant ball_width     : integer := 6;
+    constant ball_height    : integer := 6;
     constant ball_top       : integer := 237;
-    constant ball_bottom    : integer := 243;
+    constant ball_bottom    : integer := ball_top + ball_height;
     constant ball_left      : integer := 317;
-    constant ball_right     : integer := 323;
+    constant ball_right     : integer := ball_left + ball_width;
 
     
     signal ball_top_range : integer range -225 to 234 := 0;
@@ -151,7 +158,7 @@ architecture behavior of hw_image_generator is
 
 begin	 	 
 
-    process(paddle_collision, delay_done)
+    ball_dynamics : process(paddle_collision, delay_done)
     begin
             if rising_edge(delay_done) then
                 if SW1 = '0' then 
@@ -263,7 +270,7 @@ begin
             ball_posR := ball_posL + 6;
             ball_posB := ball_posT + 6;
 
-            if ball_posB = paddle_top and ball_posR >= paddle_posL and ball_posL <= paddle_posR then
+            if ball_posB = paddle_top_player1 and ball_posR >= paddle_posL and ball_posL <= paddle_posR then
                 paddle_collision <= '1';
             else 
                 paddle_collision <= '0';
@@ -282,7 +289,7 @@ begin
             end if;
 
             -- Paddle coloring (White)
-            if row >= paddle_top and row <= paddle_bottom and column >= paddle_posL  and column <= paddle_posR then
+            if row >= paddle_top_player1 and row <= paddle_bottom_player1 and column >= paddle_posL  and column <= paddle_posR then
                 red   <= X"FF";
                 green <= X"FF";
                 blue  <= X"FF";  
