@@ -18,8 +18,10 @@ entity top is
 		KEY1 	    : in  STD_LOGIC;
         SW1         : in  STD_LOGIC;
 		  
-        ChA         : in  STD_LOGIC; -- CLK on RE
-        ChB         : in  STD_LOGIC; -- DT on RE
+        ChA1         : in  STD_LOGIC; -- CLK on RE
+        ChB1         : in  STD_LOGIC; -- DT on RE
+        ChA2         : in  STD_LOGIC; -- CLK on RE
+        ChB2         : in  STD_LOGIC; -- DT on RE
 
         -- 7-Segment Display
         HEX0        : out STD_LOGIC_VECTOR(6 downto 0);
@@ -50,11 +52,16 @@ architecture Behavioral of top is
     signal colSignal   : integer;
 
     -- Paddle Position from Rotary Encoder
-    signal encoder_value: integer := 320;
-	signal prevA	    : STD_LOGIC := '0';
-	signal prevB        : STD_LOGIC := '0';
-    signal ChA_clean    : STD_LOGIC := '0';
-    signal ChB_clean    : STD_LOGIC := '0';
+    signal encoder_value_player1 : integer := 320;
+    signal encoder_value_player2 : integer := 320;
+	signal prevA_player1	    : STD_LOGIC := '0';
+	signal prevB_player1        : STD_LOGIC := '0';
+    signal prevA_player2	    : STD_LOGIC := '0';
+    signal prevB_player2        : STD_LOGIC := '0';
+    signal ChA_clean_player1    : STD_LOGIC := '0';
+    signal ChB_clean_player1    : STD_LOGIC := '0';
+    signal ChA_clean_player2    : STD_LOGIC := '0';
+    signal ChB_clean_player2 : STD_LOGIC := '0';
     constant mov_speed : integer := 20; 
     constant paddle_start_x : integer := 320;
     constant border_right : integer := 630; -- Value from the image generator
@@ -107,7 +114,8 @@ architecture Behavioral of top is
             disp_ena        : in  STD_LOGIC;
             row             : in  INTEGER;
             column          : in  INTEGER;
-            encoder_value   : in  INTEGER;
+            encoder_value_player1   : in  INTEGER;
+            encoder_value_player2   : in  INTEGER;
             delay_done      : in  STD_LOGIC;
             sw1             : in  STD_LOGIC;
             red             : out STD_LOGIC_VECTOR(7 downto 0);
@@ -140,29 +148,46 @@ process(CLK)
 begin
     if rising_edge(CLK) then
         if KEY1 = '0' then
-            encoder_value <= paddle_start_x;
-            prevA <= '0';
+            encoder_value_player1 <= paddle_start_x;
+            encoder_value_player2 <= paddle_start_x;
+            prevA_player1 <= '0';
+            prevA_player2 <= '0';
         else
-            -- Detect rising edge on ChA
-            if (prevA = '0') and (ChA_clean = '1') then
+            -- Detect if Player 1 is active
+            if (prevA_player1 = '0') and (ChA_clean_player1 = '1') then
                 -- Determine direction using ChB
-                if ChB_clean = '0' then  -- Clockwise
-                    if (encoder_value < paddle_movr) and ((encoder_value + paddle_length) < border_right) then
-                        encoder_value <= encoder_value + mov_speed;  -- Adjust movement speed
+                if ChB_clean_player1 = '0' then  -- Clockwise
+                    if (encoder_value_player1 < paddle_movr) and ((encoder_value_player1 + paddle_length) < border_right) then
+                        encoder_value_player1 <= encoder_value_player1 + mov_speed;  -- Adjust movement speed
                     end if;
                 else  -- Counter-clockwise
-                    if (encoder_value > paddle_movl) and ((encoder_value - paddle_length) > border_left)  then
-                        encoder_value <= encoder_value - mov_speed;
+                    if (encoder_value_player1 > paddle_movl) and ((encoder_value_player1 - paddle_length) > border_left)  then
+                        encoder_value_player1 <= encoder_value_player1 - mov_speed;
                     end if;
                 end if;
-            end if; 
-            prevA <= ChA_clean;
+            end if;
+
+            -- Detect if Player 2 is active
+            if (prevB_player2 = '0') and (ChA_clean_player2 = '1') then
+                -- Determine direction using ChB
+                if ChB_clean_player2 = '0' then  -- Clockwise
+                    if (encoder_value_player2 < paddle_movr) and ((encoder_value_player2 + paddle_length) < border_right) then
+                        encoder_value_player2 <= encoder_value_player2 + mov_speed;  -- Adjust movement speed
+                    end if;
+                else  -- Counter-clockwise
+                    if (encoder_value_player2 > paddle_movl) and ((encoder_value_player2 - paddle_length) > border_left)  then
+                        encoder_value_player2 <= encoder_value_player2 - mov_speed;
+                    end if;
+                end if;
+            end if;
+            prevA_player1 <= ChA_clean_player1;
+            prevA_player2 <= ChA_clean_player2;
         end if;
     end if;
 end process;
 
     
-    -- VGA Signal Routing
+    -- Bit Mapping for Game
     U0 : component dual_boot
 		port map (
 			clk_clk       => CLK,  --   clk.clk
@@ -174,18 +199,32 @@ end process;
     U3: hw_image_generator port map(dispEn, rowSignal, colSignal, encoder_value, delay_done, SW1, red_m, green_m, blue_m);
 
     -- Debouncers for the rortary encoder signals
-    debounce_ChA : entity work.Debounce
+    debounce_ChA1 : entity work.Debounce
         port map (
             clk   => CLK,
             noisy => ChA,
-            clean => ChA_clean
+            clean => ChA_clean_player1
         );
 
-    debounce_ChB : entity work.Debounce
+    debounce_ChB1 : entity work.Debounce
         port map (
             clk   => CLK,
             noisy => ChB,
-            clean => ChB_clean
+            clean => ChB_clean_player1
+        );
+
+    debounce_ChA2 : entity work.Debounce
+        port map (
+            clk   => CLK,
+            noisy => ChA2,
+            clean => ChA_clean_player2
+        );
+    
+    debounce_ChB2 : entity work.Debounce
+        port map (
+            clk   => CLK,
+            noisy => ChB2,
+            clean => ChB_clean_player2
         );
 
 end Behavioral;  
