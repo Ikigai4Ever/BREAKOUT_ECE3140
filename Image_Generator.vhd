@@ -45,8 +45,8 @@ architecture behavior of hw_image_generator is
 
 
     -- Generic Paddle Dimensions
-    constant paddle_width   : integer := 50;
-    constant paddle_height  : integer := 10;
+    constant paddle_width   : integer := 40;
+    constant paddle_height  : integer := 8;
     constant paddle_left    : integer := 290;
     constant paddle_right   : integer := paddle_left + paddle_width;
     -- Player 1 Paddle
@@ -82,8 +82,8 @@ architecture behavior of hw_image_generator is
 
     constant border_width  : integer := 15;
     constant BORDER_TOP   : integer := 0 + border_width; 
-    constant BORDER_LEFT  : integer := -2 + border_width;
-    constant BORDER_RIGHT : integer := 635 - border_width;
+    constant BORDER_LEFT  : integer := 0 + border_width;
+    constant BORDER_RIGHT : integer := 640 - border_width;
 
     constant row1_top    : integer := block_start_y;
     constant row1_bottom : integer := row1_top + block_height;
@@ -160,7 +160,7 @@ architecture behavior of hw_image_generator is
 
 begin	 	 
 
-    ball_dynamics : process(paddle_collision, delay_done)
+    ball_dynamics : process(paddle_collision, borderl_collision, borderr_collision, bordert_collision, delay_done)
     begin
             if rising_edge(delay_done) then
                 if SW1 = '0' then 

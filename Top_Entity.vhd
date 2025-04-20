@@ -66,7 +66,7 @@ architecture Behavioral of top is
     constant mov_speed : integer := 20; -- Movement speed of the paddle
     constant border_right : integer := 640; -- Value from the image generator
     constant border_left  : integer := 0;  -- Value from the image generator
-    constant paddle_length : integer := 50; -- Paddle length
+    constant paddle_length : integer := 40; -- Paddle length
     
     constant DEBOUNCE_DELAY : integer := 5; -- Reduced debounce delay for responsiveness
     signal debounce_counter : integer := 0;
