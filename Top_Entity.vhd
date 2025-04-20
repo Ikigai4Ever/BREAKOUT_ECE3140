@@ -196,20 +196,20 @@ end process;
 
     U1: vga_pll_25_175 port map(CLK, pll_out_clk);
     U2: vga_controller port map(pll_out_clk, '1', h_sync_m, v_sync_m, dispEn, colSignal, rowSignal, open, open);
-    U3: hw_image_generator port map(dispEn, rowSignal, colSignal, encoder_value, delay_done, SW1, red_m, green_m, blue_m);
+    U3: hw_image_generator port map(dispEn, rowSignal, colSignal, encoder_value_player1, encoder_value_player2, delay_done, SW1, red_m, green_m, blue_m);
 
     -- Debouncers for the rortary encoder signals
     debounce_ChA1 : entity work.Debounce
         port map (
             clk   => CLK,
-            noisy => ChA,
+            noisy => ChA1,
             clean => ChA_clean_player1
         );
 
     debounce_ChB1 : entity work.Debounce
         port map (
             clk   => CLK,
-            noisy => ChB,
+            noisy => ChB1,
             clean => ChB_clean_player1
         );
 

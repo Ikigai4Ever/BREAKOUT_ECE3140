@@ -247,7 +247,7 @@ begin
     end process;
 
 
-    paddles : process(disp_ena, row, column, encoder_value)
+    paddles : process(disp_ena, row, column, encoder_value_player1, encoder_value_player2)
         variable paddle_posL_player1 : integer;
         variable paddle_posR_player1 : integer;
         variable paddle_posL_player2 : integer;
@@ -265,10 +265,10 @@ begin
         blue  <= X"00"; 
 
         if disp_ena = '1' then            -- Paddle position based on encoder_value
-            paddle_posL_player1 := encoder_value - paddle_width / 2;
-            paddle_posR_player1 := encoder_value + paddle_width / 2;
-            paddle_posL_player2 := encoder_value - paddle_width / 2;
-            paddle_posR_player2 := encoder_value + paddle_width / 2;
+            paddle_posL_player1 := encoder_value_player1 - paddle_width / 2;
+            paddle_posR_player1 := encoder_value_player1 + paddle_width / 2;
+            paddle_posL_player2 := encoder_value_player2 - paddle_width / 2;
+            paddle_posR_player2 := encoder_value_player2 + paddle_width / 2;
 
             ball_posL := ball_left + ball_left_range;
             ball_posT := ball_top + ball_top_range;
