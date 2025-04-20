@@ -165,8 +165,8 @@ end process;
     -- VGA Signal Routing
     U0 : component dual_boot
 		port map (
-			clk_clk       => CONNECTED_TO_clk_clk,       --   clk.clk
-			reset_reset_n => CONNECTED_TO_reset_reset_n  -- reset.reset_n
+			clk_clk       => CLK,  --   clk.clk
+			reset_reset_n => KEY0  -- reset.reset_n
 		);
 
     U1: vga_pll_25_175 port map(CLK, pll_out_clk);
