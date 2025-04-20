@@ -12,7 +12,8 @@ entity hw_image_generator is
         disp_ena        : in  STD_LOGIC;
         row             : in  INTEGER;
         column          : in  INTEGER;
-	    encoder_value   : in  INTEGER;
+	    encoder_value_player1   : in  INTEGER;
+        encoder_value_player2   : in  INTEGER;
         delay_done      : in  STD_LOGIC;
         SW1             : in  STD_LOGIC;
         red             : out STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
@@ -169,15 +170,15 @@ begin
                     quad3 <= quad3;
                     quad4 <= quad4;
                 elsif (paddle_collision = '1') and (quad3 = '1') then
-                        quad1 <= '0';
-                        quad2 <= '1';
-                        quad3 <= '0';
-                        quad4 <= '0'; 
+                    quad1 <= '0';
+                    quad2 <= '1';
+                    quad3 <= '0';
+                    quad4 <= '0'; 
                 elsif (paddle_collision = '1') and (quad4 = '1') then
-                        quad1 <= '1';
-                        quad2 <= '0';
-                        quad3 <= '0';
-                        quad4 <= '0'; 
+                    quad1 <= '1';
+                    quad2 <= '0';
+                    quad3 <= '0';
+                    quad4 <= '0'; 
                 elsif ((borderl_collision = '1') and (quad3 = '1')) then
                     quad1 <= '0';
                     quad2 <= '0';
@@ -246,9 +247,11 @@ begin
     end process;
 
 
-    process(disp_ena, row, column, encoder_value)
-        variable paddle_posL : integer;
-        variable paddle_posR : integer;
+    paddles : process(disp_ena, row, column, encoder_value)
+        variable paddle_posL_player1 : integer;
+        variable paddle_posR_player1 : integer;
+        variable paddle_posL_player2 : integer;
+        variable paddle_posR_player2 : integer;
 
         variable ball_posL  : integer;
         variable ball_posR  : integer;
@@ -262,20 +265,31 @@ begin
         blue  <= X"00"; 
 
         if disp_ena = '1' then            -- Paddle position based on encoder_value
-            paddle_posL := encoder_value - paddle_width / 2;
-            paddle_posR := encoder_value + paddle_width / 2;
+            paddle_posL_player1 := encoder_value - paddle_width / 2;
+            paddle_posR_player1 := encoder_value + paddle_width / 2;
+            paddle_posL_player2 := encoder_value - paddle_width / 2;
+            paddle_posR_player2 := encoder_value + paddle_width / 2;
 
             ball_posL := ball_left + ball_left_range;
             ball_posT := ball_top + ball_top_range;
             ball_posR := ball_posL + 6;
             ball_posB := ball_posT + 6;
 
-            if ball_posB = paddle_top_player1 and ball_posR >= paddle_posL and ball_posL <= paddle_posR then
+
+            -- Player 1 Paddle Collision
+            if ball_posB = paddle_top_player1 and ball_posR >= paddle_posL_player1 and ball_posL <= paddle_posR_player1 then
+                paddle_collision <= '1';
+            else 
+                paddle_collision <= '0';
+            end if;
+            -- Player 2 Paddle Collision
+            if ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2 then
                 paddle_collision <= '1';
             else 
                 paddle_collision <= '0';
             end if;
 
+            -- Border Collsion of Ball
             if ball_posL = BORDER_LEFT then
                 borderl_collision <= '1';
             elsif ball_posR = BORDER_RIGHT then
@@ -288,12 +302,15 @@ begin
                 bordert_collision <= '0';
             end if;
 
-            -- Paddle coloring (White)
-            if row >= paddle_top_player1 and row <= paddle_bottom_player1 and column >= paddle_posL  and column <= paddle_posR then
+            -- Paddle coloring Player 1
+            if row >= paddle_top_player1 and row <= paddle_bottom_player1 and column >= paddle_posL_player1  and column <= paddle_posR_player1 then
                 red   <= X"FF";
                 green <= X"FF";
+                blue  <= X"FF";
+            elsif row >= paddle_top_player2 and row <= paddle_bottom_player2 and column >= paddle_posL_player2  and column <= paddle_posR_player2 then
+                red   <= X"00";
+                green <= X"FF";
                 blue  <= X"FF";  
-
             -- Border coloring (White)
             elsif row <= BORDER_TOP or column <= BORDER_LEFT or column >= BORDER_RIGHT then
                 red   <= X"FF";
@@ -301,9 +318,9 @@ begin
                 blue  <= X"FF";
             else 
                 if row >= ball_posT and row <= ball_posB and column >= ball_posL and column <= ball_posR then
-                    red   <= "11111111";
-                    green <= "11111111";
-                    blue  <= "11111111";
+                    red   <= X"FF";
+                    green <= X"FF";
+                    blue  <= X"FF";
                 end if;
 
                 -- Loop over rows and columns
