@@ -67,7 +67,11 @@ architecture behavior of hw_image_generator is
     signal borderl_collision : STD_LOGIC := '0';
     signal bordert_collision : STD_LOGIC := '0';
     signal borderr_collision : STD_LOGIC := '0';
-   -- signal block_collision   : STD_LOGIC_VECTOR(111 downto 0) := 0;
+    signal block_collision   : STD_LOGIC_VECTOR(112 downto 1) := '0';
+    signal index : integer := 0;
+    signal gen_idx : integer := 0;
+    signal score : integer := 0;
+    signal block_col_true : STD_LOGIC := '0';
     
 
 
@@ -201,6 +205,26 @@ begin
                     quad2 <= '0';
                     quad3 <= '1';
                     quad4 <= '0';
+                elsif ((block_col_true = '1') and (quad1 = '1')) then
+                    quad1 <= '0';
+                    quad2 <= '0';
+                    quad3 <= '0';
+                    quad4 <= '1';
+                elsif ((block_col_true = '1') and (quad2 = '1')) then
+                    quad1 <= '0';
+                    quad2 <= '0';
+                    quad3 <= '1';
+                    quad4 <= '0';
+                elsif ((block_col_true = '1') and (quad3 = '1')) then
+                    quad1 <= '0';
+                    quad2 <= '0';
+                    quad3 <= '0';
+                    quad4 <= '1';
+                elsif ((block_col_true = '1') and (quad4 = '1')) then
+                    quad1 <= '0';
+                    quad2 <= '0';
+                    quad3 <= '1';
+                    quad4 <= '0';
                 else 
                     if quad1 = '1' then
                         ball_left_range <= ball_left_range + 1;
@@ -281,6 +305,19 @@ begin
                 bordert_collision <= '0';
             end if;
 
+            for row_idx in 0 to 7 loop
+                for col_idx in 0 to 13 loop
+                    index <= index + 1;
+                    if ball_posB = row_tops(row_idx) and ball_posT = row_bottoms(row_idx) and ball_posR >= column_lefts(col_idx) and ball_posL <= column_rights(col_idx)  then
+                        block_collision(index) <= 1;
+                        score <= score + 1;
+                        block_col_true <= '1';
+                    else
+                        block_col_true <= '0';
+                    end if;
+                end loop;
+            end loop;
+
             -- Paddle coloring (White)
             if row >= paddle_top and row <= paddle_bottom and column >= paddle_posL  and column <= paddle_posR then
                 red   <= X"FF";
@@ -302,8 +339,9 @@ begin
                 -- Loop over rows and columns
                 for row_idx in 0 to 7 loop
                     for col_idx in 0 to 13 loop
+                        gen_idx = gen_idx + 1;
                         if row >= row_tops(row_idx) and row <= row_bottoms(row_idx) and
-                           column >= column_lefts(col_idx) and column <= column_rights(col_idx) then
+                           column >= column_lefts(col_idx) and column <= column_rights(col_idx) and (block_collision(gen_idx) /= 1) then
                                 red <= X"FF"; green <= X"FF"; blue <= X"FF";  -- Bright white
                         end if;
                     end loop;
