@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deploy
- date="2025.04.20.03:45:57"
+ date="2025.04.20.04:42:08"
  outputDirectory="C:/Users/tyhah/OneDrive/Documents/GitHub/BREAKOUT_ECE3140/">
  <perimeter>
   <parameter
@@ -65,13 +65,13 @@
  </perimeter>
  <entity
    path=""
-   parameterizationKey="dual_boot:1.0:AUTO_CLK_CLOCK_DOMAIN=-1,AUTO_CLK_CLOCK_RATE=-1,AUTO_CLK_RESET_DOMAIN=-1,AUTO_DEVICE=10M50DAF484C7G,AUTO_DEVICE_FAMILY=MAX 10,AUTO_DEVICE_SPEEDGRADE=7,AUTO_GENERATION_ID=1745138755,AUTO_UNIQUE_ID=(clock_source:20.1:clockFrequency=50000000,clockFrequencyKnown=true,inputClockFrequency=0,resetSynchronousEdges=NONE)(altera_dual_boot:20.1:CLOCK_FREQUENCY=50.0,CONFIG_CYCLE=18,INTENDED_DEVICE_FAMILY=MAX 10,RESET_TIMER_CYCLE=26)(clock:20.1:)(reset:20.1:)"
+   parameterizationKey="dual_boot:1.0:AUTO_CLK_CLOCK_DOMAIN=-1,AUTO_CLK_CLOCK_RATE=-1,AUTO_CLK_RESET_DOMAIN=-1,AUTO_DEVICE=10M50DAF484C7G,AUTO_DEVICE_FAMILY=MAX 10,AUTO_DEVICE_SPEEDGRADE=7,AUTO_GENERATION_ID=1745142127,AUTO_UNIQUE_ID=(clock_source:20.1:clockFrequency=50000000,clockFrequencyKnown=true,inputClockFrequency=0,resetSynchronousEdges=NONE)(altera_dual_boot:20.1:CLOCK_FREQUENCY=50.0,CONFIG_CYCLE=18,INTENDED_DEVICE_FAMILY=MAX 10,RESET_TIMER_CYCLE=26)(clock:20.1:)(reset:20.1:)"
    instancePathKey="dual_boot"
    kind="dual_boot"
    version="1.0"
    name="dual_boot">
   <parameter name="AUTO_CLK_CLOCK_RATE" value="-1" />
-  <parameter name="AUTO_GENERATION_ID" value="1745138755" />
+  <parameter name="AUTO_GENERATION_ID" value="1745142127" />
   <parameter name="AUTO_DEVICE" value="10M50DAF484C7G" />
   <parameter name="AUTO_DEVICE_FAMILY" value="MAX 10" />
   <parameter name="AUTO_CLK_RESET_DOMAIN" value="-1" />
@@ -139,8 +139,8 @@
    <message level="Debug" culprit="dual_boot"><![CDATA["<b>dual_boot</b>" reuses <b>altera_dual_boot</b> "<b>submodules/altera_dual_boot</b>"]]></message>
    <message level="Debug" culprit="dual_boot"><![CDATA["<b>dual_boot</b>" reuses <b>altera_reset_controller</b> "<b>submodules/altera_reset_controller</b>"]]></message>
    <message level="Debug" culprit="dual_boot">queue size: 1 starting:altera_dual_boot "submodules/altera_dual_boot"</message>
-   <message level="Info" culprit="dual_boot">generating top-level entity altera_dual_boot</message>
-   <message level="Info" culprit="dual_boot"><![CDATA["<b>dual_boot</b>" instantiated <b>altera_dual_boot</b> "<b>dual_boot</b>"]]></message>
+   <message level="Info" culprit="dual_boot_0">generating top-level entity altera_dual_boot</message>
+   <message level="Info" culprit="dual_boot_0"><![CDATA["<b>dual_boot</b>" instantiated <b>altera_dual_boot</b> "<b>dual_boot_0</b>"]]></message>
    <message level="Debug" culprit="dual_boot">queue size: 0 starting:altera_reset_controller "submodules/altera_reset_controller"</message>
    <message level="Info" culprit="rst_controller"><![CDATA["<b>dual_boot</b>" instantiated <b>altera_reset_controller</b> "<b>rst_controller</b>"]]></message>
   </messages>
@@ -148,7 +148,7 @@
  <entity
    path="submodules/"
    parameterizationKey="altera_dual_boot:20.1:CLOCK_FREQUENCY=50.0,CONFIG_CYCLE=18,INTENDED_DEVICE_FAMILY=MAX 10,RESET_TIMER_CYCLE=26"
-   instancePathKey="dual_boot:.:dual_boot"
+   instancePathKey="dual_boot:.:dual_boot_0"
    kind="altera_dual_boot"
    version="20.1"
    name="altera_dual_boot">
@@ -176,11 +176,11 @@
        path="C:/intelfpga_lite/20.1/ip/altera/altera_dual_boot/altera_dual_boot/altera_dual_boot_hw.tcl" />
   </sourceFiles>
   <childSourceFiles/>
-  <instantiator instantiator="dual_boot" as="dual_boot" />
+  <instantiator instantiator="dual_boot" as="dual_boot_0" />
   <messages>
    <message level="Debug" culprit="dual_boot">queue size: 1 starting:altera_dual_boot "submodules/altera_dual_boot"</message>
-   <message level="Info" culprit="dual_boot">generating top-level entity altera_dual_boot</message>
-   <message level="Info" culprit="dual_boot"><![CDATA["<b>dual_boot</b>" instantiated <b>altera_dual_boot</b> "<b>dual_boot</b>"]]></message>
+   <message level="Info" culprit="dual_boot_0">generating top-level entity altera_dual_boot</message>
+   <message level="Info" culprit="dual_boot_0"><![CDATA["<b>dual_boot</b>" instantiated <b>altera_dual_boot</b> "<b>dual_boot_0</b>"]]></message>
   </messages>
  </entity>
  <entity
