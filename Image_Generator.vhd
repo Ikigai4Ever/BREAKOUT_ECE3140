@@ -265,12 +265,16 @@ begin
         green <= X"00";
         blue  <= X"00"; 
 
-        if disp_ena = '1' then            -- Paddle position based on encoder_value
+        if disp_ena = '1' then            
+            -- Paddle position based on encoder_value for player 1
             paddle_posL_player1 := encoder_value_player1 - paddle_width / 2;
             paddle_posR_player1 := encoder_value_player1 + paddle_width / 2;
+
+            -- Paddle position based on encoder_value for player 2
             paddle_posL_player2 := encoder_value_player2 - paddle_width / 2;
             paddle_posR_player2 := encoder_value_player2 + paddle_width / 2;
 
+            -- Ball Position calculations
             ball_posL := ball_left + ball_left_range;
             ball_posT := ball_top + ball_top_range;
             ball_posR := ball_posL + 6;
@@ -306,7 +310,7 @@ begin
             -- Paddle coloring Player 2
             if row >= paddle_top_player2 and row <= paddle_bottom_player2 and column >= paddle_posL_player2  and column <= paddle_posR_player2 then
                 red   <= X"00";
-                green <= X"FF";
+                green <= X"0F";
                 blue  <= X"FF";
             end if;  
             -- Border coloring (White)
