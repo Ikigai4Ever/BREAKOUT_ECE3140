@@ -516,7 +516,11 @@ begin
                     blue  <= "11111111";
                 end if;
 				end if;
-            
+
+------------------------------------------------------------------------------------------------------
+------------------------------------------- SCORING --------------------------------------------------
+------------------------------------------------------------------------------------------------------ 
+
             -- Display Score
             hundreds1 := (score1 / 100);
             tens1     := ((score1 / 10) mod 10);
@@ -630,6 +634,10 @@ begin
                 end if;
             end if;
 
+------------------------------------------------------------------------------------------------------
+------------------------------------- BLOCK GENERATION -----------------------------------------------
+------------------------------------------------------------------------------------------------------
+ 
                 -- Loop over rows and columns
                 for row_idx in 0 to 7 loop
                     for col_idx in 0 to 13 loop
@@ -640,50 +648,45 @@ begin
                     end loop;
                 end loop;
             --end if;
-		  
 		  end if;
     end process;
 	 
 	process(CLK)
+    begin
+        if rising_edge(CLK) then
+            -- Cache positions
+            paddle_posL <= encoder_value - paddle_width / 2;
+            paddle_posR <= encoder_value + paddle_width / 2;
 
-begin
-    if rising_edge(CLK) then
-        -- Cache positions
-        paddle_posL <= encoder_value - paddle_width / 2;
-        paddle_posR <= encoder_value + paddle_width / 2;
+            ball_posL <= ball_left + ball_left_range;
+            ball_posT <= ball_top + ball_top_range;
+            ball_posR <= ball_posL + 6;
+            ball_posB <= ball_posT + 6;
 
-        ball_posL <= ball_left + ball_left_range;
-        ball_posT <= ball_top + ball_top_range;
-        ball_posR <= ball_posL + 6;
-        ball_posB <= ball_posT + 6;
+            -- Collision detection
+            if ball_posB = paddle_top and ball_posR >= paddle_posL and ball_posL <= paddle_posR then
+                paddle_collision <= '1';
+            else
+                paddle_collision <= '0';
+            end if;
 
-        -- Collision detection
-        if ball_posB = paddle_top and ball_posR >= paddle_posL and ball_posL <= paddle_posR then
-            paddle_collision <= '1';
-        else
-            paddle_collision <= '0';
+            if ball_posL = BORDER_LEFT then
+                borderl_collision <= '1';
+            else
+                borderl_collision <= '0';
+            end if;
+
+            if ball_posR = BORDER_RIGHT then
+                borderr_collision <= '1';
+            else
+                borderr_collision <= '0';
+            end if;
+
+            if ball_posT = BORDER_TOP then
+                bordert_collision <= '1';
+            else
+                bordert_collision <= '0';
+            end if;
         end if;
-
-        if ball_posL = BORDER_LEFT then
-            borderl_collision <= '1';
-        else
-            borderl_collision <= '0';
-        end if;
-
-        if ball_posR = BORDER_RIGHT then
-            borderr_collision <= '1';
-        else
-            borderr_collision <= '0';
-        end if;
-
-        if ball_posT = BORDER_TOP then
-            bordert_collision <= '1';
-        else
-            bordert_collision <= '0';
-        end if;
-		end if;
-
-
-  
-end process;
+    end process;
 end behavior;
