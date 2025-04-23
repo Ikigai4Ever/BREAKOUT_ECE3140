@@ -217,25 +217,21 @@ begin
                     quad2 <= '0';
                     quad3 <= '0';
                     quad4 <= '1';
-                    block_col_true <= '0';
                 elsif ((block_col_true = '1') and (quad2 = '1')) then
                     quad1 <= '0';
                     quad2 <= '0';
                     quad3 <= '1';
                     quad4 <= '0';
-                    block_col_true <= '0';
                 elsif ((block_col_true = '1') and (quad3 = '1')) then
                     quad1 <= '0';
                     quad2 <= '0';
                     quad3 <= '0';
                     quad4 <= '1';
-                    block_col_true <= '0';
                 elsif ((block_col_true = '1') and (quad4 = '1')) then
                     quad1 <= '0';
                     quad2 <= '0';
                     quad3 <= '1';
                     quad4 <= '0';
-                    block_col_true <= '0';
                 else 
                     if quad1 = '1' then
                         ball_left_range <= ball_left_range + 1;
@@ -324,6 +320,8 @@ begin
                     block_collision((row_idx * 14) + col_idx) <= '1';
                     score <= score + 1;
                     block_col_true <= '1';
+                else 
+                    block_col_true <= '0';
                 end if;
             end loop;
         end loop;
