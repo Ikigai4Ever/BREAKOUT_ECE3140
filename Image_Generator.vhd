@@ -10,7 +10,6 @@ use IEEE.NUMERIC_STD.ALL;
 entity hw_image_generator is
     port (
         disp_ena        : in  STD_LOGIC;
-		  CLK				   : in  STD_LOGIC;
         row             : in  INTEGER;
         column          : in  INTEGER;
 	    encoder_value_player1   : in  INTEGER;
@@ -77,18 +76,8 @@ architecture behavior of hw_image_generator is
     signal borderl_collision : STD_LOGIC := '0';
     signal bordert_collision : STD_LOGIC := '0';
     signal borderr_collision : STD_LOGIC := '0';
-    signal block_collision   : STD_LOGIC_VECTOR(111 downto 0) := (OTHERS => '0');
-    signal index : integer := 0;
-    signal gen_idx : integer := 0;
-    signal score : integer := 0;
-    signal block_col_true : STD_LOGIC := '0';
-	 signal prev_col_idx : integer := 1;
-            signal paddle_posL : integer;
-        signal paddle_posR : integer;
-		          signal ball_posL  : integer;
-        signal ball_posR  : integer;
-        signal ball_posT  : integer;
-        signal ball_posB  : integer;
+   -- signal block_collision   : STD_LOGIC_VECTOR(111 downto 0) := 0;
+    
 
 
     constant border_width  : integer := 15;
@@ -221,26 +210,6 @@ begin
                     quad2 <= '0';
                     quad3 <= '1';
                     quad4 <= '0';
-                elsif ((block_col_true = '1') and (quad1 = '1')) then
-                    quad1 <= '0';
-                    quad2 <= '0';
-                    quad3 <= '0';
-                    quad4 <= '1';
-                elsif ((block_col_true = '1') and (quad2 = '1')) then
-                    quad1 <= '0';
-                    quad2 <= '0';
-                    quad3 <= '1';
-                    quad4 <= '0';
-                elsif ((block_col_true = '1') and (quad3 = '1')) then
-                    quad1 <= '0';
-                    quad2 <= '0';
-                    quad3 <= '0';
-                    quad4 <= '1';
-                elsif ((block_col_true = '1') and (quad4 = '1')) then
-                    quad1 <= '0';
-                    quad2 <= '0';
-                    quad3 <= '1';
-                    quad4 <= '0';
                 else 
                     if quad1 = '1' then
                         ball_left_range <= ball_left_range + 1;
@@ -313,28 +282,14 @@ begin
             -- Paddle Collision Detection
             if (ball_posB = paddle_top_player1 and ball_posR >= paddle_posL_player1 and ball_posL <= paddle_posR_player1) or
                (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2) then
+            -- Paddle Collision Detection
+            if (ball_posB = paddle_top_player1 and ball_posR >= paddle_posL_player1 and ball_posL <= paddle_posR_player1) or
+               (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2) then
                 paddle_collision <= '1';
             else 
                 paddle_collision <= '0';
             end if;
 
-        if ball_posL = BORDER_LEFT then
-            borderl_collision <= '1';
-        else
-            borderl_collision <= '0';
-        end if;
-
-        if ball_posR = BORDER_RIGHT then
-            borderr_collision <= '1';
-        else
-            borderr_collision <= '0';
-        end if;
-
-        if ball_posT = BORDER_TOP then
-            bordert_collision <= '1';
-        else
-            bordert_collision <= '0';
-        end if;
             -- Border Collsion of Ball
             if ball_posL = BORDER_LEFT then
                 borderl_collision <= '1';
@@ -369,7 +324,7 @@ end process;
 
 
 
-    IMAGE_DRAWING : process(disp_ena, row, column, encoder_value, CLK)
+    IMAGE DRAWING: process(disp_ena, row, column, encoder_value, CLK)
 
 
     begin
@@ -407,19 +362,17 @@ end process;
                     blue  <= X"FF";
                 end if;
 				end if;
-			
 
                 -- Loop over rows and columns
                 for row_idx in 0 to 7 loop
                     for col_idx in 0 to 13 loop
                         if row >= row_tops(row_idx) and row <= row_bottoms(row_idx) and
-                           column >= column_lefts(col_idx) and column <= column_rights(col_idx) and block_collision(((row_idx * 14) + col_idx)) = '0' then
+                           column >= column_lefts(col_idx) and column <= column_rights(col_idx) then
                                 red <= X"FF"; green <= X"FF"; blue <= X"FF";  -- Bright white
                         end if;
                     end loop;
                 end loop;
-            --end if;
-		  
-		  end if;
+            end if;
+        end if;
     end process;
 end behavior;
