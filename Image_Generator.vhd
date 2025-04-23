@@ -10,10 +10,10 @@ use IEEE.NUMERIC_STD.ALL;
 entity hw_image_generator is
     port (
         disp_ena        : in  STD_LOGIC;
-		  CLK				   : in  STD_LOGIC;
+		CLK				: in  STD_LOGIC;
         row             : in  INTEGER;
         column          : in  INTEGER;
-		  encoder_value   : in  INTEGER;
+		encoder_value   : in  INTEGER;
         delay_done      : in  STD_LOGIC;
         SW1             : in  STD_LOGIC;
         red             : out STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
@@ -30,20 +30,6 @@ architecture behavior of hw_image_generator is
     constant block_height  : integer := 10;
     constant block_width_spacing : integer := 5;
     constant block_height_spacing : integer := 5;
-
-    --Player 1 Life Remaining
---    constant life1_top    : integer := 20;
---    constant life1_bottom : integer := 55; 
---    constant life1_left   : integer := column2_left;
---    constant life1_right  : integer := column2_right; 
-
-    --Player 2 Life Remaining
---    constant life2_top    : integer := 20;
---    constant life2_bottom : integer := 55; 
---    constant life2_left   : integer := column9_left;
---    constant life2_right  : integer := column9_right; 
-
-
 
 	constant paddle_top     : integer := 450;
     constant paddle_bottom  : integer := 460;
@@ -71,15 +57,18 @@ architecture behavior of hw_image_generator is
     signal block_collision   : STD_LOGIC_VECTOR(111 downto 0) := (OTHERS => '0');
     signal index : integer := 0;
     signal gen_idx : integer := 0;
-    signal score : integer := 0;
+    signal score1 : integer range 0 to 999 := 0;
+    signal score2 : integer range 0 to 999 := 0;
+    signal ball_count_p1 : integer range 0 to 5 := 5;
+    signal ball_count_p2 : integer range 0 to 5 := 5;
     signal block_col_true : STD_LOGIC := '0';
-	 signal prev_col_idx : integer := 1;
-            signal paddle_posL : integer;
-        signal paddle_posR : integer;
-		          signal ball_posL  : integer;
-        signal ball_posR  : integer;
-        signal ball_posT  : integer;
-        signal ball_posB  : integer;
+	signal prev_col_idx : integer := 1;
+    signal paddle_posL : integer;
+    signal paddle_posR : integer;
+	signal ball_posL  : integer;
+    signal ball_posR  : integer;
+    signal ball_posT  : integer;
+    signal ball_posB  : integer;
 
 
     constant border_width  : integer := 15;
@@ -157,8 +146,151 @@ architecture behavior of hw_image_generator is
         column5_right, column6_right, column7_right, column8_right,
         column9_right, column10_right, column11_right, column12_right,
         column13_right, column14_right
-        );
-	 
+    );
+
+    --Score Text Area for Player 1
+	constant score1_top         : integer := row1_top - 45;
+	constant score1_bottom      : integer := row1_top - 5;
+	constant score1_huns_left   : integer := column2_left + 4;
+	constant score1_huns_right  : integer := column2_right - 4;
+	constant score1_tens_left   : integer := column3_left + 4;
+	constant score1_tens_right  : integer := column3_right - 4;
+	constant score1_ones_left   : integer := column4_left + 4;
+	constant score1_ones_right  : integer := column4_right - 4;
+	
+	--Score Text Area for Player 2
+	constant score2_top         : integer := row1_top - 45;
+	constant score2_bottom      : integer := row1_top - 5;
+	constant score2_huns_left   : integer := column10_left + 4;
+	constant score2_huns_right  : integer := column10_right - 4;
+	constant score2_tens_left   : integer := column11_left + 4;
+	constant score2_tens_right  : integer := column11_right - 4;
+	constant score2_ones_left   : integer := column12_left + 4;
+	constant score2_ones_right  : integer := column12_right - 4;
+	
+	--Ball Count Text Area Player 1
+	constant ball_count1_top    : integer := border_top + 5;
+	constant ball_count1_bottom : integer := border_top + 45;
+	constant ball_count1_left   : integer := column1_left + 4;
+	constant ball_count1_right  : integer := column1_right - 4;
+	
+	--Ball Count Text Area Player 2
+	constant ball_count2_top    : integer := border_top + 5;
+	constant ball_count2_bottom : integer := border_top + 45;
+	constant ball_count2_left   : integer := column9_left + 4;
+	constant ball_count2_right  : integer := column9_right - 4;
+
+    function draw_digit(digit : in integer; row_index : in integer; col_index : in integer) return boolean is
+        variable p : boolean := false;
+      begin
+        case digit is
+      
+          when 0 =>
+            if (
+              (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or -- top
+              (row_index >= 34 and row_index <= 39 and col_index >= 0 and col_index <= 29) or -- bottom
+              (col_index >= 0 and col_index <= 5 and row_index >= 0 and row_index <= 39) or -- left
+              (col_index >= 24 and col_index <= 29 and row_index >= 0 and row_index <= 39) -- right
+            ) then
+              p := true;
+            end if;
+      
+          when 1 =>
+            if (
+              (col_index >= 24 and col_index <= 29 and row_index >= 0 and row_index <= 39)
+            ) then
+              p := true;
+            end if;
+      
+          when 2 =>
+            if (
+              (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or -- top
+              (row_index >= 17 and row_index <= 22 and col_index >= 0 and col_index <= 29) or -- mid
+              (row_index >= 34 and row_index <= 39 and col_index >= 0 and col_index <= 29) or -- bottom
+              (col_index >= 24 and col_index <= 29 and row_index >= 0 and row_index <= 22) or -- top-right
+              (col_index >= 0 and col_index <= 5 and row_index >= 17 and row_index <= 39) -- bottom-left
+            ) then
+              p := true;
+            end if;
+      
+          when 3 =>
+            if (
+              (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or
+              (row_index >= 17 and row_index <= 22 and col_index >= 0 and col_index <= 29) or
+              (row_index >= 34 and row_index <= 39 and col_index >= 0 and col_index <= 29) or
+              (col_index >= 24 and col_index <= 29 and row_index >= 0 and row_index <= 39)
+            ) then
+              p := true;
+            end if;
+      
+          when 4 =>
+            if (
+              (col_index >= 0 and col_index <= 5 and row_index >= 0 and row_index <= 22) or
+              (col_index >= 24 and col_index <= 29 and row_index >= 0 and row_index <= 39) or
+              (row_index >= 17 and row_index <= 22 and col_index >= 0 and col_index <= 29)
+            ) then
+              p := true;
+            end if;
+      
+          when 5 =>
+            if (
+              (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or
+              (row_index >= 17 and row_index <= 22 and col_index >= 0 and col_index <= 29) or
+              (row_index >= 34 and row_index <= 39 and col_index >= 0 and col_index <= 29) or
+              (col_index >= 0 and col_index <= 5 and row_index >= 0 and row_index <= 22) or
+              (col_index >= 24 and col_index <= 29 and row_index >= 17 and row_index <= 39)
+            ) then
+              p := true;
+            end if;
+      
+          when 6 =>
+            if (
+              (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or
+              (row_index >= 17 and row_index <= 22 and col_index >= 0 and col_index <= 29) or
+              (row_index >= 34 and row_index <= 39 and col_index >= 0 and col_index <= 29) or
+              (col_index >= 0 and col_index <= 5 and row_index >= 0 and row_index <= 39) or
+              (col_index >= 24 and col_index <= 29 and row_index >= 17 and row_index <= 39)
+            ) then
+              p := true;
+            end if;
+      
+          when 7 =>
+            if (
+              (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or
+              (col_index >= 24 and col_index <= 29 and row_index >= 0 and row_index <= 39)
+            ) then
+              p := true;
+            end if;
+      
+          when 8 =>
+            if (
+              (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or
+              (row_index >= 17 and row_index <= 22 and col_index >= 0 and col_index <= 29) or
+              (row_index >= 34 and row_index <= 39 and col_index >= 0 and col_index <= 29) or
+              (col_index >= 0 and col_index <= 5 and row_index >= 0 and row_index <= 39) or
+              (col_index >= 24 and col_index <= 29 and row_index >= 0 and row_index <= 39)
+            ) then
+              p := true;
+            end if;
+      
+          when 9 =>
+            if (
+              (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or
+              (row_index >= 17 and row_index <= 22 and col_index >= 0 and col_index <= 29) or
+              (row_index >= 34 and row_index <= 39 and col_index >= 0 and col_index <= 29) or
+              (col_index >= 0 and col_index <= 5 and row_index >= 0 and row_index <= 22) or
+              (col_index >= 24 and col_index <= 29 and row_index >= 0 and row_index <= 39)
+            ) then
+              p := true;
+            end if;
+      
+          when others =>
+            p := false;
+      
+        end case;
+      
+        return p;
+      end function;
 
 begin	 	 
 
@@ -273,6 +405,9 @@ begin
 	 
 	 
 	COLLISION DRAWING: process(CLK)
+    variable hundreds1, tens1, ones1 : integer;
+	variable hundreds2, tens2, ones2 : integer;
+	variable digit_row, digit_col    : integer;
     begin
     if rising_edge(CLK) then
         -- Cache positions
@@ -308,6 +443,119 @@ begin
         else
             bordert_collision <= '0';
         end if;
+
+        -- Display Score
+		hundreds1 := (score1 / 100);
+		tens1     := ((score1 / 10) mod 10);
+		ones1		 := (score1 mod 10);
+		
+		hundreds2 := (score2 / 100);
+		tens2     := ((score2 / 10) mod 10);
+		ones2		 := (score2 mod 10);
+		
+		--Hundreds Player 1
+		if (row >= score1_top and row <= score1_bottom) then
+        if (column >= score1_huns_left and column <= score1_huns_right) then
+          digit_row := row - score1_top;
+          digit_col := column - score1_huns_left;
+          if draw_digit(hundreds1, digit_row, digit_col) then
+            red   <= X"9D";
+            green <= X"00";
+            blue  <= X"FF";
+			 end if;
+		  end if;
+		end if;
+		
+		--Tens Player 1
+		if (row >= score1_top and row <= score1_bottom) then
+			if (column >= score1_tens_left and column <= score1_tens_right) then
+				digit_row := row - score1_top;
+				digit_col := column - score1_tens_left;
+				if draw_digit(tens1, digit_row, digit_col) then
+					red   <= X"9D";
+					green <= X"00";
+					blue  <= X"FF";
+				end if;
+			end if;
+		end if;
+		
+		--Ones Player 1
+		if (row >= score1_top and row <= score1_bottom) then
+			if (column >= score1_ones_left and column <= score1_ones_right) then
+				digit_row := row - score1_top;
+				digit_col := column - score1_ones_left;
+				if draw_digit(ones1, digit_row, digit_col) then
+					red   <= X"9D";
+					green <= X"00";
+					blue  <= X"FF";
+				end if;
+			end if;
+		end if;
+		
+		--Hundreds Player 2
+		if (row >= score2_top and row <= score2_bottom) then
+        if (column >= score2_huns_left and column <= score2_huns_right) then
+          digit_row := row - score2_top;
+          digit_col := column - score2_huns_left;
+          if draw_digit(hundreds2, digit_row, digit_col) then
+					red   <= X"FF";
+					green <= X"DF";
+					blue  <= X"00";
+			 end if;
+		  end if;
+		end if;
+		
+		--Tens Player 2
+		if (row >= score2_top and row <= score2_bottom) then
+			if (column >= score2_tens_left and column <= score2_tens_right) then
+				digit_row := row - score2_top;
+				digit_col := column - score2_tens_left;
+				if draw_digit(tens2, digit_row, digit_col) then
+					red   <= X"FF";
+					green <= X"DF";
+					blue  <= X"00";
+				end if;
+			end if;
+		end if;
+		
+		--Ones Player 2
+		if (row >= score2_top and row <= score2_bottom) then
+			if (column >= score2_ones_left and column <= score2_ones_right) then
+				digit_row := row - score2_top;
+				digit_col := column - score2_ones_left;
+				if draw_digit(ones2, digit_row, digit_col) then
+					red   <= X"FF";
+					green <= X"DF";
+					blue  <= X"00";
+				end if;
+			end if;
+		end if;
+		
+		--Ball Count Player 1
+		if (row >= ball_count1_top and row <= ball_count1_bottom) then
+			if (column >= ball_count1_left and column <= ball_count1_right) then
+				digit_row := row - ball_count1_top;
+				digit_col := column - ball_count1_left;
+				if draw_digit(ball_count_p1, digit_row, digit_col) then
+					red   <= X"9D";
+					green <= X"00";
+					blue  <= X"FF";
+				end if;
+			end if;
+		end if;
+		
+		--Ball Count Player 2
+		if (row >= ball_count2_top and row <= ball_count2_bottom) then
+			if (column >= ball_count2_left and column <= ball_count2_right) then
+				digit_row := row - ball_count2_top;
+				digit_col := column - ball_count2_left;
+				if draw_digit(ball_count_p2, digit_row, digit_col) then
+					red   <= X"FF";
+					green <= X"DF";
+					blue  <= X"00";
+				end if;
+			end if;
+		end if;
 
 
         -- Handle block collision flagging if needed
