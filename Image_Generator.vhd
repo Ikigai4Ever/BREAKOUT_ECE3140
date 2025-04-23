@@ -41,6 +41,7 @@ architecture behavior of hw_image_generator is
     constant paddle_posR_player1 : integer;
     constant paddle_posL_player2 : integer;
     constant paddle_posR_player2 : integer;
+
     -- Player 1 Paddle
 	constant paddle_top_player1     : integer := 450;
     constant paddle_bottom_player1  : integer := paddle_top_player1 + paddle_height;
@@ -55,28 +56,29 @@ architecture behavior of hw_image_generator is
     constant ball_bottom    : integer := ball_top + ball_height;
     constant ball_left      : integer := 317;
     constant ball_right     : integer := ball_left + ball_width;
-    constant ball_posL  : integer;
-    constant ball_posR  : integer;
-    constant ball_posT  : integer;
-    constant ball_posB  : integer;
+    constant ball_posL      : integer;
+    constant ball_posR      : integer;
+    constant ball_posT      : integer;
+    constant ball_posB      : integer;
 
     
-    signal ball_top_range : integer range -225 to 234 := 0;
-    signal ball_left_range : integer range -305 to 299 := 0;
+    signal ball_top_range   : integer range -225 to 234 := 0;
+    signal ball_left_range  : integer range -305 to 299 := 0;
 
-    signal quad1  : STD_LOGIC := '0';
-    signal quad2  : STD_LOGIC := '0';
-    signal quad3  : STD_LOGIC := '1';
-    signal quad4  : STD_LOGIC := '0';
-	signal quad1t  : STD_LOGIC := '0';
-    signal quad2t  : STD_LOGIC := '0';
-    signal quad3t  : STD_LOGIC := '0';
-    signal quad4t  : STD_LOGIC := '0';
-	signal paddle_collision : STD_LOGIC := '0';
-    signal borderl_collision : STD_LOGIC := '0';
-    signal bordert_collision : STD_LOGIC := '0';
-    signal borderr_collision : STD_LOGIC := '0';
-    signal block_collision   : STD_LOGIC_VECTOR(111 downto 0) := (OTHERS => '0');
+    signal quad1    : STD_LOGIC := '0';
+    signal quad2    : STD_LOGIC := '0';
+    signal quad3    : STD_LOGIC := '1';
+    signal quad4    : STD_LOGIC := '0';
+	signal quad1t   : STD_LOGIC := '0';
+    signal quad2t   : STD_LOGIC := '0';
+    signal quad3t   : STD_LOGIC := '0';
+    signal quad4t   : STD_LOGIC := '0';
+
+	signal paddle_collision     : STD_LOGIC := '0';
+    signal borderl_collision    : STD_LOGIC := '0';
+    signal bordert_collision    : STD_LOGIC := '0';
+    signal borderr_collision    : STD_LOGIC := '0';
+    signal block_collision      : STD_LOGIC_VECTOR(111 downto 0) := (OTHERS => '0');
     signal index : integer := 0;
     signal gen_idx : integer := 0;
     signal score1 : integer range 0 to 999 := 0;
@@ -92,9 +94,6 @@ architecture behavior of hw_image_generator is
 	signal block_colt_true : STD_LOGIC := '0';
 
     signal ball_prevL, ball_prevR, ball_prevT, ball_prevB : integer;
-
-
-
 
     constant border_width  : integer := 15;
     constant BORDER_TOP   : integer := 0 + border_width; 
@@ -491,6 +490,14 @@ begin
 	COLLISION_DRAWINGS: process(CLK)
     begin
     if rising_edge(CLK) then
+        -- Paddle Collision Detection
+        if (ball_posB = paddle_top_player1 and ball_posR >= paddle_posL_player1 and ball_posL <= paddle_posR_player1) or
+           (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2) then
+            paddle_collision <= '1';
+        else 
+            paddle_collision <= '0';
+        end if;
+
         if ball_posL = BORDER_LEFT then
             borderl_collision <= '1';
         else
@@ -544,18 +551,18 @@ end process;
 		  
         if disp_ena = '1' then            
             -- Paddle position based on encoder_value for player 1
-            paddle_posL_player1 <= encoder_value_player1 - paddle_width / 2;
-            paddle_posR_player1 <= encoder_value_player1 + paddle_width / 2;
+            paddle_posL_player1 := encoder_value_player1 - paddle_width / 2;
+            paddle_posR_player1 := encoder_value_player1 + paddle_width / 2;
 
             -- Paddle position based on encoder_value for player 2
-            paddle_posL_player2 <= encoder_value_player2 - paddle_width / 2;
-            paddle_posR_player2 <= encoder_value_player2 + paddle_width / 2;
+            paddle_posL_player2 := encoder_value_player2 - paddle_width / 2;
+            paddle_posR_player2 := encoder_value_player2 + paddle_width / 2;
 
             -- Ball Position calculations
-            ball_posL <= ball_left + ball_left_range;
-            ball_posT <= ball_top + ball_top_range;
-            ball_posR <= ball_posL + 6;
-            ball_posB <= ball_posT + 6;
+            ball_posL := ball_left + ball_left_range;
+            ball_posT := ball_top + ball_top_range;
+            ball_posR := ball_posL + 6;
+            ball_posB := ball_posT + 6;
 
             -- Paddle coloring Player 1
             if row >= paddle_top_player1 and row <= paddle_bottom_player1 and column >= paddle_posL_player1  and column <= paddle_posR_player1 then
@@ -589,11 +596,11 @@ end process;
             -- Display Score
             hundreds1 := (score1 / 100);
             tens1     := ((score1 / 10) mod 10);
-            ones1		 := (score1 mod 10);
+            ones1	  := (score1 mod 10);
             
             hundreds2 := (score2 / 100);
             tens2     := ((score2 / 10) mod 10);
-            ones2		 := (score2 mod 10);
+            ones2	  := (score2 mod 10);
             
             --Hundreds Player 1
             if (row >= score1_top and row <= score1_bottom) then
