@@ -444,120 +444,6 @@ begin
             bordert_collision <= '0';
         end if;
 
-        -- Display Score
-		hundreds1 := (score1 / 100);
-		tens1     := ((score1 / 10) mod 10);
-		ones1		 := (score1 mod 10);
-		
-		hundreds2 := (score2 / 100);
-		tens2     := ((score2 / 10) mod 10);
-		ones2		 := (score2 mod 10);
-		
-		--Hundreds Player 1
-		if (row >= score1_top and row <= score1_bottom) then
-        if (column >= score1_huns_left and column <= score1_huns_right) then
-          digit_row := row - score1_top;
-          digit_col := column - score1_huns_left;
-          if draw_digit(hundreds1, digit_row, digit_col) then
-            red   <= X"9D";
-            green <= X"00";
-            blue  <= X"FF";
-			 end if;
-		  end if;
-		end if;
-		
-		--Tens Player 1
-		if (row >= score1_top and row <= score1_bottom) then
-			if (column >= score1_tens_left and column <= score1_tens_right) then
-				digit_row := row - score1_top;
-				digit_col := column - score1_tens_left;
-				if draw_digit(tens1, digit_row, digit_col) then
-					red   <= X"9D";
-					green <= X"00";
-					blue  <= X"FF";
-				end if;
-			end if;
-		end if;
-		
-		--Ones Player 1
-		if (row >= score1_top and row <= score1_bottom) then
-			if (column >= score1_ones_left and column <= score1_ones_right) then
-				digit_row := row - score1_top;
-				digit_col := column - score1_ones_left;
-				if draw_digit(ones1, digit_row, digit_col) then
-					red   <= X"9D";
-					green <= X"00";
-					blue  <= X"FF";
-				end if;
-			end if;
-		end if;
-		
-		--Hundreds Player 2
-		if (row >= score2_top and row <= score2_bottom) then
-        if (column >= score2_huns_left and column <= score2_huns_right) then
-          digit_row := row - score2_top;
-          digit_col := column - score2_huns_left;
-          if draw_digit(hundreds2, digit_row, digit_col) then
-					red   <= X"FF";
-					green <= X"DF";
-					blue  <= X"00";
-			 end if;
-		  end if;
-		end if;
-		
-		--Tens Player 2
-		if (row >= score2_top and row <= score2_bottom) then
-			if (column >= score2_tens_left and column <= score2_tens_right) then
-				digit_row := row - score2_top;
-				digit_col := column - score2_tens_left;
-				if draw_digit(tens2, digit_row, digit_col) then
-					red   <= X"FF";
-					green <= X"DF";
-					blue  <= X"00";
-				end if;
-			end if;
-		end if;
-		
-		--Ones Player 2
-		if (row >= score2_top and row <= score2_bottom) then
-			if (column >= score2_ones_left and column <= score2_ones_right) then
-				digit_row := row - score2_top;
-				digit_col := column - score2_ones_left;
-				if draw_digit(ones2, digit_row, digit_col) then
-					red   <= X"FF";
-					green <= X"DF";
-					blue  <= X"00";
-				end if;
-			end if;
-		end if;
-		
-		--Ball Count Player 1
-		if (row >= ball_count1_top and row <= ball_count1_bottom) then
-			if (column >= ball_count1_left and column <= ball_count1_right) then
-				digit_row := row - ball_count1_top;
-				digit_col := column - ball_count1_left;
-				if draw_digit(ball_count_p1, digit_row, digit_col) then
-					red   <= X"9D";
-					green <= X"00";
-					blue  <= X"FF";
-				end if;
-			end if;
-		end if;
-		
-		--Ball Count Player 2
-		if (row >= ball_count2_top and row <= ball_count2_bottom) then
-			if (column >= ball_count2_left and column <= ball_count2_right) then
-				digit_row := row - ball_count2_top;
-				digit_col := column - ball_count2_left;
-				if draw_digit(ball_count_p2, digit_row, digit_col) then
-					red   <= X"FF";
-					green <= X"DF";
-					blue  <= X"00";
-				end if;
-			end if;
-		end if;
-
-
         -- Handle block collision flagging if needed
         block_col_true <= '0';
         for row_idx in 0 to 7 loop
@@ -608,6 +494,119 @@ end process;
                     blue  <= "11111111";
                 end if;
 				end if;
+            
+            -- Display Score
+            hundreds1 := (score1 / 100);
+            tens1     := ((score1 / 10) mod 10);
+            ones1		 := (score1 mod 10);
+            
+            hundreds2 := (score2 / 100);
+            tens2     := ((score2 / 10) mod 10);
+            ones2		 := (score2 mod 10);
+            
+            --Hundreds Player 1
+            if (row >= score1_top and row <= score1_bottom) then
+            if (column >= score1_huns_left and column <= score1_huns_right) then
+            digit_row := row - score1_top;
+            digit_col := column - score1_huns_left;
+            if draw_digit(hundreds1, digit_row, digit_col) then
+                red   <= X"9D";
+                green <= X"00";
+                blue  <= X"FF";
+                end if;
+            end if;
+            end if;
+            
+            --Tens Player 1
+            if (row >= score1_top and row <= score1_bottom) then
+                if (column >= score1_tens_left and column <= score1_tens_right) then
+                    digit_row := row - score1_top;
+                    digit_col := column - score1_tens_left;
+                    if draw_digit(tens1, digit_row, digit_col) then
+                        red   <= X"9D";
+                        green <= X"00";
+                        blue  <= X"FF";
+                    end if;
+                end if;
+            end if;
+            
+            --Ones Player 1
+            if (row >= score1_top and row <= score1_bottom) then
+                if (column >= score1_ones_left and column <= score1_ones_right) then
+                    digit_row := row - score1_top;
+                    digit_col := column - score1_ones_left;
+                    if draw_digit(ones1, digit_row, digit_col) then
+                        red   <= X"9D";
+                        green <= X"00";
+                        blue  <= X"FF";
+                    end if;
+                end if;
+            end if;
+            
+            --Hundreds Player 2
+            if (row >= score2_top and row <= score2_bottom) then
+            if (column >= score2_huns_left and column <= score2_huns_right) then
+            digit_row := row - score2_top;
+            digit_col := column - score2_huns_left;
+            if draw_digit(hundreds2, digit_row, digit_col) then
+                        red   <= X"FF";
+                        green <= X"DF";
+                        blue  <= X"00";
+                end if;
+            end if;
+            end if;
+            
+            --Tens Player 2
+            if (row >= score2_top and row <= score2_bottom) then
+                if (column >= score2_tens_left and column <= score2_tens_right) then
+                    digit_row := row - score2_top;
+                    digit_col := column - score2_tens_left;
+                    if draw_digit(tens2, digit_row, digit_col) then
+                        red   <= X"FF";
+                        green <= X"DF";
+                        blue  <= X"00";
+                    end if;
+                end if;
+            end if;
+            
+            --Ones Player 2
+            if (row >= score2_top and row <= score2_bottom) then
+                if (column >= score2_ones_left and column <= score2_ones_right) then
+                    digit_row := row - score2_top;
+                    digit_col := column - score2_ones_left;
+                    if draw_digit(ones2, digit_row, digit_col) then
+                        red   <= X"FF";
+                        green <= X"DF";
+                        blue  <= X"00";
+                    end if;
+                end if;
+            end if;
+            
+            --Ball Count Player 1
+            if (row >= ball_count1_top and row <= ball_count1_bottom) then
+                if (column >= ball_count1_left and column <= ball_count1_right) then
+                    digit_row := row - ball_count1_top;
+                    digit_col := column - ball_count1_left;
+                    if draw_digit(ball_count_p1, digit_row, digit_col) then
+                        red   <= X"9D";
+                        green <= X"00";
+                        blue  <= X"FF";
+                    end if;
+                end if;
+            end if;
+            
+            --Ball Count Player 2
+            if (row >= ball_count2_top and row <= ball_count2_bottom) then
+                if (column >= ball_count2_left and column <= ball_count2_right) then
+                    digit_row := row - ball_count2_top;
+                    digit_col := column - ball_count2_left;
+                    if draw_digit(ball_count_p2, digit_row, digit_col) then
+                        red   <= X"FF";
+                        green <= X"DF";
+                        blue  <= X"00";
+                    end if;
+                end if;
+            end if;
 
                 -- Loop over rows and columns
                 for row_idx in 0 to 7 loop
