@@ -52,7 +52,7 @@ architecture Behavioral of top is
     signal colSignal   : integer;
 
     -- Paddle Position from Rotary Encoder
-	 constant paddle_start_x : integer := 320;
+	constant paddle_start_x : integer := 320;
     signal encoder_value_player1: integer := paddle_start_x;
     signal encoder_value_player2: integer := paddle_start_x;
 	signal prevA_player1	    : STD_LOGIC := '0';
@@ -78,12 +78,12 @@ architecture Behavioral of top is
     signal delay_done : STD_LOGIC;
 
     -- Dual Boot Component
---    component dual_boot is
---		port (
---			clk_clk       : in std_logic := 'X'; -- clk
---			reset_reset_n : in std_logic := 'X'  -- reset_n
---		);
---	end component dual_boot;
+    component dual_boot is
+		port (
+			clk_clk       : in std_logic := 'X'; -- clk
+			reset_reset_n : in std_logic := 'X'  -- reset_n
+		);
+	end component dual_boot;
 
     -- VGA Component
     component vga_pll_25_175
@@ -112,13 +112,13 @@ architecture Behavioral of top is
     component hw_image_generator
         port (
             disp_ena        : in  STD_LOGIC;
-				CLK				 : in  STD_LOGIC;
+			CLK				: in  STD_LOGIC;
             row             : in  INTEGER;
             column          : in  INTEGER;
             encoder_value_player1   : in  INTEGER;
             encoder_value_player2   : in  INTEGER;
             delay_done      : in  STD_LOGIC;
-            sw1             : in  STD_LOGIC;
+            SW1             : in  STD_LOGIC;
             red             : out STD_LOGIC_VECTOR(7 downto 0);
             green           : out STD_LOGIC_VECTOR(7 downto 0);
             blue            : out STD_LOGIC_VECTOR(7 downto 0)
@@ -194,16 +194,11 @@ end process;
 			clk_clk       => CLK,  --   clk.clk
 			reset_reset_n => KEY0  -- reset.reset_n
 		);
-    -- VGA Signal Routing
-    --U0 : component dual_boot
-	--	port map (
-	--		clk_clk       => CLK,  --   clk.clk
-	--		reset_reset_n => KEY0  -- reset.reset_n
-	--	);
 
+    -- VGA Signal Routing
     U1: vga_pll_25_175 port map(CLK, pll_out_clk);
     U2: vga_controller port map(pll_out_clk, '1', h_sync_m, v_sync_m, dispEn, colSignal, rowSignal, open, open);
-    U3: hw_image_generator port map(dispEn, rowSignal, colSignal, encoder_value, delay_done, SW1, red_m, green_m, blue_m);
+    U3: hw_image_generator port map(dispEn, CLK, rowSignal, colSignal, encoder_value_player1, encoder_value_player2, delay_done, SW1, red_m, green_m, blue_m);
 
     -- Debouncers for the rortary encoder signals
     debounce_ChA1 : entity work.Debounce
