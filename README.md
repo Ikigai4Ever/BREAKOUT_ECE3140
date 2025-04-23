@@ -14,12 +14,12 @@ The ball will be made to move in one of four quadrants. These are saved as integ
 
 Ball size: 6x6 pixels
 
- x x x x x x
- x x x x x x
- x x x x x x
- x x x x x x
- x x x x x x
- x x x x x x
+    x x x x x x
+    x x x x x x
+    x x x x x x
+    x x x x x x
+    x x x x x x
+    x x x x x x
 
                 |
                 |
