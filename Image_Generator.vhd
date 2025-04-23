@@ -217,21 +217,25 @@ begin
                     quad2 <= '0';
                     quad3 <= '0';
                     quad4 <= '1';
+                    block_col_true <= '0';
                 elsif ((block_col_true = '1') and (quad2 = '1')) then
                     quad1 <= '0';
                     quad2 <= '0';
                     quad3 <= '1';
                     quad4 <= '0';
+                    block_col_true <= '0';
                 elsif ((block_col_true = '1') and (quad3 = '1')) then
                     quad1 <= '0';
                     quad2 <= '0';
                     quad3 <= '0';
                     quad4 <= '1';
+                    block_col_true <= '0';
                 elsif ((block_col_true = '1') and (quad4 = '1')) then
                     quad1 <= '0';
                     quad2 <= '0';
                     quad3 <= '1';
                     quad4 <= '0';
+                    block_col_true <= '0';
                 else 
                     if quad1 = '1' then
                         ball_left_range <= ball_left_range + 1;
@@ -272,8 +276,8 @@ begin
 	 
 	 
 	 
-	 process(CLK)
-begin
+	COLLISION DRAWING: process(CLK)
+    begin
     if rising_edge(CLK) then
         -- Cache positions
         paddle_posL <= encoder_value - paddle_width / 2;
@@ -309,6 +313,7 @@ begin
             bordert_collision <= '0';
         end if;
 
+
         -- Handle block collision flagging if needed
         block_col_true <= '0';
         for row_idx in 0 to 7 loop
@@ -327,7 +332,7 @@ end process;
 
 
 
-    process(disp_ena, row, column, encoder_value, CLK)
+    IMAGE DRAWING: process(disp_ena, row, column, encoder_value, CLK)
 
 
     begin
