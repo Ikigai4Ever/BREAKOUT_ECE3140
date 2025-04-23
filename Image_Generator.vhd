@@ -291,7 +291,6 @@ begin
         variable ball_posB  : integer;
 
     begin
-    COLLISION DRAWING
         if rising_edge(CLK) then
         -- Cache positions
         paddle_posL <= encoder_value - paddle_width / 2;
@@ -311,7 +310,9 @@ begin
             ball_posR := ball_posL + 6;
             ball_posB := ball_posT + 6;
 
-            if ball_posB = paddle_top and ball_posR >= paddle_posL and ball_posL <= paddle_posR then
+            -- Paddle Collision Detection
+            if (ball_posB = paddle_top_player1 and ball_posR >= paddle_posL_player1 and ball_posL <= paddle_posR_player1) or
+               (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2) then
                 paddle_collision <= '1';
             else 
                 paddle_collision <= '0';
@@ -368,7 +369,7 @@ end process;
 
 
 
-    IMAGE DRAWING: process(disp_ena, row, column, encoder_value, CLK)
+    IMAGE_DRAWING : process(disp_ena, row, column, encoder_value, CLK)
 
 
     begin
@@ -383,17 +384,17 @@ end process;
             -- Paddle coloring (White)
             if row >= paddle_top and row <= paddle_bottom and column >= paddle_posL  and column <= paddle_posR then
             -- Paddle coloring Player 1
-            if row >= paddle_top_player1 and row <= paddle_bottom_player1 and column >= paddle_posL_player1  and column <= paddle_posR_player1 then
-                red   <= X"FF";
-                green <= X"FF";
-                blue  <= X"FF";
-            end if;
-            -- Paddle coloring Player 2
-            if row >= paddle_top_player2 and row <= paddle_bottom_player2 and column >= paddle_posL_player2  and column <= paddle_posR_player2 then
-                red   <= X"00";
-                green <= X"0F";
-                blue  <= X"FF";
-            end if;  
+					if row >= paddle_top_player1 and row <= paddle_bottom_player1 and column >= paddle_posL_player1  and column <= paddle_posR_player1 then
+						 red   <= X"FF";
+						 green <= X"FF";
+						 blue  <= X"FF";
+					end if;
+					-- Paddle coloring Player 2
+					if row >= paddle_top_player2 and row <= paddle_bottom_player2 and column >= paddle_posL_player2  and column <= paddle_posR_player2 then
+						 red   <= X"00";
+						 green <= X"0F";
+						 blue  <= X"FF";
+					end if;  
             -- Border coloring (White)
             if row <= BORDER_TOP or column <= BORDER_LEFT or column >= BORDER_RIGHT then
                 red   <= X"FF";
@@ -406,6 +407,7 @@ end process;
                     blue  <= X"FF";
                 end if;
 				end if;
+			
 
                 -- Loop over rows and columns
                 for row_idx in 0 to 7 loop
