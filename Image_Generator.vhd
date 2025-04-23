@@ -10,6 +10,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity hw_image_generator is
     port (
         disp_ena        : in  STD_LOGIC;
+		  CLK				   : in  STD_LOGIC;
         row             : in  INTEGER;
         column          : in  INTEGER;
 	    encoder_value_player1   : in  INTEGER;
@@ -76,8 +77,18 @@ architecture behavior of hw_image_generator is
     signal borderl_collision : STD_LOGIC := '0';
     signal bordert_collision : STD_LOGIC := '0';
     signal borderr_collision : STD_LOGIC := '0';
-   -- signal block_collision   : STD_LOGIC_VECTOR(111 downto 0) := 0;
-    
+    signal block_collision   : STD_LOGIC_VECTOR(111 downto 0) := (OTHERS => '0');
+    signal index : integer := 0;
+    signal gen_idx : integer := 0;
+    signal score : integer := 0;
+    signal block_col_true : STD_LOGIC := '0';
+	 signal prev_col_idx : integer := 1;
+            signal paddle_posL : integer;
+        signal paddle_posR : integer;
+		          signal ball_posL  : integer;
+        signal ball_posR  : integer;
+        signal ball_posT  : integer;
+        signal ball_posB  : integer;
 
 
     constant border_width  : integer := 15;
@@ -210,6 +221,26 @@ begin
                     quad2 <= '0';
                     quad3 <= '1';
                     quad4 <= '0';
+                elsif ((block_col_true = '1') and (quad1 = '1')) then
+                    quad1 <= '0';
+                    quad2 <= '0';
+                    quad3 <= '0';
+                    quad4 <= '1';
+                elsif ((block_col_true = '1') and (quad2 = '1')) then
+                    quad1 <= '0';
+                    quad2 <= '0';
+                    quad3 <= '1';
+                    quad4 <= '0';
+                elsif ((block_col_true = '1') and (quad3 = '1')) then
+                    quad1 <= '0';
+                    quad2 <= '0';
+                    quad3 <= '0';
+                    quad4 <= '1';
+                elsif ((block_col_true = '1') and (quad4 = '1')) then
+                    quad1 <= '0';
+                    quad2 <= '0';
+                    quad3 <= '1';
+                    quad4 <= '0';
                 else 
                     if quad1 = '1' then
                         ball_left_range <= ball_left_range + 1;
@@ -260,16 +291,16 @@ begin
         variable ball_posB  : integer;
 
     begin
-        -- Default color to black
-        red   <= X"00";
-        green <= X"00";
-        blue  <= X"00"; 
+    COLLISION DRAWING
+        if rising_edge(CLK) then
+        -- Cache positions
+        paddle_posL <= encoder_value - paddle_width / 2;
+        paddle_posR <= encoder_value + paddle_width / 2;
 
-        if disp_ena = '1' then            
-            -- Paddle position based on encoder_value for player 1
-            paddle_posL_player1 := encoder_value_player1 - paddle_width / 2;
-            paddle_posR_player1 := encoder_value_player1 + paddle_width / 2;
-
+        ball_posL <= ball_left + ball_left_range;
+        ball_posT <= ball_top + ball_top_range;
+        ball_posR <= ball_posL + 6;
+        ball_posB <= ball_posT + 6;
             -- Paddle position based on encoder_value for player 2
             paddle_posL_player2 := encoder_value_player2 - paddle_width / 2;
             paddle_posR_player2 := encoder_value_player2 + paddle_width / 2;
@@ -280,14 +311,29 @@ begin
             ball_posR := ball_posL + 6;
             ball_posB := ball_posT + 6;
 
-            -- Paddle Collision Detection
-            if (ball_posB = paddle_top_player1 and ball_posR >= paddle_posL_player1 and ball_posL <= paddle_posR_player1) or
-               (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2) then
+            if ball_posB = paddle_top and ball_posR >= paddle_posL and ball_posL <= paddle_posR then
                 paddle_collision <= '1';
             else 
                 paddle_collision <= '0';
             end if;
 
+        if ball_posL = BORDER_LEFT then
+            borderl_collision <= '1';
+        else
+            borderl_collision <= '0';
+        end if;
+
+        if ball_posR = BORDER_RIGHT then
+            borderr_collision <= '1';
+        else
+            borderr_collision <= '0';
+        end if;
+
+        if ball_posT = BORDER_TOP then
+            bordert_collision <= '1';
+        else
+            bordert_collision <= '0';
+        end if;
             -- Border Collsion of Ball
             if ball_posL = BORDER_LEFT then
                 borderl_collision <= '1';
@@ -301,6 +347,41 @@ begin
                 bordert_collision <= '0';
             end if;
 
+
+        -- Handle block collision flagging if needed
+        block_col_true <= '0';
+        for row_idx in 0 to 7 loop
+            for col_idx in 0 to 13 loop
+                if (ball_posB >= row_tops(row_idx) and ball_posT <= row_bottoms(row_idx)) and
+                   (ball_posR >= column_lefts(col_idx) and ball_posL <= column_rights(col_idx)) and
+                   (block_collision((row_idx * 14) + col_idx) = '0') then
+                    block_collision((row_idx * 14) + col_idx) <= '1';
+                    score <= score + 1;
+                    block_col_true <= '1';
+                else 
+                    block_col_true <= '0';
+                end if;
+            end loop;
+        end loop;
+    end if;
+end process;
+
+
+
+    IMAGE DRAWING: process(disp_ena, row, column, encoder_value, CLK)
+
+
+    begin
+	 	 --if rising_edge(CLK) then
+	     -- Default color to black
+        red   <= X"00";
+        green <= X"00";
+        blue  <= X"00"; 
+		  
+
+        if disp_ena = '1' then            -- Paddle position based on encoder_value
+            -- Paddle coloring (White)
+            if row >= paddle_top and row <= paddle_bottom and column >= paddle_posL  and column <= paddle_posR then
             -- Paddle coloring Player 1
             if row >= paddle_top_player1 and row <= paddle_bottom_player1 and column >= paddle_posL_player1  and column <= paddle_posR_player1 then
                 red   <= X"FF";
@@ -324,17 +405,19 @@ begin
                     green <= X"FF";
                     blue  <= X"FF";
                 end if;
+				end if;
 
                 -- Loop over rows and columns
                 for row_idx in 0 to 7 loop
                     for col_idx in 0 to 13 loop
                         if row >= row_tops(row_idx) and row <= row_bottoms(row_idx) and
-                           column >= column_lefts(col_idx) and column <= column_rights(col_idx) then
+                           column >= column_lefts(col_idx) and column <= column_rights(col_idx) and block_collision(((row_idx * 14) + col_idx)) = '0' then
                                 red <= X"FF"; green <= X"FF"; blue <= X"FF";  -- Bright white
                         end if;
                     end loop;
                 end loop;
-            end if;
-        end if;
+            --end if;
+		  
+		  end if;
     end process;
 end behavior;
