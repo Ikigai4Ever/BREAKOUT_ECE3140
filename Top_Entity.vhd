@@ -118,6 +118,7 @@ architecture Behavioral of top is
             encoder_value_player2   : in  INTEGER;
             delay_done      : in  STD_LOGIC;
             sw1             : in  STD_LOGIC;
+				led0, led1, led2, led3 : out STD_LOGIC;
             red             : out STD_LOGIC_VECTOR(7 downto 0);
             green           : out STD_LOGIC_VECTOR(7 downto 0);
             blue            : out STD_LOGIC_VECTOR(7 downto 0)
@@ -196,7 +197,7 @@ end process;
 
     U1: vga_pll_25_175 port map(CLK, pll_out_clk);
     U2: vga_controller port map(pll_out_clk, '1', h_sync_m, v_sync_m, dispEn, colSignal, rowSignal, open, open);
-    U3: hw_image_generator port map(dispEn, rowSignal, colSignal, encoder_value_player1, encoder_value_player2, delay_done, SW1, red_m, green_m, blue_m);
+    U3: hw_image_generator port map(dispEn, CLK, rowSignal, colSignal, encoder_value_player1, encoder_value_player2, delay_done, SW1, red_m, green_m, blue_m);
 
     -- Debouncers for the rortary encoder signals
     debounce_ChA1 : entity work.Debounce
