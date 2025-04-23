@@ -38,10 +38,10 @@ architecture behavior of hw_image_generator is
     constant paddle_right   : integer := 350;
 	constant paddle_width   : integer := 60;
 
-    constant ball_top       : integer := 237;
-    constant ball_bottom    : integer := 243;
+    constant ball_top       : integer := 230;
+    constant ball_bottom    : integer := 236; -- 6 pixles
     constant ball_left      : integer := 317;
-    constant ball_right     : integer := 323;
+    constant ball_right     : integer := 323; -- 6 pixles
 
     
     signal ball_top_range : integer range -225 to 234 := 0;
@@ -51,7 +51,7 @@ architecture behavior of hw_image_generator is
     signal quad2  : STD_LOGIC := '0';
     signal quad3  : STD_LOGIC := '1';
     signal quad4  : STD_LOGIC := '0';
-	 signal quad1t  : STD_LOGIC := '0';
+	signal quad1t  : STD_LOGIC := '0';
     signal quad2t  : STD_LOGIC := '0';
     signal quad3t  : STD_LOGIC := '0';
     signal quad4t  : STD_LOGIC := '0';
@@ -422,6 +422,8 @@ begin
                     elsif ball_posB >= row_tops(row_idx) and ball_posB <= row_bottoms(row_idx) and
                           ball_posR >= column_lefts(col_idx) and ball_posL <= column_rights(col_idx) then
 								  block_collision((row_idx * 14) + col_idx) <= '1';
+								  score1 <= score1 + 1;
+
 								if (quad3 = '1') then
 										  quad1 <= '0';
 										  quad2 <= '1';
@@ -440,6 +442,7 @@ begin
                     elsif ball_posR >= column_lefts(col_idx) and ball_posR <= column_rights(col_idx) and
                           ball_posB >= row_tops(row_idx) and ball_posT <= row_bottoms(row_idx) then
 								  block_collision((row_idx * 14) + col_idx) <= '1';
+								  score1 <= score1 + 1;
 								if (quad1 = '1') then
 								  quad1 <= '0';
 								  quad2 <= '1';
@@ -458,6 +461,7 @@ begin
                     elsif ball_posL <= column_rights(col_idx) and ball_posL >= column_lefts(col_idx) and
                           ball_posB >= row_tops(row_idx) and ball_posT <= row_bottoms(row_idx) then
 								  block_collision((row_idx * 14) + col_idx) <= '1';
+								  score1 <= score1 + 1;
 								if (quad2 = '1') then
 									  quad1 <= '1';
 									  quad2 <= '0';
