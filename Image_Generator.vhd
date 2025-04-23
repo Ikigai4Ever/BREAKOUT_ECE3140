@@ -37,6 +37,10 @@ architecture behavior of hw_image_generator is
     constant paddle_height  : integer := 8;
     constant paddle_left    : integer := 290;
     constant paddle_right   : integer := paddle_left + paddle_width;
+    constant paddle_posL_player1 : integer;
+    constant paddle_posR_player1 : integer;
+    constant paddle_posL_player2 : integer;
+    constant paddle_posR_player2 : integer;
     -- Player 1 Paddle
 	constant paddle_top_player1     : integer := 450;
     constant paddle_bottom_player1  : integer := paddle_top_player1 + paddle_height;
@@ -51,6 +55,10 @@ architecture behavior of hw_image_generator is
     constant ball_bottom    : integer := ball_top + ball_height;
     constant ball_left      : integer := 317;
     constant ball_right     : integer := ball_left + ball_width;
+    constant ball_posL  : integer;
+    constant ball_posR  : integer;
+    constant ball_posT  : integer;
+    constant ball_posB  : integer;
 
     
     signal ball_top_range : integer range -225 to 234 := 0;
@@ -77,12 +85,6 @@ architecture behavior of hw_image_generator is
     signal ball_count_p2 : integer range 0 to 5 := 5;
     signal block_col_true : STD_LOGIC := '0';
 	signal prev_col_idx : integer := 1;
-    signal paddle_posL : integer;
-    signal paddle_posR : integer;
-	signal ball_posL  : integer;
-    signal ball_posR  : integer;
-    signal ball_posT  : integer;
-    signal ball_posB  : integer;
 
     signal block_colb_true : STD_LOGIC := '0';
 	signal block_coll_true : STD_LOGIC := '0';
@@ -205,38 +207,34 @@ architecture behavior of hw_image_generator is
 
     function draw_digit(digit : in integer; row_index : in integer; col_index : in integer) return boolean is
         variable p : boolean := false;
-      begin
+    begin
         case digit is
-      
-          when 0 =>
+        when 0 =>
             if (
               (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or -- top
               (row_index >= 34 and row_index <= 39 and col_index >= 0 and col_index <= 29) or -- bottom
               (col_index >= 0 and col_index <= 5 and row_index >= 0 and row_index <= 39) or -- left
               (col_index >= 24 and col_index <= 29 and row_index >= 0 and row_index <= 39) -- right
-            ) then
-              p := true;
+            ) then p := true;
             end if;
       
-          when 1 =>
+        when 1 =>
             if (
               (col_index >= 24 and col_index <= 29 and row_index >= 0 and row_index <= 39)
-            ) then
-              p := true;
+            ) then p := true;
             end if;
       
-          when 2 =>
+        when 2 =>
             if (
               (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or -- top
               (row_index >= 17 and row_index <= 22 and col_index >= 0 and col_index <= 29) or -- mid
               (row_index >= 34 and row_index <= 39 and col_index >= 0 and col_index <= 29) or -- bottom
               (col_index >= 24 and col_index <= 29 and row_index >= 0 and row_index <= 22) or -- top-right
               (col_index >= 0 and col_index <= 5 and row_index >= 17 and row_index <= 39) -- bottom-left
-            ) then
-              p := true;
+            ) then p := true;
             end if;
       
-          when 3 =>
+        when 3 =>
             if (
               (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or
               (row_index >= 17 and row_index <= 22 and col_index >= 0 and col_index <= 29) or
@@ -246,7 +244,7 @@ architecture behavior of hw_image_generator is
               p := true;
             end if;
       
-          when 4 =>
+        when 4 =>
             if (
               (col_index >= 0 and col_index <= 5 and row_index >= 0 and row_index <= 22) or
               (col_index >= 24 and col_index <= 29 and row_index >= 0 and row_index <= 39) or
@@ -255,7 +253,7 @@ architecture behavior of hw_image_generator is
               p := true;
             end if;
       
-          when 5 =>
+        when 5 =>
             if (
               (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or
               (row_index >= 17 and row_index <= 22 and col_index >= 0 and col_index <= 29) or
@@ -266,7 +264,7 @@ architecture behavior of hw_image_generator is
               p := true;
             end if;
       
-          when 6 =>
+        when 6 =>
             if (
               (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or
               (row_index >= 17 and row_index <= 22 and col_index >= 0 and col_index <= 29) or
@@ -277,7 +275,7 @@ architecture behavior of hw_image_generator is
               p := true;
             end if;
       
-          when 7 =>
+        when 7 =>
             if (
               (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or
               (col_index >= 24 and col_index <= 29 and row_index >= 0 and row_index <= 39)
@@ -285,7 +283,7 @@ architecture behavior of hw_image_generator is
               p := true;
             end if;
       
-          when 8 =>
+        when 8 =>
             if (
               (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or
               (row_index >= 17 and row_index <= 22 and col_index >= 0 and col_index <= 29) or
@@ -296,7 +294,7 @@ architecture behavior of hw_image_generator is
               p := true;
             end if;
       
-          when 9 =>
+        when 9 =>
             if (
               (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or
               (row_index >= 17 and row_index <= 22 and col_index >= 0 and col_index <= 29) or
@@ -307,199 +305,192 @@ architecture behavior of hw_image_generator is
               p := true;
             end if;
       
-          when others =>
-            p := false;
+        when others => p := false;
+    end case;
       
-        end case;
-      
-        return p;
-      end function;
+    return p;
+end function;
 
 begin	 	 
-
-    process(paddle_collision, delay_done, borderl_collision, borderr_collision, bordert_collision, block_colb_true, block_colt_true, block_coll_true, block_colr_true)
+    QUADS : process(paddle_collision, delay_done, borderl_collision, borderr_collision, bordert_collision, block_colb_true, block_colt_true, block_coll_true, block_colr_true)
     begin
-            if rising_edge(delay_done) then
-                if SW1 = '0' then 
-                    ball_top_range <= ball_top_range;
+        if rising_edge(delay_done) then
+            if SW1 = '0' then 
+                ball_top_range <= ball_top_range;
+                ball_left_range <= ball_left_range;
+                quad1 <= quad1;
+                quad2 <= quad2;
+                quad3 <= quad3;
+                quad4 <= quad4;
+            elsif (paddle_collision = '1') and (quad3 = '1') then
+                quad1 <= '0';
+                quad2 <= '1';
+                quad3 <= '0';
+                quad4 <= '0'; 
+            elsif (paddle_collision = '1') and (quad4 = '1') then
+                quad1 <= '1';
+                quad2 <= '0';
+                quad3 <= '0';
+                quad4 <= '0'; 
+            elsif ((borderl_collision = '1') and (quad3 = '1')) then
+                quad1 <= '0';
+                quad2 <= '0';
+                quad3 <= '0';
+                quad4 <= '1';
+            elsif ((borderl_collision = '1') and (quad2 = '1')) then
+                quad1 <= '1';
+                quad2 <= '0';
+                quad3 <= '0';
+                quad4 <= '0';
+            elsif ((borderr_collision = '1') and (quad4 = '1')) then
+                quad1 <= '0';
+                quad2 <= '0';
+                quad3 <= '1';
+                quad4 <= '0';
+            elsif ((borderr_collision = '1') and (quad1 = '1')) then
+                quad1 <= '0';
+                quad2 <= '1';
+                quad3 <= '0';
+                quad4 <= '0';
+            elsif ((bordert_collision = '1') and (quad1 = '1')) then
+                quad1 <= '0';
+                quad2 <= '0';
+                quad3 <= '0';
+                quad4 <= '1';
+            elsif ((bordert_collision = '1') and (quad2 = '1')) then
+                quad1 <= '0';
+                quad2 <= '0';
+                quad3 <= '1';
+                quad4 <= '0';
+            else 
+                if quad1 = '1' then
+                    ball_left_range <= ball_left_range + 1;
+                    ball_top_range  <= ball_top_range - 1;
+                    quad2 <= '0';
+                    quad3 <= '0';
+                    quad4 <= '0';
+                elsif quad2 = '1' then
+                    ball_left_range <= ball_left_range - 1;
+                    ball_top_range  <= ball_top_range - 1;
+                    quad1 <= '0';
+                    quad3 <= '0';
+                    quad4 <= '0';
+                elsif quad3 = '1' then
+                    ball_left_range <= ball_left_range - 1;
+                    ball_top_range  <= ball_top_range + 1;
+                    quad1 <= '0';
+                    quad2 <= '0';
+                    quad4 <= '0';
+                elsif quad4 = '1' then
+                    ball_left_range <= ball_left_range + 1;
+                    ball_top_range  <= ball_top_range + 1;
+                    quad1 <= '0';
+                    quad2 <= '0';
+                    quad3 <= '0';
+                else 
                     ball_left_range <= ball_left_range;
+                    ball_top_range  <= ball_top_range;
                     quad1 <= quad1;
                     quad2 <= quad2;
                     quad3 <= quad3;
                     quad4 <= quad4;
-                elsif (paddle_collision = '1') and (quad3 = '1') then
-                    quad1 <= '0';
-                    quad2 <= '1';
-                    quad3 <= '0';
-                    quad4 <= '0'; 
-                elsif (paddle_collision = '1') and (quad4 = '1') then
-                    quad1 <= '1';
-                    quad2 <= '0';
-                    quad3 <= '0';
-                    quad4 <= '0'; 
-                elsif ((borderl_collision = '1') and (quad3 = '1')) then
-                    quad1 <= '0';
-                    quad2 <= '0';
-                    quad3 <= '0';
-                    quad4 <= '1';
-                elsif ((borderl_collision = '1') and (quad2 = '1')) then
-                    quad1 <= '1';
-                    quad2 <= '0';
-                    quad3 <= '0';
-                    quad4 <= '0';
-                elsif ((borderr_collision = '1') and (quad4 = '1')) then
-                    quad1 <= '0';
-                    quad2 <= '0';
-                    quad3 <= '1';
-                    quad4 <= '0';
-                elsif ((borderr_collision = '1') and (quad1 = '1')) then
-                    quad1 <= '0';
-                    quad2 <= '1';
-                    quad3 <= '0';
-                    quad4 <= '0';
-                elsif ((bordert_collision = '1') and (quad1 = '1')) then
-                    quad1 <= '0';
-                    quad2 <= '0';
-                    quad3 <= '0';
-                    quad4 <= '1';
-                elsif ((bordert_collision = '1') and (quad2 = '1')) then
-                    quad1 <= '0';
-                    quad2 <= '0';
-                    quad3 <= '1';
-                    quad4 <= '0';
-                else 
-                    if quad1 = '1' then
-                        ball_left_range <= ball_left_range + 1;
-                        ball_top_range  <= ball_top_range - 1;
-                        quad2 <= '0';
-                        quad3 <= '0';
-                        quad4 <= '0';
-                    elsif quad2 = '1' then
-                        ball_left_range <= ball_left_range - 1;
-                        ball_top_range  <= ball_top_range - 1;
-                        quad1 <= '0';
-                        quad3 <= '0';
-                        quad4 <= '0';
-                    elsif quad3 = '1' then
-                        ball_left_range <= ball_left_range - 1;
-                        ball_top_range  <= ball_top_range + 1;
-                        quad1 <= '0';
-                        quad2 <= '0';
-                        quad4 <= '0';
-                    elsif quad4 = '1' then
-                        ball_left_range <= ball_left_range + 1;
-                        ball_top_range  <= ball_top_range + 1;
-                        quad1 <= '0';
-                        quad2 <= '0';
-                        quad3 <= '0';
-                    else 
-                        ball_left_range <= ball_left_range;
-                        ball_top_range  <= ball_top_range;
-                        quad1 <= quad1;
-                        quad2 <= quad2;
-                        quad3 <= quad3;
-                        quad4 <= quad4;
                 end if;
-                end if;
+            end if;
                     -- Block collision detection
                     
- for row_idx in 0 to 7 loop
-    for col_idx in 0 to 13 loop
-
-         if block_collision((row_idx * 14) + col_idx) = '0' then
-             -- Bottom collision (ball hits top of block)
-             if ball_posT <= row_bottoms(row_idx) and ball_posT >= row_tops(row_idx) and
-                ball_posR >= column_lefts(col_idx) and ball_posL <= column_rights(col_idx) then
-                       block_collision((row_idx * 14) + col_idx) <= '1';
-                       score1 <= score1 + 1;
-
-                       if (quad1 = '1') then
-                           quad1 <= '0';
-                           quad2 <= '0';
-                           quad3 <= '0';
-                           quad4 <= '1';
-                           --score1 <= score1 + 1;
-                       elsif(quad2 = '1') then
-                           quad1 <= '0';
-                           quad2 <= '0';
-                           quad3 <= '1';
-                           quad4 <= '0';
-                           --score1 <= score1 + 1;
-                         end if;
-                 block_collision((row_idx * 14) + col_idx) <= '1';
-             -- Top collision (ball hits bottom of block)
-             elsif ball_posB >= row_tops(row_idx) and ball_posB <= row_bottoms(row_idx) and
-                   ball_posR >= column_lefts(col_idx) and ball_posL <= column_rights(col_idx) then
-                           block_collision((row_idx * 14) + col_idx) <= '1';
-                           score1 <= score1 + 1;
-
-                         if (quad3 = '1') then
-                                   quad1 <= '0';
-                                   quad2 <= '1';
-                                   quad3 <= '0';
-                                   quad4 <= '0';
-                                   --score1 <= score1 + 1;
-                         elsif (quad4 = '1') then
-                                   quad1 <= '1';
-                                   quad2 <= '0';
-                                   quad3 <= '0';
-                                   quad4 <= '0';
-                                   --score1 <= score1 + 1;
-                         end if;
-                         block_collision((row_idx * 14) + col_idx) <= '1';
-             -- Left side collision
-             elsif ball_posR >= column_lefts(col_idx) and ball_posR <= column_rights(col_idx) and
-                   ball_posB >= row_tops(row_idx) and ball_posT <= row_bottoms(row_idx) then
-                           block_collision((row_idx * 14) + col_idx) <= '1';
-                           score1 <= score1 + 1;
-                         if (quad1 = '1') then
-                           quad1 <= '0';
-                           quad2 <= '1';
-                           quad3 <= '0';
-                           quad4 <= '0';
-                           --score1 <= score1 + 1;
-                         elsif (quad4 = '1') then
-                           quad1 <= '0';
-                           quad2 <= '0';
-                           quad3 <= '1';
-                           quad4 <= '0';
-                           --score1 <= score1 + 1;
-                          end if;
-                 block_collision((row_idx * 14) + col_idx) <= '1';
-             -- Right side collision
-             elsif ball_posL <= column_rights(col_idx) and ball_posL >= column_lefts(col_idx) and
-                   ball_posB >= row_tops(row_idx) and ball_posT <= row_bottoms(row_idx) then
-                           block_collision((row_idx * 14) + col_idx) <= '1';
-                           score1 <= score1 + 1;
-                         if (quad2 = '1') then
-                               quad1 <= '1';
-                               quad2 <= '0';
-                               quad3 <= '0';
-                               quad4 <= '0';
-                               --score1 <= score1 + 1;
-                         elsif (quad3 = '1') then
-                               quad1 <= '0';
-                               quad2 <= '0';
-                               quad3 <= '0';
-                               quad4 <= '1'; 
-                               --score1 <= score1 + 1;
-                         end if;
-             end if;
-         end if;
-     end loop;
- end loop;
-
-     end if;
-end process;
+            for row_idx in 0 to 7 loop
+                for col_idx in 0 to 13 loop
+                    if block_collision((row_idx * 14) + col_idx) = '0' then
+                        -- Bottom collision (ball hits top of block)
+                        if ball_posT <= row_bottoms(row_idx) and ball_posT >= row_tops(row_idx) and
+                           ball_posR >= column_lefts(col_idx) and ball_posL <= column_rights(col_idx) 
+                           then block_collision((row_idx * 14) + col_idx) <= '1';
+                                score1 <= score1 + 1;
+                                if (quad1 = '1') then
+                                    quad1 <= '0';
+                                    quad2 <= '0';
+                                    quad3 <= '0';
+                                    quad4 <= '1';
+                                    --score1 <= score1 + 1;
+                                elsif(quad2 = '1') then
+                                    quad1 <= '0';
+                                    quad2 <= '0';
+                                    quad3 <= '1';
+                                    quad4 <= '0';
+                                    --score1 <= score1 + 1;
+                                    end if;
+                            block_collision((row_idx * 14) + col_idx) <= '1';
+                        -- Top collision (ball hits bottom of block)
+                        elsif ball_posB >= row_tops(row_idx) and ball_posB <= row_bottoms(row_idx) and
+                              ball_posR >= column_lefts(col_idx) and ball_posL <= column_rights(col_idx) 
+                              then block_collision((row_idx * 14) + col_idx) <= '1';
+                                    score1 <= score1 + 1;
+                                    if (quad3 = '1') then
+                                        quad1 <= '0';
+                                        quad2 <= '1';
+                                        quad3 <= '0';
+                                        quad4 <= '0';
+                                        --score1 <= score1 + 1;
+                                    elsif (quad4 = '1') then
+                                        quad1 <= '1';
+                                        quad2 <= '0';
+                                        quad3 <= '0';
+                                        quad4 <= '0';
+                                        --score1 <= score1 + 1;
+                                    end if;
+                                block_collision((row_idx * 14) + col_idx) <= '1';
+                        
+                        -------------- Left side collision --------------
+                        elsif ball_posR >= column_lefts(col_idx) and ball_posR <= column_rights(col_idx) and
+                              ball_posB >= row_tops(row_idx) and ball_posT <= row_bottoms(row_idx) 
+                              then block_collision((row_idx * 14) + col_idx) <= '1';
+                                score1 <= score1 + 1;
+                                if (quad1 = '1') then
+                                    quad1 <= '0';
+                                    quad2 <= '1';
+                                    quad3 <= '0';
+                                    quad4 <= '0';
+                                    --score1 <= score1 + 1;
+                                elsif (quad4 = '1') then
+                                    quad1 <= '0';
+                                    quad2 <= '0';
+                                    quad3 <= '1';
+                                    quad4 <= '0';
+                                    --score1 <= score1 + 1;
+                                end if;
+                                block_collision((row_idx * 14) + col_idx) <= '1';
+                        
+                        -------------- Right side collision --------------
+                        elsif ball_posL <= column_rights(col_idx) and ball_posL >= column_lefts(col_idx) and
+                              ball_posB >= row_tops(row_idx) and ball_posT <= row_bottoms(row_idx) 
+                              then block_collision((row_idx * 14) + col_idx) <= '1';
+                                score1 <= score1 + 1;
+                                if (quad2 = '1') then
+                                    quad1 <= '1';
+                                    quad2 <= '0';
+                                    quad3 <= '0';
+                                    quad4 <= '0';
+                                    --score1 <= score1 + 1;
+                                elsif (quad3 = '1') then
+                                    quad1 <= '0';
+                                    quad2 <= '0';
+                                    quad3 <= '0';
+                                    quad4 <= '1'; 
+                                    --score1 <= score1 + 1;
+                                end if;
+                        end if;
+                    end if;
+                end loop;
+            end loop;
+        end if;
+    end process;
 	 
 	 
 	 
 	 
-	COLLISION DRAWING: process(CLK)
+	COLLISION_DRAWINGS: process(CLK)
     begin
     if rising_edge(CLK) then
-        
-
         if ball_posL = BORDER_LEFT then
             borderl_collision <= '1';
         else
@@ -544,16 +535,6 @@ end process;
         variable hundreds2, tens2, ones2 : integer;
         variable digit_row, digit_col    : integer;
 
-        variable paddle_posL_player1 : integer;
-        variable paddle_posR_player1 : integer;
-        variable paddle_posL_player2 : integer;
-        variable paddle_posR_player2 : integer;
-
-        variable ball_posL  : integer;
-        variable ball_posR  : integer;
-        variable ball_posT  : integer;
-        variable ball_posB  : integer;
-
     begin
 	 	 --if rising_edge(CLK) then
 	     -- Default color to black
@@ -563,18 +544,18 @@ end process;
 		  
         if disp_ena = '1' then            
             -- Paddle position based on encoder_value for player 1
-            paddle_posL_player1 := encoder_value_player1 - paddle_width / 2;
-            paddle_posR_player1 := encoder_value_player1 + paddle_width / 2;
+            paddle_posL_player1 <= encoder_value_player1 - paddle_width / 2;
+            paddle_posR_player1 <= encoder_value_player1 + paddle_width / 2;
 
             -- Paddle position based on encoder_value for player 2
-            paddle_posL_player2 := encoder_value_player2 - paddle_width / 2;
-            paddle_posR_player2 := encoder_value_player2 + paddle_width / 2;
+            paddle_posL_player2 <= encoder_value_player2 - paddle_width / 2;
+            paddle_posR_player2 <= encoder_value_player2 + paddle_width / 2;
 
             -- Ball Position calculations
-            ball_posL := ball_left + ball_left_range;
-            ball_posT := ball_top + ball_top_range;
-            ball_posR := ball_posL + 6;
-            ball_posB := ball_posT + 6;
+            ball_posL <= ball_left + ball_left_range;
+            ball_posT <= ball_top + ball_top_range;
+            ball_posR <= ball_posL + 6;
+            ball_posB <= ball_posT + 6;
 
             -- Paddle coloring Player 1
             if row >= paddle_top_player1 and row <= paddle_bottom_player1 and column >= paddle_posL_player1  and column <= paddle_posR_player1 then
