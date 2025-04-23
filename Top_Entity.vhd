@@ -15,7 +15,7 @@ entity top is
         -- Clocks and control
         CLK         : in  STD_LOGIC;
         KEY0        : in  STD_LOGIC;
-		  KEY1 	    : in  STD_LOGIC;
+		KEY1 	    : in  STD_LOGIC;
         SW1         : in  STD_LOGIC;
 		  
         ChA1         : in  STD_LOGIC; -- CLK on RE
@@ -52,7 +52,7 @@ architecture Behavioral of top is
     signal colSignal   : integer;
 
     -- Paddle Position from Rotary Encoder
-	constant paddle_start_x : integer := 320;
+	 constant paddle_start_x : integer := 320;
     signal encoder_value_player1: integer := paddle_start_x;
     signal encoder_value_player2: integer := paddle_start_x;
 	signal prevA_player1	    : STD_LOGIC := '0';
@@ -112,13 +112,13 @@ architecture Behavioral of top is
     component hw_image_generator
         port (
             disp_ena        : in  STD_LOGIC;
-			CLK				: in  STD_LOGIC;
             row             : in  INTEGER;
             column          : in  INTEGER;
             encoder_value_player1   : in  INTEGER;
             encoder_value_player2   : in  INTEGER;
             delay_done      : in  STD_LOGIC;
-            SW1             : in  STD_LOGIC;
+            sw1             : in  STD_LOGIC;
+				led0, led1, led2, led3 : out STD_LOGIC;
             red             : out STD_LOGIC_VECTOR(7 downto 0);
             green           : out STD_LOGIC_VECTOR(7 downto 0);
             blue            : out STD_LOGIC_VECTOR(7 downto 0)
@@ -195,7 +195,6 @@ end process;
 			reset_reset_n => KEY0  -- reset.reset_n
 		);
 
-    -- VGA Signal Routing
     U1: vga_pll_25_175 port map(CLK, pll_out_clk);
     U2: vga_controller port map(pll_out_clk, '1', h_sync_m, v_sync_m, dispEn, colSignal, rowSignal, open, open);
     U3: hw_image_generator port map(dispEn, CLK, rowSignal, colSignal, encoder_value_player1, encoder_value_player2, delay_done, SW1, red_m, green_m, blue_m);
