@@ -402,16 +402,20 @@ begin
                     if ball_posT <= row_bottoms(row_idx) and ball_posT >= row_tops(row_idx) and
                        ball_posR >= column_lefts(col_idx) and ball_posL <= column_rights(col_idx) then
 							  block_collision((row_idx * 14) + col_idx) <= '1';
+							  score1 <= score1 + 1;
+
 							  if (quad1 = '1') then
 								  quad1 <= '0';
 								  quad2 <= '0';
 								  quad3 <= '0';
 								  quad4 <= '1';
+								  --score1 <= score1 + 1;
 							  elsif(quad2 = '1') then
 								  quad1 <= '0';
 								  quad2 <= '0';
 								  quad3 <= '1';
 								  quad4 <= '0';
+								  --score1 <= score1 + 1;
 								end if;
                         block_collision((row_idx * 14) + col_idx) <= '1';
                     -- Top collision (ball hits bottom of block)
@@ -423,11 +427,13 @@ begin
 										  quad2 <= '1';
 										  quad3 <= '0';
 										  quad4 <= '0';
+										  --score1 <= score1 + 1;
 								elsif (quad4 = '1') then
 										  quad1 <= '1';
 										  quad2 <= '0';
 										  quad3 <= '0';
 										  quad4 <= '0';
+										  --score1 <= score1 + 1;
 								end if;
 								block_collision((row_idx * 14) + col_idx) <= '1';
                     -- Left side collision
@@ -439,11 +445,13 @@ begin
 								  quad2 <= '1';
 								  quad3 <= '0';
 								  quad4 <= '0';
+								  --score1 <= score1 + 1;
 								elsif (quad4 = '1') then
 								  quad1 <= '0';
 								  quad2 <= '0';
 								  quad3 <= '1';
 								  quad4 <= '0';
+								  --score1 <= score1 + 1;
 								 end if;
                         block_collision((row_idx * 14) + col_idx) <= '1';
                     -- Right side collision
@@ -455,11 +463,13 @@ begin
 									  quad2 <= '0';
 									  quad3 <= '0';
 									  quad4 <= '0';
+									  --score1 <= score1 + 1;
 								elsif (quad3 = '1') then
 									  quad1 <= '0';
 									  quad2 <= '0';
 									  quad3 <= '0';
-									  quad4 <= '1';              
+									  quad4 <= '1'; 
+									  --score1 <= score1 + 1;
 								end if;
                     end if;
                 end if;
