@@ -323,7 +323,7 @@ begin
 									  quad1 <= '0';
 									  quad2 <= '0';
 									  quad3 <= '0';
-									  quad4 <= '1';              
+									  quad4 <= '1'; 
 								end if;
                     end if;
                 end if;
