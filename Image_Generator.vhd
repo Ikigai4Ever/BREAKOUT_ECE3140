@@ -729,7 +729,8 @@ begin
             if (ball_posB = paddle_top_player1 and ball_posR >= paddle_posL_player1 and ball_posL <= paddle_posR_player1) then
 				paddle_collision <= '1';
                 player_hit <= '0'; -- Player 1 hit the ball
-			elsif (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2) then
+			elsif (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2) 
+                  and (quad3 = '1' or quad4 = '1') then
                 paddle_collision <= '1';
                 player_hit <= '1'; -- Player 2 hit the ball
             else 
