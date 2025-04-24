@@ -10,13 +10,18 @@ use IEEE.NUMERIC_STD.ALL;
 entity hw_image_generator is
     port (
         disp_ena        : in  STD_LOGIC;
-		CLK				: in  STD_LOGIC;
+		  CLK				   : in  STD_LOGIC;
         row             : in  INTEGER;
         column          : in  INTEGER;
-		encoder_value   : in  INTEGER;
+		  encoder_value   : in  INTEGER;
         delay_done      : in  STD_LOGIC;
         SW1             : in  STD_LOGIC;
-		  led0, led1, led2, led3 : out STD_LOGIC;
+        HEX0   : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX1   : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX2   : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX3   : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX4   : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX5   : out STD_LOGIC_VECTOR(6 downto 0);
         red             : out STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
         green           : out STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
         blue            : out STD_LOGIC_VECTOR(7 downto 0) := (others => '0')
@@ -51,14 +56,15 @@ architecture behavior of hw_image_generator is
     signal quad2  : STD_LOGIC := '0';
     signal quad3  : STD_LOGIC := '1';
     signal quad4  : STD_LOGIC := '0';
-	signal quad1t  : STD_LOGIC := '0';
+	 signal quad1t  : STD_LOGIC := '0';
     signal quad2t  : STD_LOGIC := '0';
     signal quad3t  : STD_LOGIC := '0';
     signal quad4t  : STD_LOGIC := '0';
-	signal paddle_collision : STD_LOGIC := '0';
+	 signal paddle_collision : STD_LOGIC := '0';
     signal borderl_collision : STD_LOGIC := '0';
     signal bordert_collision : STD_LOGIC := '0';
     signal borderr_collision : STD_LOGIC := '0';
+	 signal borderb_collision : STD_LOGIC := '0';
     signal block_collision   : STD_LOGIC_VECTOR(111 downto 0) := (OTHERS => '0');
     signal index : integer := 0;
     signal gen_idx : integer := 0;
@@ -66,19 +72,20 @@ architecture behavior of hw_image_generator is
     signal score2 : integer range 0 to 999 := 0;
     signal ball_count_p1 : integer range 0 to 5 := 5;
     signal ball_count_p2 : integer range 0 to 5 := 5;
+	 signal game_over     : STD_LOGIC := '0';
     signal block_col_true : STD_LOGIC := '0';
-	signal prev_col_idx : integer := 1;
+	 signal prev_col_idx : integer := 1;
     signal paddle_posL : integer;
     signal paddle_posR : integer;
-	signal ball_posL  : integer;
+	 signal ball_posL  : integer;
     signal ball_posR  : integer;
     signal ball_posT  : integer;
     signal ball_posB  : integer;
 
     signal block_colb_true : STD_LOGIC := '0';
-	signal block_coll_true : STD_LOGIC := '0';
-	signal block_colr_true : STD_LOGIC := '0';
-	signal block_colt_true : STD_LOGIC := '0';
+	 signal block_coll_true : STD_LOGIC := '0';
+	 signal block_colr_true : STD_LOGIC := '0';
+	 signal block_colt_true : STD_LOGIC := '0';
 
     signal ball_prevL, ball_prevR, ball_prevT, ball_prevB : integer;
 
@@ -89,6 +96,7 @@ architecture behavior of hw_image_generator is
     constant BORDER_TOP   : integer := 0 + border_width; 
     constant BORDER_LEFT  : integer := -2 + border_width;
     constant BORDER_RIGHT : integer := 635 - border_width;
+	 constant BORDER_BOTTOM : integer := 480;
 
     constant row1_top    : integer := block_start_y;
     constant row1_bottom : integer := row1_top + block_height;
@@ -161,6 +169,10 @@ architecture behavior of hw_image_generator is
         column9_right, column10_right, column11_right, column12_right,
         column13_right, column14_right
     );
+	 
+	 --Score Variables for Hex Values
+	 signal score1_bcd     : STD_LOGIC_VECTOR (11 downto 0);
+	 signal score2_bcd     : STD_LOGIC_VECTOR (11 downto 0);
 
     --Score Text Area for Player 1
 	constant score1_top         : integer := row1_top - 45;
@@ -193,6 +205,33 @@ architecture behavior of hw_image_generator is
 	constant ball_count2_bottom : integer := border_top + 45;
 	constant ball_count2_left   : integer := column9_left + 4;
 	constant ball_count2_right  : integer := column9_right - 4;
+	
+	--Game Over Text
+	constant CHAR_WIDTH   : integer := 30;
+	constant CHAR_HEIGHT  : integer := 40;
+	constant CHAR_SPACING : integer := 5;
+	constant NUM_CHARS    : integer := 9;  -- "GAME OVER" = 9 characters
+	constant TEXT_WIDTH   : integer := NUM_CHARS * CHAR_WIDTH + (NUM_CHARS - 1) * CHAR_SPACING;
+	constant TEXT_START_X : integer := (640 - TEXT_WIDTH) / 2;
+	constant TEXT_START_Y : integer := (480 - CHAR_HEIGHT) / 2;
+
+	-- 7-segment decoder
+    function to_seg7(d : STD_LOGIC_VECTOR(3 downto 0)) return STD_LOGIC_VECTOR is
+    begin
+        case d is
+            when "0000" => return "1000000"; -- 0
+            when "0001" => return "1111001"; -- 1
+            when "0010" => return "0100100"; -- 2
+            when "0011" => return "0110000"; -- 3
+            when "0100" => return "0011001"; -- 4
+            when "0101" => return "0010010"; -- 5
+            when "0110" => return "0000010"; -- 6
+            when "0111" => return "1111000"; -- 7
+            when "1000" => return "0000000"; -- 8
+            when "1001" => return "0010000"; -- 9
+            when others => return "1111111"; -- blank
+        end case;
+    end function;
 
     function draw_digit(digit : in integer; row_index : in integer; col_index : in integer) return boolean is
         variable p : boolean := false;
@@ -305,11 +344,107 @@ architecture behavior of hw_image_generator is
       
         return p;
       end function;
+		
+function draw_char(ch : in character; row_index : in integer; col_index : in integer) return boolean is
+    variable p : boolean := false;
+begin
+    case ch is
+
+        when 'G' =>
+            if (
+                (row_index < 5) or
+                (row_index >= 35) or
+                (col_index < 5) or
+                ((col_index >= 25) and (row_index >= 20)) or
+                ((row_index >= 20 and row_index < 25) and (col_index >= 15))
+            ) then p := true; end if;
+
+        when 'A' =>
+            if (
+                (row_index < 5) or
+                ((row_index >= 18) and (row_index < 23)) or
+                (col_index < 5) or
+                (col_index >= 25)
+            ) then p := true; end if;
+
+        when 'M' =>
+				 if (
+					  (col_index >= 0 and col_index < 5) or -- left vertical
+					  (col_index >= CHAR_WIDTH - 5 and col_index < CHAR_WIDTH) or -- right vertical
+					  -- thicker diagonal: approximate downward slope from top to middle
+					  (row_index < 20 and col_index >= 5 + (row_index / 2) - 2 and col_index < 5 + (row_index / 2) + 3) or
+					  (row_index < 20 and col_index >= CHAR_WIDTH - 6 - (row_index / 2) - 2 and col_index < CHAR_WIDTH - 6 - (row_index / 2) + 3)
+				 ) then
+					  p := true;
+				 end if;
+
+        when 'E' =>
+            if (
+                (row_index < 5) or
+                ((row_index >= 18) and (row_index < 23)) or
+                (row_index >= 35) or
+                (col_index < 5)
+            ) then p := true; end if;
+
+        when 'O' =>
+            if (
+                (row_index < 5) or
+                (row_index >= 35) or
+                (col_index < 5) or
+                (col_index >= 25)
+            ) then p := true; end if;
+
+ 			when 'V' =>
+					 if (
+						  abs(col_index - (row_index * (CHAR_WIDTH / 2) / CHAR_HEIGHT)) < 3 or
+						  abs(col_index - (CHAR_WIDTH - 1 - (row_index * (CHAR_WIDTH / 2) / CHAR_HEIGHT))) < 3
+					 ) then p := true; end if;
+
+			when 'R' =>
+				  if (
+					 -- Left vertical line
+					 (col_index >= 0 and col_index < 5) or
+
+					 -- Top bar
+					 (row_index >= 0 and row_index < 5 and col_index < CHAR_WIDTH - 5) or
+
+					 -- Middle bar (this is where the upper right vertical and middle bar intersect, should be filled)
+					 (row_index >= 17 and row_index < 22 and col_index < CHAR_WIDTH) or
+
+					 -- Upper right vertical line (above middle bar)
+					 (row_index < 17 and col_index >= CHAR_WIDTH - 5 and col_index < CHAR_WIDTH) or
+
+					 -- Diagonal from middle to bottom right (corrected)
+					 (row_index >= 22 and
+						col_index >= 5 + ((row_index - 22) * 20) / 18 and
+						col_index < 5 + ((row_index - 22) * 20) / 18 + 5) or
+
+					 -- Bottom left vertical line to fill the corner (on opposite side of diagonal)
+					 -- Starts below the middle bar (row >= 22) and fills the bottom left corner (without touching diagonal)
+					 (row_index >= 22 and row_index < 35 and col_index >= 0 and col_index < 5)
+				  ) then
+					 p := true;
+				  end if;
+
+
+        when ' ' =>
+            p := false;
+
+        when others =>
+            p := false;
+
+    end case;
+    return p;
+end function;
+
+
+
 
 begin	 	 
 
     process(paddle_collision, delay_done, borderl_collision, borderr_collision, bordert_collision, block_colb_true, block_colt_true, block_coll_true, block_colr_true)
-    begin
+    variable temp_score1 : integer := 0;
+	 begin
             if rising_edge(delay_done) then
                 if SW1 = '0' then 
                     ball_top_range <= ball_top_range;
@@ -358,7 +493,21 @@ begin
                     quad2 <= '0';
                     quad3 <= '1';
                     quad4 <= '0';
-                else 
+					 elsif (borderb_collision = '1') then
+				 		  ball_left_range <= 0;
+				 		  ball_top_range <= 0;
+ 
+ 						  if ball_count_p1 > 1 then
+							  ball_count_p1 <= ball_count_p1 - 1;
+							  quad1 <= '0';
+							  quad2 <= '0';
+							  quad3 <= '1';
+							  quad4 <= '0';
+						  elsif ball_count_p1 = 1 then
+							  ball_count_p1 <= ball_count_p1 - 1;
+							  game_over <= '1';
+						  end if;
+					  else
                     if quad1 = '1' then
                         ball_left_range <= ball_left_range + 1;
                         ball_top_range  <= ball_top_range - 1;
@@ -383,7 +532,7 @@ begin
                         quad1 <= '0';
                         quad2 <= '0';
                         quad3 <= '0';
-                    else 
+						  else		
                         ball_left_range <= ball_left_range;
                         ball_top_range  <= ball_top_range;
                         quad1 <= quad1;
@@ -402,7 +551,7 @@ begin
                     if ball_posT <= row_bottoms(row_idx) and ball_posT >= row_tops(row_idx) and
                        ball_posR >= column_lefts(col_idx) and ball_posL <= column_rights(col_idx) then
 							  block_collision((row_idx * 14) + col_idx) <= '1';
-							  score1 <= score1 + 1;
+							  temp_score1 := temp_score1 + 1;
 
 							  if (quad1 = '1') then
 								  quad1 <= '0';
@@ -422,7 +571,7 @@ begin
                     elsif ball_posB >= row_tops(row_idx) and ball_posB <= row_bottoms(row_idx) and
                           ball_posR >= column_lefts(col_idx) and ball_posL <= column_rights(col_idx) then
 								  block_collision((row_idx * 14) + col_idx) <= '1';
-								  score1 <= score1 + 1;
+								  temp_score1 := temp_score1 + 1;
 
 								if (quad3 = '1') then
 										  quad1 <= '0';
@@ -442,7 +591,7 @@ begin
                     elsif ball_posR >= column_lefts(col_idx) and ball_posR <= column_rights(col_idx) and
                           ball_posB >= row_tops(row_idx) and ball_posT <= row_bottoms(row_idx) then
 								  block_collision((row_idx * 14) + col_idx) <= '1';
-								  score1 <= score1 + 1;
+								  temp_score1 := temp_score1 + 1;
 								if (quad1 = '1') then
 								  quad1 <= '0';
 								  quad2 <= '1';
@@ -461,7 +610,7 @@ begin
                     elsif ball_posL <= column_rights(col_idx) and ball_posL >= column_lefts(col_idx) and
                           ball_posB >= row_tops(row_idx) and ball_posT <= row_bottoms(row_idx) then
 								  block_collision((row_idx * 14) + col_idx) <= '1';
-								  score1 <= score1 + 1;
+								  temp_score1 := temp_score1 + 1;
 								if (quad2 = '1') then
 									  quad1 <= '1';
 									  quad2 <= '0';
@@ -479,7 +628,9 @@ begin
                 end if;
             end loop;
         end loop;
-	
+		
+		score1 <= temp_score1;
+		
             end if;
     end process;
 	 
@@ -488,6 +639,11 @@ begin
          variable hundreds1, tens1, ones1 : integer;
          variable hundreds2, tens2, ones2 : integer;
          variable digit_row, digit_col    : integer;
+			variable text_gameover : string(1 to 9) := "GAME OVER";
+			variable char_index    : integer;
+			variable local_x       : integer;
+			variable local_y       : integer;
+			variable draw_pixel    : boolean := false;
 		
     begin
 	 	 --if rising_edge(CLK) then
@@ -509,7 +665,7 @@ begin
                 red   <= X"FF";
                 green <= X"FF";
                 blue  <= X"FF";
-            else 
+				else		
                 if row >= ball_posT and row <= ball_posB and column >= ball_posL and column <= ball_posR then
                     red   <= "11111111";
                     green <= "11111111";
@@ -648,6 +804,38 @@ begin
                     end loop;
                 end loop;
             --end if;
+				
+				if game_over = '1' then
+					draw_pixel := false;
+					
+					 for i in 0 to 8 loop
+							char_index := TEXT_START_X + i * (CHAR_WIDTH + CHAR_SPACING);
+
+							if (column >= char_index and column < char_index + CHAR_WIDTH) and
+								(row >= TEXT_START_Y and row < TEXT_START_Y + CHAR_HEIGHT) then
+
+								 local_x := column - char_index;
+								 local_y := row - TEXT_START_Y;
+
+								 if draw_char(text_gameover(i + 1), local_y, local_x) then
+									  draw_pixel := true;
+								 end if;
+
+								 exit;
+							end if;
+					 end loop;
+
+					 if draw_pixel then
+						  red   <= X"FF";
+						  green <= X"FF";
+						  blue  <= X"FF";
+					 else
+						  red   <= X"FF";
+						  green <= X"00";
+						  blue  <= X"00";
+					 end if;
+				end if;
+
 		  end if;
     end process;
 	 
@@ -666,27 +854,67 @@ begin
             -- Collision detection
             if ball_posB = paddle_top and ball_posR >= paddle_posL and ball_posL <= paddle_posR then
                 paddle_collision <= '1';
-            else
+				else		
                 paddle_collision <= '0';
             end if;
 
             if ball_posL = BORDER_LEFT then
                 borderl_collision <= '1';
-            else
+				else		
                 borderl_collision <= '0';
             end if;
 
             if ball_posR = BORDER_RIGHT then
                 borderr_collision <= '1';
-            else
+				else		
                 borderr_collision <= '0';
             end if;
 
             if ball_posT = BORDER_TOP then
                 bordert_collision <= '1';
-            else
+				else		
                 bordert_collision <= '0';
             end if;
+				
+				if ball_posB >= BORDER_BOTTOM then
+					borderb_collision <= '1';
+				else		
+					borderb_collision <= '0';
+				end if;
         end if;
     end process;
+	 
+	  --Player 1 Score
+	 process(score1)
+		variable hundreds1, tens1, ones1 : INTEGER;
+	 begin
+		hundreds1 := (score1 / 100);
+		tens1 	 := ((score1 / 10) mod 10);
+		ones1		 := (score1 mod 10);
+		
+		score1_bcd <= STD_LOGIC_VECTOR(to_unsigned(hundreds1, 4)) &
+						 STD_LOGIC_VECTOR(to_unsigned(tens1, 4)) &
+						 STD_LOGIC_VECTOR(to_unsigned(ones1, 4));
+	 end process;
+	 
+	 --Player 2 Score
+	 process(score2)
+		variable hundreds2, tens2, ones2 : INTEGER;
+	 begin
+		hundreds2 := (score2 / 100);
+		tens2 	 := ((score2 / 10) mod 10);
+		ones2		 := (score2 mod 10);
+		
+		score2_bcd <= STD_LOGIC_VECTOR(to_unsigned(hundreds2, 4)) &
+						 STD_LOGIC_VECTOR(to_unsigned(tens2, 4)) &
+						 STD_LOGIC_VECTOR(to_unsigned(ones2, 4));
+	 end process;
+	 
+	 HEX0 <= to_seg7(score1_bcd(3 downto 0));
+	 HEX1 <= to_seg7(score1_bcd(7 downto 4));
+	 HEX2 <= to_seg7(score1_bcd(11 downto 8));
+	 HEX3 <= "1111111";
+	 HEX4 <= "1111111";
+	 HEX5 <= to_seg7(STD_LOGIC_VECTOR(to_unsigned(ball_count_p1, 4)));
+	 
 end behavior;
