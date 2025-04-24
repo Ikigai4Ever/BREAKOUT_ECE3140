@@ -20,24 +20,24 @@ The ball will move in one of four quadrants. These are saved as integers so that
 
 Ball size: 6x6 pixels
 
-  x x x x x x
-  x x x x x x
-  x x x x x x
-  x x x x x x
-  x x x x x x
-  x x x x x x
-  
+    x x x x x x
+    x x x x x x
+    x x x x x x
+    x x x x x x
+    x x x x x x
+    x x x x x x
+    
 Ball Directional Standard:
 
-   __________________________________
-  |                |                 |
-  |                |                 |
-  |   Quadrant 2   |    Quadrant 1   |
-  |                |                 |
-  |                |                 |
-  |----------------|-----------------|
-  |                |                 |
-  |                |                 |
-  |   Quadrant 3   |    Quadrant 4   |
-  |                |                 |
-  |________________|_________________|
+     __________________________________
+    |                |                 |
+    |                |                 |
+    |   Quadrant 2   |    Quadrant 1   |
+    |                |                 |
+    |                |                 |
+    |----------------|-----------------|
+    |                |                 |
+    |                |                 |
+    |   Quadrant 3   |    Quadrant 4   |
+    |                |                 |
+    |________________|_________________|
