@@ -37,10 +37,10 @@ architecture behavior of hw_image_generator is
     constant paddle_height  : integer := 8;
     constant paddle_left    : integer := 290;
     constant paddle_right   : integer := paddle_left + paddle_width;
-    constant paddle_posL_player1 : integer;
-    constant paddle_posR_player1 : integer;
-    constant paddle_posL_player2 : integer;
-    constant paddle_posR_player2 : integer;
+    signal paddle_posL_player1 : integer;
+    signal paddle_posR_player1 : integer;
+    signal paddle_posL_player2 : integer;
+    signal paddle_posR_player2 : integer;
 
     -- Player 1 Paddle
 	constant paddle_top_player1     : integer := 450;
@@ -56,10 +56,10 @@ architecture behavior of hw_image_generator is
     constant ball_bottom    : integer := ball_top + ball_height;
     constant ball_left      : integer := 317;
     constant ball_right     : integer := ball_left + ball_width;
-    constant ball_posL      : integer;
-    constant ball_posR      : integer;
-    constant ball_posT      : integer;
-    constant ball_posB      : integer;
+    signal ball_posL      : integer;
+    signal ball_posR      : integer;
+    signal ball_posT      : integer;
+    signal ball_posB      : integer;
 
     
     signal ball_top_range   : integer range -225 to 234 := 0;
@@ -483,61 +483,8 @@ begin
             end loop;
         end if;
     end process;
-	 
-	 
-	 
-	 
-	COLLISION_DRAWINGS: process(CLK)
-    begin
-    if rising_edge(CLK) then
-        -- Paddle Collision Detection
-        if (ball_posB = paddle_top_player1 and ball_posR >= paddle_posL_player1 and ball_posL <= paddle_posR_player1) or
-           (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2) then
-            paddle_collision <= '1';
-        else 
-            paddle_collision <= '0';
-        end if;
 
-        if ball_posL = BORDER_LEFT then
-            borderl_collision <= '1';
-        else
-            borderl_collision <= '0';
-        end if;
-
-        if ball_posR = BORDER_RIGHT then
-            borderr_collision <= '1';
-        else
-            borderr_collision <= '0';
-        end if;
-
-        if ball_posT = BORDER_TOP then
-            bordert_collision <= '1';
-        else
-            bordert_collision <= '0';
-        end if;
-
-
-        -- Handle block collision flagging if needed
-        block_col_true <= '0';
-        for row_idx in 0 to 7 loop
-            for col_idx in 0 to 13 loop
-                if (ball_posB >= row_tops(row_idx) and ball_posT <= row_bottoms(row_idx)) and
-                   (ball_posR >= column_lefts(col_idx) and ball_posL <= column_rights(col_idx)) and
-                   (block_collision((row_idx * 14) + col_idx) = '0') then
-                    block_collision((row_idx * 14) + col_idx) <= '1';
-                    score <= score + 1;
-                    block_col_true <= '1';
-                else 
-                    block_col_true <= '0';
-                end if;
-            end loop;
-        end loop;
-    end if;
-end process;
-
-
-
-    DISPLAY_IMAGES :  process(disp_ena, row, column, encoder_value, CLK)
+    DISPLAY_IMAGES :  process(disp_ena, row, column, encoder_value_player1, encoder_value_player2, CLK)
         variable hundreds1, tens1, ones1 : integer;
         variable hundreds2, tens2, ones2 : integer;
         variable digit_row, digit_col    : integer;
@@ -550,20 +497,6 @@ end process;
         blue  <= X"00"; 
 		  
         if disp_ena = '1' then            
-            -- Paddle position based on encoder_value for player 1
-            paddle_posL_player1 := encoder_value_player1 - paddle_width / 2;
-            paddle_posR_player1 := encoder_value_player1 + paddle_width / 2;
-
-            -- Paddle position based on encoder_value for player 2
-            paddle_posL_player2 := encoder_value_player2 - paddle_width / 2;
-            paddle_posR_player2 := encoder_value_player2 + paddle_width / 2;
-
-            -- Ball Position calculations
-            ball_posL := ball_left + ball_left_range;
-            ball_posT := ball_top + ball_top_range;
-            ball_posR := ball_posL + 6;
-            ball_posB := ball_posT + 6;
-
             -- Paddle coloring Player 1
             if row >= paddle_top_player1 and row <= paddle_bottom_player1 and column >= paddle_posL_player1  and column <= paddle_posR_player1 then
                 red   <= X"FF";
@@ -714,7 +647,8 @@ end process;
                 for row_idx in 0 to 7 loop
                     for col_idx in 0 to 13 loop
                         if row >= row_tops(row_idx) and row <= row_bottoms(row_idx) and
-                           column >= column_lefts(col_idx) and column <= column_rights(col_idx) then
+                           column >= column_lefts(col_idx) and column <= column_rights(col_idx) 
+                           and (block_collision(((row_idx * 14) + col_idx)) = '0') then
                                 red <= X"FF"; green <= X"FF"; blue <= X"FF";  -- Bright white
                         end if;
                     end loop;
@@ -726,9 +660,24 @@ end process;
 	BLOCK_DETECTION : process(CLK) 
     begin
         if rising_edge(CLK) then        
+            -- Paddle position based on encoder_value for player 1
+            paddle_posL_player1 <= encoder_value_player1 - paddle_width / 2;
+            paddle_posR_player1 <= encoder_value_player1 + paddle_width / 2;
+
+            -- Paddle position based on encoder_value for player 2
+            paddle_posL_player2 <= encoder_value_player2 - paddle_width / 2;
+            paddle_posR_player2 <= encoder_value_player2 + paddle_width / 2;
+
+            -- Ball Position calculations
+            ball_posL <= ball_left + ball_left_range;
+            ball_posT <= ball_top + ball_top_range;
+            ball_posR <= ball_posL + 6;
+            ball_posB <= ball_posT + 6;
+            
             -- Paddle Collision Detection
-            if (ball_posB = paddle_top_player1 and ball_posR >= paddle_posL_player1 and ball_posL <= paddle_posR_player1) or
-               (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2) then
+            if (ball_posB = paddle_top_player1 and ball_posR >= paddle_posL_player1 and ball_posL <= paddle_posR_player1) then
+					 paddle_collision <= '1';
+				elsif (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2) then
                 paddle_collision <= '1';
             else 
                 paddle_collision <= '0';

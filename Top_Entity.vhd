@@ -15,7 +15,7 @@ entity top is
         -- Clocks and control
         CLK         : in  STD_LOGIC;
         KEY0        : in  STD_LOGIC;
-		KEY1 	    : in  STD_LOGIC;
+		KEY2 	    : in  STD_LOGIC;
         SW1         : in  STD_LOGIC;
 		  
         ChA1         : in  STD_LOGIC; -- CLK on RE
@@ -112,13 +112,13 @@ architecture Behavioral of top is
     component hw_image_generator
         port (
             disp_ena        : in  STD_LOGIC;
+            CLK             : in  STD_LOGIC;
             row             : in  INTEGER;
             column          : in  INTEGER;
             encoder_value_player1   : in  INTEGER;
             encoder_value_player2   : in  INTEGER;
             delay_done      : in  STD_LOGIC;
-            sw1             : in  STD_LOGIC;
-				led0, led1, led2, led3 : out STD_LOGIC;
+            SW1             : in  STD_LOGIC;
             red             : out STD_LOGIC_VECTOR(7 downto 0);
             green           : out STD_LOGIC_VECTOR(7 downto 0);
             blue            : out STD_LOGIC_VECTOR(7 downto 0)
@@ -127,9 +127,9 @@ architecture Behavioral of top is
 
 begin
 
- process(clk)
+ process(CLK)
     begin
-        if rising_edge(clk) then
+        if rising_edge(CLK) then
             if counter = 499999 then
                 delay_done <= '1';
                 counter <= (others => '0');
@@ -148,7 +148,7 @@ begin
 process(CLK)
 begin
     if rising_edge(CLK) then
-        if KEY1 = '0' then
+        if KEY0 = '0' then
             encoder_value_player1 <= paddle_start_x;
             encoder_value_player2 <= paddle_start_x;
             prevA_player1 <= '0';
@@ -192,7 +192,7 @@ end process;
     U0 : component dual_boot
 		port map (
 			clk_clk       => CLK,  --   clk.clk
-			reset_reset_n => KEY0  -- reset.reset_n
+			reset_reset_n => KEY2  -- reset.reset_n
 		);
 
     U1: vga_pll_25_175 port map(CLK, pll_out_clk);
