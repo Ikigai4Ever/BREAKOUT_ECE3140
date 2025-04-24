@@ -25,7 +25,7 @@ end hw_image_generator;
 
 architecture behavior of hw_image_generator is
 
-    constant block_start_x : integer := 25;
+    constant block_start_x : integer := 25 + 4;
     constant block_start_y : integer := 100;
     constant block_width   : integer := 37;
     constant block_height  : integer := 10;
@@ -103,8 +103,8 @@ architecture behavior of hw_image_generator is
 
     constant border_width  : integer := 15;
     constant BORDER_TOP   : integer := 0 + border_width; 
-    constant BORDER_LEFT  : integer := 0 + border_width;
-    constant BORDER_RIGHT : integer := 640 - border_width;
+    constant BORDER_LEFT  : integer := 4 + border_width;
+    constant BORDER_RIGHT : integer := 636 - border_width;
 
     constant row1_top    : integer := block_start_y;
     constant row1_bottom : integer := row1_top + block_height;
@@ -518,7 +518,10 @@ begin
         end if;
     end process;
 
-    DISPLAY_IMAGES :  process(disp_ena, row, column, encoder_value_player1, encoder_value_player2, CLK)
+    DISPLAY_IMAGES :  process(disp_ena, row, column, encoder_value_player1, encoder_value_player2, CLK, score1, score2, 
+										ball_count_p1, ball_count_p2, player_hit, block_collision, paddle_posL_player1,
+                                        paddle_posR_player1, paddle_posL_player2, paddle_posR_player2, 
+                                        ball_posB, ball_posT, ball_posL, ball_posR)
         variable hundreds1, tens1, ones1 : integer;
         variable hundreds2, tens2, ones2 : integer;
         variable digit_row, digit_col    : integer;
@@ -590,7 +593,7 @@ begin
             digit_col := column - score2_huns_left;
             if draw_digit(hundreds2, digit_row, digit_col) then
                         red   <= X"FF";
-                        green <= X"FF";
+                        green <= X"DF";
                         blue  <= X"00";
                 end if;
             end if;
@@ -603,7 +606,7 @@ begin
                     digit_col := column - score2_tens_left;
                     if draw_digit(tens2, digit_row, digit_col) then
                         red   <= X"FF";
-                        green <= X"FF";
+                        green <= X"DF";
                         blue  <= X"00";
                     end if;
                 end if;
@@ -616,7 +619,7 @@ begin
                     digit_col := column - score2_ones_left;
                     if draw_digit(ones2, digit_row, digit_col) then
                         red   <= X"FF";
-                        green <= X"FF";
+                        green <= X"DF";
                         blue  <= X"00";
                     end if;
                 end if;
@@ -668,7 +671,6 @@ begin
                     end if;
                 end loop;
             end loop;
-            --end if;
             -- Paddle coloring Player 1
             if row >= paddle_top_player1 and row <= paddle_bottom_player1 and column >= paddle_posL_player1  and column <= paddle_posR_player1 then
                 red   <= X"9D";
@@ -678,7 +680,7 @@ begin
             -- Paddle coloring Player 2
             if row >= paddle_top_player2 and row <= paddle_bottom_player2 and column >= paddle_posL_player2  and column <= paddle_posR_player2 then
                 red   <= X"FF";
-                green <= X"FF";
+                green <= X"DF";
                 blue  <= X"00";
             end if;  
             -- Border coloring (White)
@@ -694,7 +696,7 @@ begin
                         blue  <= X"FF";
                     elsif (player_hit = '1') then
                         red   <= X"FF";
-                        green <= X"FF";
+                        green <= X"DF";
                         blue  <= X"00";
                     else 
                         red   <= X"FF";
@@ -724,8 +726,7 @@ begin
             ball_posB <= ball_posT + 6;
             
             -- Paddle Collision Detection
-            if (ball_posB = paddle_top_player1 and ball_posR >= paddle_posL_player1 and ball_posL <= paddle_posR_player1) 
-               and (quad3 = '1' or quad4 = '1') then
+            if (ball_posB = paddle_top_player1 and ball_posR >= paddle_posL_player1 and ball_posL <= paddle_posR_player1) then
 				paddle_collision <= '1';
                 player_hit <= '0'; -- Player 1 hit the ball
 			elsif (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2) then
