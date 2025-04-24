@@ -21,20 +21,35 @@ The ball will move in one of four quadrants. These are saved as integers so that
 Ball size: 6x6 pixels
 
 x x x x x x
+
 x x x x x x
+
 x x x x x x
+
 x x x x x x
+
 x x x x x x
+
 x x x x x x
 
 |               |
+
 |               |
+
 |  Quadrant 2   |    Quadrant 1   
+
 |               |    
+
 |               |
+
 |---------------|----------------
+
 |               |
+
 |               |
+
 |  Quadrant 3   |    Quadrant 4   
+
 |               |
+
 |               |
