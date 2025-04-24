@@ -10,18 +10,18 @@ use IEEE.NUMERIC_STD.ALL;
 entity hw_image_generator is
     port (
         disp_ena        : in  STD_LOGIC;
-		  CLK				   : in  STD_LOGIC;
+		CLK		        : in  STD_LOGIC;
         row             : in  INTEGER;
         column          : in  INTEGER;
-		  encoder_value   : in  INTEGER;
+		encoder_value   : in  INTEGER;
         delay_done      : in  STD_LOGIC;
         SW1             : in  STD_LOGIC;
-        HEX0   : out STD_LOGIC_VECTOR(6 downto 0);
-        HEX1   : out STD_LOGIC_VECTOR(6 downto 0);
-        HEX2   : out STD_LOGIC_VECTOR(6 downto 0);
-        HEX3   : out STD_LOGIC_VECTOR(6 downto 0);
-        HEX4   : out STD_LOGIC_VECTOR(6 downto 0);
-        HEX5   : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX0            : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX1            : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX2            : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX3            : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX4            : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX5            : out STD_LOGIC_VECTOR(6 downto 0);
         red             : out STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
         green           : out STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
         blue            : out STD_LOGIC_VECTOR(7 downto 0) := (others => '0')
@@ -56,15 +56,15 @@ architecture behavior of hw_image_generator is
     signal quad2  : STD_LOGIC := '0';
     signal quad3  : STD_LOGIC := '1';
     signal quad4  : STD_LOGIC := '0';
-	 signal quad1t  : STD_LOGIC := '0';
+	signal quad1t  : STD_LOGIC := '0';
     signal quad2t  : STD_LOGIC := '0';
     signal quad3t  : STD_LOGIC := '0';
     signal quad4t  : STD_LOGIC := '0';
-	 signal paddle_collision : STD_LOGIC := '0';
+	signal paddle_collision : STD_LOGIC := '0';
     signal borderl_collision : STD_LOGIC := '0';
     signal bordert_collision : STD_LOGIC := '0';
     signal borderr_collision : STD_LOGIC := '0';
-	 signal borderb_collision : STD_LOGIC := '0';
+	signal borderb_collision : STD_LOGIC := '0';
     signal block_collision   : STD_LOGIC_VECTOR(111 downto 0) := (OTHERS => '0');
     signal index : integer := 0;
     signal gen_idx : integer := 0;
@@ -72,20 +72,20 @@ architecture behavior of hw_image_generator is
     signal score2 : integer range 0 to 999 := 0;
     signal ball_count_p1 : integer range 0 to 5 := 5;
     signal ball_count_p2 : integer range 0 to 5 := 5;
-	 signal game_over     : STD_LOGIC := '0';
+	signal game_over     : STD_LOGIC := '0';
     signal block_col_true : STD_LOGIC := '0';
-	 signal prev_col_idx : integer := 1;
+	signal prev_col_idx : integer := 1;
     signal paddle_posL : integer;
     signal paddle_posR : integer;
-	 signal ball_posL  : integer;
+	signal ball_posL  : integer;
     signal ball_posR  : integer;
     signal ball_posT  : integer;
     signal ball_posB  : integer;
 
     signal block_colb_true : STD_LOGIC := '0';
-	 signal block_coll_true : STD_LOGIC := '0';
-	 signal block_colr_true : STD_LOGIC := '0';
-	 signal block_colt_true : STD_LOGIC := '0';
+	signal block_coll_true : STD_LOGIC := '0';
+	signal block_colr_true : STD_LOGIC := '0';
+	signal block_colt_true : STD_LOGIC := '0';
 
     signal ball_prevL, ball_prevR, ball_prevT, ball_prevB : integer;
 
@@ -96,7 +96,7 @@ architecture behavior of hw_image_generator is
     constant BORDER_TOP   : integer := 0 + border_width; 
     constant BORDER_LEFT  : integer := -2 + border_width;
     constant BORDER_RIGHT : integer := 635 - border_width;
-	 constant BORDER_BOTTOM : integer := 480;
+	constant BORDER_BOTTOM : integer := 480;
 
     constant row1_top    : integer := block_start_y;
     constant row1_bottom : integer := row1_top + block_height;
@@ -170,9 +170,9 @@ architecture behavior of hw_image_generator is
         column13_right, column14_right
     );
 	 
-	 --Score Variables for Hex Values
-	 signal score1_bcd     : STD_LOGIC_VECTOR (11 downto 0);
-	 signal score2_bcd     : STD_LOGIC_VECTOR (11 downto 0);
+	--Score Variables for Hex Values
+	signal score1_bcd     : STD_LOGIC_VECTOR (11 downto 0);
+	signal score2_bcd     : STD_LOGIC_VECTOR (11 downto 0);
 
     --Score Text Area for Player 1
 	constant score1_top         : integer := row1_top - 45;
@@ -240,10 +240,10 @@ architecture behavior of hw_image_generator is
       
           when 0 =>
             if (
-              (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or -- top
-              (row_index >= 34 and row_index <= 39 and col_index >= 0 and col_index <= 29) or -- bottom
-              (col_index >= 0 and col_index <= 5 and row_index >= 0 and row_index <= 39) or -- left
-              (col_index >= 24 and col_index <= 29 and row_index >= 0 and row_index <= 39) -- right
+              (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or 
+              (row_index >= 34 and row_index <= 39 and col_index >= 0 and col_index <= 29) or 
+              (col_index >= 0 and col_index <= 5 and row_index >= 0 and row_index <= 39) or 
+              (col_index >= 24 and col_index <= 29 and row_index >= 0 and row_index <= 39)
             ) then
               p := true;
             end if;
@@ -257,11 +257,11 @@ architecture behavior of hw_image_generator is
       
           when 2 =>
             if (
-              (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or -- top
-              (row_index >= 17 and row_index <= 22 and col_index >= 0 and col_index <= 29) or -- mid
-              (row_index >= 34 and row_index <= 39 and col_index >= 0 and col_index <= 29) or -- bottom
-              (col_index >= 24 and col_index <= 29 and row_index >= 0 and row_index <= 22) or -- top-right
-              (col_index >= 0 and col_index <= 5 and row_index >= 17 and row_index <= 39) -- bottom-left
+              (row_index >= 0 and row_index <= 5 and col_index >= 0 and col_index <= 29) or 
+              (row_index >= 17 and row_index <= 22 and col_index >= 0 and col_index <= 29) or 
+              (row_index >= 34 and row_index <= 39 and col_index >= 0 and col_index <= 29) or 
+              (col_index >= 24 and col_index <= 29 and row_index >= 0 and row_index <= 22) or 
+              (col_index >= 0 and col_index <= 5 and row_index >= 17 and row_index <= 39) 
             ) then
               p := true;
             end if;
@@ -369,9 +369,8 @@ begin
 
         when 'M' =>
 				 if (
-					  (col_index >= 0 and col_index < 5) or -- left vertical
-					  (col_index >= CHAR_WIDTH - 5 and col_index < CHAR_WIDTH) or -- right vertical
-					  -- thicker diagonal: approximate downward slope from top to middle
+					  (col_index >= 0 and col_index < 5) or
+					  (col_index >= CHAR_WIDTH - 5 and col_index < CHAR_WIDTH) or 
 					  (row_index < 20 and col_index >= 5 + (row_index / 2) - 2 and col_index < 5 + (row_index / 2) + 3) or
 					  (row_index < 20 and col_index >= CHAR_WIDTH - 6 - (row_index / 2) - 2 and col_index < CHAR_WIDTH - 6 - (row_index / 2) + 3)
 				 ) then
@@ -402,30 +401,15 @@ begin
 
 			when 'R' =>
 				  if (
-					 -- Left vertical line
 					 (col_index >= 0 and col_index < 5) or
-
-					 -- Top bar
 					 (row_index >= 0 and row_index < 5 and col_index < CHAR_WIDTH - 5) or
-
-					 -- Middle bar (this is where the upper right vertical and middle bar intersect, should be filled)
 					 (row_index >= 17 and row_index < 22 and col_index < CHAR_WIDTH) or
-
-					 -- Upper right vertical line (above middle bar)
 					 (row_index < 17 and col_index >= CHAR_WIDTH - 5 and col_index < CHAR_WIDTH) or
-
-					 -- Diagonal from middle to bottom right (corrected)
-					 (row_index >= 22 and
-						col_index >= 5 + ((row_index - 22) * 20) / 18 and
-						col_index < 5 + ((row_index - 22) * 20) / 18 + 5) or
-
-					 -- Bottom left vertical line to fill the corner (on opposite side of diagonal)
-					 -- Starts below the middle bar (row >= 22) and fills the bottom left corner (without touching diagonal)
+					 (row_index >= 22 and col_index >= 5 + ((row_index - 22) * 20) / 18 and col_index < 5 + ((row_index - 22) * 20) / 18 + 5) or
 					 (row_index >= 22 and row_index < 35 and col_index >= 0 and col_index < 5)
 				  ) then
 					 p := true;
 				  end if;
-
 
         when ' ' =>
             p := false;
@@ -436,8 +420,6 @@ begin
     end case;
     return p;
 end function;
-
-
 
 
 begin	 	 
@@ -493,21 +475,21 @@ begin
                     quad2 <= '0';
                     quad3 <= '1';
                     quad4 <= '0';
-					 elsif (borderb_collision = '1') then
-				 		  ball_left_range <= 0;
-				 		  ball_top_range <= 0;
+				elsif (borderb_collision = '1') then
+			    	ball_left_range <= 0;
+				 	ball_top_range <= 0;
  
- 						  if ball_count_p1 > 1 then
-							  ball_count_p1 <= ball_count_p1 - 1;
-							  quad1 <= '0';
-							  quad2 <= '0';
-							  quad3 <= '1';
-							  quad4 <= '0';
-						  elsif ball_count_p1 = 1 then
-							  ball_count_p1 <= ball_count_p1 - 1;
-							  game_over <= '1';
-						  end if;
-					  else
+ 					if ball_count_p1 > 1 then
+					    ball_count_p1 <= ball_count_p1 - 1;
+					    quad1 <= '0';
+						quad2 <= '0';
+						quad3 <= '1';
+						quad4 <= '0';
+					elsif ball_count_p1 = 1 then
+						ball_count_p1 <= ball_count_p1 - 1;
+						game_over <= '1';
+					end if;
+				else
                     if quad1 = '1' then
                         ball_left_range <= ball_left_range + 1;
                         ball_top_range  <= ball_top_range - 1;
@@ -540,9 +522,9 @@ begin
                         quad3 <= quad3;
                         quad4 <= quad4;
                     end if;
-					end if;
-					       -- Block collision detection
-                           
+				end if;
+
+		-- Block collision detection          
         for row_idx in 0 to 7 loop
             for col_idx in 0 to 13 loop
 
@@ -635,16 +617,15 @@ begin
     end process;
 	 
 	 
-	     process(disp_ena, row, column, encoder_value, CLK)
-         variable hundreds1, tens1, ones1 : integer;
-         variable hundreds2, tens2, ones2 : integer;
-         variable digit_row, digit_col    : integer;
-			variable text_gameover : string(1 to 9) := "GAME OVER";
-			variable char_index    : integer;
-			variable local_x       : integer;
-			variable local_y       : integer;
-			variable draw_pixel    : boolean := false;
-		
+	process(disp_ena, row, column, encoder_value, CLK)
+        variable hundreds1, tens1, ones1 : integer;
+        variable hundreds2, tens2, ones2 : integer;
+        variable digit_row, digit_col    : integer;
+		variable text_gameover : string(1 to 9) := "GAME OVER";
+		variable char_index    : integer;
+		variable local_x       : integer;
+		variable local_y       : integer;
+		variable draw_pixel    : boolean := false;
     begin
 	 	 --if rising_edge(CLK) then
 	     -- Default color to black
@@ -671,13 +652,13 @@ begin
                     green <= "11111111";
                     blue  <= "11111111";
                 end if;
-				end if;
+			end if;
 
 ------------------------------------------------------------------------------------------------------
 ------------------------------------------- SCORING --------------------------------------------------
 ------------------------------------------------------------------------------------------------------ 
 
-            -- Display Score
+            -- Score Calculations 
             hundreds1 := (score1 / 100);
             tens1     := ((score1 / 10) mod 10);
             ones1		 := (score1 mod 10);
@@ -810,7 +791,6 @@ begin
 					
 					 for i in 0 to 8 loop
 							char_index := TEXT_START_X + i * (CHAR_WIDTH + CHAR_SPACING);
-
 							if (column >= char_index and column < char_index + CHAR_WIDTH) and
 								(row >= TEXT_START_Y and row < TEXT_START_Y + CHAR_HEIGHT) then
 
@@ -884,7 +864,7 @@ begin
         end if;
     end process;
 	 
-	  --Player 1 Score
+	  --Player 1 Score for seven seg
 	 process(score1)
 		variable hundreds1, tens1, ones1 : INTEGER;
 	 begin
@@ -897,7 +877,7 @@ begin
 						 STD_LOGIC_VECTOR(to_unsigned(ones1, 4));
 	 end process;
 	 
-	 --Player 2 Score
+	 --Player 2 Score for seven seg
 	 process(score2)
 		variable hundreds2, tens2, ones2 : INTEGER;
 	 begin
@@ -910,6 +890,7 @@ begin
 						 STD_LOGIC_VECTOR(to_unsigned(ones2, 4));
 	 end process;
 	 
+     --Player 1 mode
 	 HEX0 <= to_seg7(score1_bcd(3 downto 0));
 	 HEX1 <= to_seg7(score1_bcd(7 downto 4));
 	 HEX2 <= to_seg7(score1_bcd(11 downto 8));
