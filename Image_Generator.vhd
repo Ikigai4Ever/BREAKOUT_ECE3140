@@ -531,41 +531,6 @@ begin
         blue  <= X"00"; 
 		  
         if disp_ena = '1' then            
-            -- Paddle coloring Player 1
-            if row >= paddle_top_player1 and row <= paddle_bottom_player1 and column >= paddle_posL_player1  and column <= paddle_posR_player1 then
-                red   <= X"9D";
-                green <= X"00";
-                blue  <= X"FF";
-            end if;
-            -- Paddle coloring Player 2
-            if row >= paddle_top_player2 and row <= paddle_bottom_player2 and column >= paddle_posL_player2  and column <= paddle_posR_player2 then
-                red   <= X"FF";
-                green <= X"DF";
-                blue  <= X"00";
-            end if;  
-            -- Border coloring (White)
-            if row <= BORDER_TOP or column <= BORDER_LEFT or column >= BORDER_RIGHT then
-                red   <= X"FF";
-                green <= X"FF";
-                blue  <= X"FF";
-            else 
-                if row >= ball_posT and row <= ball_posB and column >= ball_posL and column <= ball_posR then
-                    if (player_hit = '0') then
-                        red   <= X"9D";
-                        green <= X"00";
-                        blue  <= X"FF";
-                    elsif (player_hit = '1') then
-                        red   <= X"FF";
-                        green <= X"DF";
-                        blue  <= X"00";
-                    else 
-                        red   <= X"FF";
-                        green <= X"FF";
-                        blue  <= X"FF";
-                    end if;
-                end if;
-			end if;
-
 ------------------------------------------------------------------------------------------------------
 ------------------------------------------- SCORING --------------------------------------------------
 ------------------------------------------------------------------------------------------------------ 
@@ -625,7 +590,7 @@ begin
             digit_col := column - score2_huns_left;
             if draw_digit(hundreds2, digit_row, digit_col) then
                         red   <= X"FF";
-                        green <= X"DF";
+                        green <= X"FF";
                         blue  <= X"00";
                 end if;
             end if;
@@ -638,7 +603,7 @@ begin
                     digit_col := column - score2_tens_left;
                     if draw_digit(tens2, digit_row, digit_col) then
                         red   <= X"FF";
-                        green <= X"DF";
+                        green <= X"FF";
                         blue  <= X"00";
                     end if;
                 end if;
@@ -651,7 +616,7 @@ begin
                     digit_col := column - score2_ones_left;
                     if draw_digit(ones2, digit_row, digit_col) then
                         red   <= X"FF";
-                        green <= X"DF";
+                        green <= X"FF";
                         blue  <= X"00";
                     end if;
                 end if;
@@ -704,6 +669,40 @@ begin
                 end loop;
             end loop;
             --end if;
+            -- Paddle coloring Player 1
+            if row >= paddle_top_player1 and row <= paddle_bottom_player1 and column >= paddle_posL_player1  and column <= paddle_posR_player1 then
+                red   <= X"9D";
+                green <= X"00";
+                blue  <= X"FF";
+            end if;
+            -- Paddle coloring Player 2
+            if row >= paddle_top_player2 and row <= paddle_bottom_player2 and column >= paddle_posL_player2  and column <= paddle_posR_player2 then
+                red   <= X"FF";
+                green <= X"FF";
+                blue  <= X"00";
+            end if;  
+            -- Border coloring (White)
+            if row <= BORDER_TOP or column <= BORDER_LEFT or column >= BORDER_RIGHT then
+                red   <= X"FF";
+                green <= X"FF";
+                blue  <= X"FF";
+            else 
+                if row >= ball_posT and row <= ball_posB and column >= ball_posL and column <= ball_posR then
+                    if (player_hit = '0') then
+                        red   <= X"9D";
+                        green <= X"00";
+                        blue  <= X"FF";
+                    elsif (player_hit = '1') then
+                        red   <= X"FF";
+                        green <= X"FF";
+                        blue  <= X"00";
+                    else 
+                        red   <= X"FF";
+                        green <= X"FF";
+                        blue  <= X"FF";
+                    end if;
+                end if;
+			end if;
 		end if;
     end process;
 	 
@@ -725,7 +724,8 @@ begin
             ball_posB <= ball_posT + 6;
             
             -- Paddle Collision Detection
-            if (ball_posB = paddle_top_player1 and ball_posR >= paddle_posL_player1 and ball_posL <= paddle_posR_player1) then
+            if (ball_posB = paddle_top_player1 and ball_posR >= paddle_posL_player1 and ball_posL <= paddle_posR_player1) 
+               and (quad3 = '1' or quad4 = '1') then
 				paddle_collision <= '1';
                 player_hit <= '0'; -- Player 1 hit the ball
 			elsif (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2) then
