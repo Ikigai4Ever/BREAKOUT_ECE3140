@@ -18,7 +18,7 @@ entity Debounce is
 end Debounce;
 
 architecture Behavioral of Debounce is
-    constant debounce_limit : integer := 50000;  -- 1ms at 50MHz
+    constant debounce_limit : integer := 49999;  -- 1ms at 50MHz
     signal counter          : integer range 0 to debounce_limit := 0;
     signal debounced        : STD_LOGIC := '0';
     signal last_state       : STD_LOGIC := '0';

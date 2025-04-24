@@ -65,6 +65,7 @@ architecture behavior of hw_image_generator is
     signal ball_top_range   : integer range -225 to 234 := 0;
     signal ball_left_range  : integer range -305 to 299 := 0;
 
+    -- Ball Quadrant Signals
     signal quad1    : STD_LOGIC := '0';
     signal quad2    : STD_LOGIC := '0';
     signal quad3    : STD_LOGIC := '1';
@@ -74,11 +75,14 @@ architecture behavior of hw_image_generator is
     signal quad3t   : STD_LOGIC := '0';
     signal quad4t   : STD_LOGIC := '0';
 
+    -- Collision Signals
 	signal paddle_collision     : STD_LOGIC := '0';
     signal borderl_collision    : STD_LOGIC := '0';
     signal bordert_collision    : STD_LOGIC := '0';
     signal borderr_collision    : STD_LOGIC := '0';
+    signal player_hit           : STD_LOGIC := '0'; -- 0 means player 1 hit the ball, 1 means player 2 hit the ball
     signal block_collision      : STD_LOGIC_VECTOR(111 downto 0) := (OTHERS => '0');
+    
     signal index : integer := 0;
     signal gen_idx : integer := 0;
     signal score1 : integer range 0 to 999 := 0;
@@ -92,6 +96,8 @@ architecture behavior of hw_image_generator is
 	signal block_coll_true : STD_LOGIC := '0';
 	signal block_colr_true : STD_LOGIC := '0';
 	signal block_colt_true : STD_LOGIC := '0';
+
+    
 
     signal ball_prevL, ball_prevR, ball_prevT, ball_prevB : integer;
 
@@ -404,46 +410,67 @@ begin
                         if ball_posT <= row_bottoms(row_idx) and ball_posT >= row_tops(row_idx) and
                            ball_posR >= column_lefts(col_idx) and ball_posL <= column_rights(col_idx) 
                            then block_collision((row_idx * 14) + col_idx) <= '1';
+                            
+                            -- Player Scoring 
+                            if (player_hit = '0') then 
                                 score1 <= score1 + 1;
-                                if (quad1 = '1') then
-                                    quad1 <= '0';
-                                    quad2 <= '0';
-                                    quad3 <= '0';
-                                    quad4 <= '1';
-                                    --score1 <= score1 + 1;
-                                elsif(quad2 = '1') then
-                                    quad1 <= '0';
-                                    quad2 <= '0';
-                                    quad3 <= '1';
-                                    quad4 <= '0';
-                                    --score1 <= score1 + 1;
-                                    end if;
+                            else 
+                                score2 <= score2 + 1;
+                            end if;
+                            
+                            if (quad1 = '1') then
+                                quad1 <= '0';
+                                quad2 <= '0';
+                                quad3 <= '0';
+                                quad4 <= '1';
+                                --score1 <= score1 + 1;
+                            elsif(quad2 = '1') then
+                                quad1 <= '0';
+                                quad2 <= '0';
+                                quad3 <= '1';
+                                quad4 <= '0';
+                                --score1 <= score1 + 1;
+                                end if;
                             block_collision((row_idx * 14) + col_idx) <= '1';
                         -- Top collision (ball hits bottom of block)
                         elsif ball_posB >= row_tops(row_idx) and ball_posB <= row_bottoms(row_idx) and
                               ball_posR >= column_lefts(col_idx) and ball_posL <= column_rights(col_idx) 
                               then block_collision((row_idx * 14) + col_idx) <= '1';
+
+                                -- Player Scoring 
+                                if (player_hit = '0') then 
                                     score1 <= score1 + 1;
-                                    if (quad3 = '1') then
-                                        quad1 <= '0';
-                                        quad2 <= '1';
-                                        quad3 <= '0';
-                                        quad4 <= '0';
-                                        --score1 <= score1 + 1;
-                                    elsif (quad4 = '1') then
-                                        quad1 <= '1';
-                                        quad2 <= '0';
-                                        quad3 <= '0';
-                                        quad4 <= '0';
-                                        --score1 <= score1 + 1;
-                                    end if;
-                                block_collision((row_idx * 14) + col_idx) <= '1';
+                                else 
+                                    score2 <= score2 + 1;
+                                end if;
+                                
+                                if (quad3 = '1') then
+                                    quad1 <= '0';
+                                    quad2 <= '1';
+                                    quad3 <= '0';
+                                    quad4 <= '0';
+                                    --score1 <= score1 + 1;
+                                elsif (quad4 = '1') then
+                                    quad1 <= '1';
+                                    quad2 <= '0';
+                                    quad3 <= '0';
+                                    quad4 <= '0';
+                                    --score1 <= score1 + 1;
+                                end if;
+                            block_collision((row_idx * 14) + col_idx) <= '1';
                         
                         -------------- Left side collision --------------
                         elsif ball_posR >= column_lefts(col_idx) and ball_posR <= column_rights(col_idx) and
                               ball_posB >= row_tops(row_idx) and ball_posT <= row_bottoms(row_idx) 
                               then block_collision((row_idx * 14) + col_idx) <= '1';
-                                score1 <= score1 + 1;
+
+                                -- Player Scoring 
+                                if (player_hit = '0') then 
+                                    score1 <= score1 + 1;
+                                else 
+                                    score2 <= score2 + 1;
+                                end if;
+
                                 if (quad1 = '1') then
                                     quad1 <= '0';
                                     quad2 <= '1';
@@ -463,7 +490,14 @@ begin
                         elsif ball_posL <= column_rights(col_idx) and ball_posL >= column_lefts(col_idx) and
                               ball_posB >= row_tops(row_idx) and ball_posT <= row_bottoms(row_idx) 
                               then block_collision((row_idx * 14) + col_idx) <= '1';
-                                score1 <= score1 + 1;
+
+                                -- Player Scoring 
+                                if (player_hit = '0') then 
+                                    score1 <= score1 + 1;
+                                else 
+                                    score2 <= score2 + 1;
+                                end if;
+
                                 if (quad2 = '1') then
                                     quad1 <= '1';
                                     quad2 <= '0';
@@ -499,15 +533,15 @@ begin
         if disp_ena = '1' then            
             -- Paddle coloring Player 1
             if row >= paddle_top_player1 and row <= paddle_bottom_player1 and column >= paddle_posL_player1  and column <= paddle_posR_player1 then
-                red   <= X"FF";
-                green <= X"FF";
+                red   <= X"9D";
+                green <= X"00";
                 blue  <= X"FF";
             end if;
             -- Paddle coloring Player 2
             if row >= paddle_top_player2 and row <= paddle_bottom_player2 and column >= paddle_posL_player2  and column <= paddle_posR_player2 then
-                red   <= X"00";
-                green <= X"0F";
-                blue  <= X"FF";
+                red   <= X"FF";
+                green <= X"DF";
+                blue  <= X"00";
             end if;  
             -- Border coloring (White)
             if row <= BORDER_TOP or column <= BORDER_LEFT or column >= BORDER_RIGHT then
@@ -516,9 +550,19 @@ begin
                 blue  <= X"FF";
             else 
                 if row >= ball_posT and row <= ball_posB and column >= ball_posL and column <= ball_posR then
-                    red   <= X"FF";
-                    green <= X"FF";
-                    blue  <= X"FF";
+                    if (player_hit = '0') then
+                        red   <= X"9D";
+                        green <= X"00";
+                        blue  <= X"FF";
+                    elsif (player_hit = '1') then
+                        red   <= X"FF";
+                        green <= X"DF";
+                        blue  <= X"00";
+                    else 
+                        red   <= X"FF";
+                        green <= X"FF";
+                        blue  <= X"FF";
+                    end if;
                 end if;
 			end if;
 
@@ -643,21 +687,27 @@ begin
 ------------------------------------- BLOCK GENERATION -----------------------------------------------
 ------------------------------------------------------------------------------------------------------
  
-                -- Loop over rows and columns
-                for row_idx in 0 to 7 loop
-                    for col_idx in 0 to 13 loop
-                        if row >= row_tops(row_idx) and row <= row_bottoms(row_idx) and
-                           column >= column_lefts(col_idx) and column <= column_rights(col_idx) 
-                           and (block_collision(((row_idx * 14) + col_idx)) = '0') then
-                                red <= X"FF"; green <= X"FF"; blue <= X"FF";  -- Bright white
+            -- Loop over rows and columns
+            for row_idx in 0 to 7 loop
+                for col_idx in 0 to 13 loop
+                    if row >= row_tops(row_idx) and row <= row_bottoms(row_idx) and
+                        column >= column_lefts(col_idx) and column <= column_rights(col_idx) 
+                        and (block_collision(((row_idx * 14) + col_idx)) = '0') then
+                        if (row_idx = 0 or row_idx = 2 or row_idx = 4 or row_idx = 6) and ((col_idx mod 2) = 0) then
+                            red <= X"FF"; green <= X"AB"; blue <= X"00";  -- Orange
+                        elsif (row_idx = 1 or row_idx = 3 or row_idx = 5 or row_idx = 7) and ((col_idx mod 2) = 1) then
+                            red <= X"FF"; green <= X"AB"; blue <= X"00";  -- Orange
+                        else
+                            red <= X"FF"; green <= X"FF"; blue <= X"FF";  -- Bright white
                         end if;
-                    end loop;
+                    end if;
                 end loop;
+            end loop;
             --end if;
-		  end if;
+		end if;
     end process;
 	 
-	BLOCK_DETECTION : process(CLK) 
+	COLLISION_DETECTION : process(CLK) 
     begin
         if rising_edge(CLK) then        
             -- Paddle position based on encoder_value for player 1
@@ -676,9 +726,11 @@ begin
             
             -- Paddle Collision Detection
             if (ball_posB = paddle_top_player1 and ball_posR >= paddle_posL_player1 and ball_posL <= paddle_posR_player1) then
-					 paddle_collision <= '1';
-				elsif (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2) then
+				paddle_collision <= '1';
+                player_hit <= '0'; -- Player 1 hit the ball
+			elsif (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2) then
                 paddle_collision <= '1';
+                player_hit <= '1'; -- Player 2 hit the ball
             else 
                 paddle_collision <= '0';
             end if;
