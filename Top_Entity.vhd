@@ -15,21 +15,20 @@ entity top is
         -- Clocks and control
         CLK         : in  STD_LOGIC;
         KEY0        : in  STD_LOGIC;
-		  KEY1 	    : in  STD_LOGIC;
+		  KEY1 	     : in  STD_LOGIC;
         SW1         : in  STD_LOGIC;
-		  led0, led1, led2, led3 : out STD_LOGIC;
 
-		  
         ChA         : in  STD_LOGIC; -- CLK on RE
         ChB         : in  STD_LOGIC; -- DT on RE
+		  
+		  --7 segment 
+		  HEX0   : out STD_LOGIC_VECTOR(6 downto 0);
+		  HEX1   : out STD_LOGIC_VECTOR(6 downto 0);
+		  HEX2   : out STD_LOGIC_VECTOR(6 downto 0);
+		  HEX3   : out STD_LOGIC_VECTOR(6 downto 0);
+		  HEX4   : out STD_LOGIC_VECTOR(6 downto 0);
+		  HEX5   : out STD_LOGIC_VECTOR(6 downto 0);
 
-        -- 7-Segment Display
-        HEX0        : out STD_LOGIC_VECTOR(6 downto 0);
-        HEX1        : out STD_LOGIC_VECTOR(6 downto 0);
-        HEX2        : out STD_LOGIC_VECTOR(6 downto 0);
-        HEX3        : out STD_LOGIC_VECTOR(6 downto 0);
-        HEX4        : out STD_LOGIC_VECTOR(6 downto 0);
-        HEX5        : out STD_LOGIC_VECTOR(6 downto 0);
 
         -- VGA Outputs
         h_sync_m    : out STD_LOGIC;
@@ -59,9 +58,9 @@ architecture Behavioral of top is
     signal ChB_clean    : STD_LOGIC := '0';
     constant mov_speed : integer := 20; 
     constant paddle_start_x : integer := 320;
-    constant border_right : integer := 630; -- Value from the image generator
-    constant border_left  : integer := 10;  -- Value from the image generator
-    constant paddle_length : integer := 50; -- Paddle length
+    constant border_right : integer := 640; -- Value from the image generator
+    constant border_left  : integer := 0;  -- Value from the image generator
+    constant paddle_length : integer := 40; -- Paddle length
     
     constant DEBOUNCE_DELAY : integer := 5; -- Reduced debounce delay for responsiveness
     signal debounce_counter : integer := 0;
@@ -73,12 +72,12 @@ architecture Behavioral of top is
     signal delay_done : STD_LOGIC;
 
     -- Dual Boot Component
---    component dual_boot is
---		port (
---			clk_clk       : in std_logic := 'X'; -- clk
---			reset_reset_n : in std_logic := 'X'  -- reset_n
---		);
---	end component dual_boot;
+    component dual_boot is
+		port (
+			clk_clk       : in std_logic := 'X'; -- clk
+			reset_reset_n : in std_logic := 'X'  -- reset_n
+		);
+	end component dual_boot;
 
     -- VGA Component
     component vga_pll_25_175
@@ -107,13 +106,18 @@ architecture Behavioral of top is
     component hw_image_generator
         port (
             disp_ena        : in  STD_LOGIC;
-				CLK				 : in  STD_LOGIC;
+			CLK				 : in  STD_LOGIC;
             row             : in  INTEGER;
             column          : in  INTEGER;
             encoder_value   : in  INTEGER;
             delay_done      : in  STD_LOGIC;
             sw1             : in  STD_LOGIC;
-				led0, led1, led2, led3 : out STD_LOGIC;
+			HEX0            : out STD_LOGIC_VECTOR(6 downto 0);
+			HEX1            : out STD_LOGIC_VECTOR(6 downto 0);
+			HEX2            : out STD_LOGIC_VECTOR(6 downto 0);
+		  	HEX3            : out STD_LOGIC_VECTOR(6 downto 0);
+			HEX4            : out STD_LOGIC_VECTOR(6 downto 0);
+			HEX5            : out STD_LOGIC_VECTOR(6 downto 0);
             red             : out STD_LOGIC_VECTOR(7 downto 0);
             green           : out STD_LOGIC_VECTOR(7 downto 0);
             blue            : out STD_LOGIC_VECTOR(7 downto 0)
@@ -125,7 +129,7 @@ begin
  process(clk)
     begin
         if rising_edge(clk) then
-            if counter = 499999 then
+            if counter = 399999 then
                 delay_done <= '1';
                 counter <= (others => '0');
             else
@@ -167,15 +171,15 @@ end process;
 
     
     -- VGA Signal Routing
-    --U0 : component dual_boot
-	--	port map (
-	--		clk_clk       => CLK,  --   clk.clk
-	--		reset_reset_n => KEY0  -- reset.reset_n
-	--	);
+    U0 : component dual_boot
+	port map (
+		clk_clk       => CLK,  --   clk.clk
+		reset_reset_n => KEY0  -- reset.reset_n
+	);
 
     U1: vga_pll_25_175 port map(CLK, pll_out_clk);
     U2: vga_controller port map(pll_out_clk, '1', h_sync_m, v_sync_m, dispEn, colSignal, rowSignal, open, open);
-    U3: hw_image_generator port map(dispEn, CLK, rowSignal, colSignal, encoder_value, delay_done, SW1, led0, led1, led2, led3, red_m, green_m, blue_m);
+    U3: hw_image_generator port map(dispEn, CLK, rowSignal, colSignal, encoder_value, delay_done, SW1, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, red_m, green_m, blue_m);
 
     -- Debouncers for the rortary encoder signals
     debounce_ChA : entity work.Debounce
