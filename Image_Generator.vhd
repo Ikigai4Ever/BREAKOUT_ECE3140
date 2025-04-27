@@ -30,25 +30,31 @@ end hw_image_generator;
 
 architecture behavior of hw_image_generator is
 
-    constant block_start_x : integer := 25;
-    constant block_start_y : integer := 100;
-    constant block_width   : integer := 37;
-    constant block_height  : integer := 10;
-    constant block_width_spacing : integer := 5;
-    constant block_height_spacing : integer := 5;
+    constant block_start_x  : integer := 25 + 4;
+    constant block_start_y  : integer := 100;
+    constant block_width    : integer := 37;
+    constant block_height   : integer := 10;
+    constant block_width_spacing    : integer := 5;
+    constant block_height_spacing   : integer := 5;
 
+    -- Paddle positioning
+    constant paddle_width   : integer := 40;
+    constant paddle_height  : integer := 8;
 	constant paddle_top     : integer := 450;
-    constant paddle_bottom  : integer := 460;
+    constant paddle_bottom  : integer := paddle_top + paddle_height;
     constant paddle_left    : integer := 290;
-    constant paddle_right   : integer := 350;
-	constant paddle_width   : integer := 60;
+    constant paddle_right   : integer := paddle_left + paddle_width;
 
+    -- Ball positioning
+    constant ball_size      : integer := 6;
     constant ball_top       : integer := 230;
-    constant ball_bottom    : integer := 236; -- 6 pixles
+    constant ball_bottom    : integer := ball_top + ball_size; -- 6 pixles
     constant ball_left      : integer := 317;
-    constant ball_right     : integer := 323; -- 6 pixles
-
-    
+    constant ball_right     : integer := ball_left + ball_size; -- 6 pixles
+    signal ball_posL        : integer;
+    signal ball_posR        : integer;
+    signal ball_posT        : integer;
+    signal ball_posB        : integer;
     signal ball_top_range : integer range -225 to 234 := 0;
     signal ball_left_range : integer range -305 to 299 := 0;
 
@@ -77,10 +83,6 @@ architecture behavior of hw_image_generator is
 	signal prev_col_idx : integer := 1;
     signal paddle_posL : integer;
     signal paddle_posR : integer;
-	signal ball_posL  : integer;
-    signal ball_posR  : integer;
-    signal ball_posT  : integer;
-    signal ball_posB  : integer;
 
     signal block_colb_true : STD_LOGIC := '0';
 	signal block_coll_true : STD_LOGIC := '0';
@@ -94,8 +96,8 @@ architecture behavior of hw_image_generator is
 
     constant border_width  : integer := 15;
     constant BORDER_TOP   : integer := 0 + border_width; 
-    constant BORDER_LEFT  : integer := -2 + border_width;
-    constant BORDER_RIGHT : integer := 635 - border_width;
+    constant BORDER_LEFT  : integer := 4 + border_width;
+    constant BORDER_RIGHT : integer := 636 - border_width;
 	constant BORDER_BOTTOM : integer := 480;
 
     constant row1_top    : integer := block_start_y;
@@ -185,14 +187,14 @@ architecture behavior of hw_image_generator is
 	constant score1_ones_right  : integer := column4_right - 4;
 	
 	--Score Text Area for Player 2
-	constant score2_top         : integer := row1_top - 45;
-	constant score2_bottom      : integer := row1_top - 5;
-	constant score2_huns_left   : integer := column10_left + 4;
-	constant score2_huns_right  : integer := column10_right - 4;
-	constant score2_tens_left   : integer := column11_left + 4;
-	constant score2_tens_right  : integer := column11_right - 4;
-	constant score2_ones_left   : integer := column12_left + 4;
-	constant score2_ones_right  : integer := column12_right - 4;
+--	constant score2_top         : integer := row1_top - 45;
+--	constant score2_bottom      : integer := row1_top - 5;
+--	constant score2_huns_left   : integer := column10_left + 4;
+--	constant score2_huns_right  : integer := column10_right - 4;
+--	constant score2_tens_left   : integer := column11_left + 4;
+--	constant score2_tens_right  : integer := column11_right - 4;
+--	constant score2_ones_left   : integer := column12_left + 4;
+--	constant score2_ones_right  : integer := column12_right - 4;
 	
 	--Ball Count Text Area Player 1
 	constant ball_count1_top    : integer := border_top + 5;
@@ -201,10 +203,10 @@ architecture behavior of hw_image_generator is
 	constant ball_count1_right  : integer := column1_right - 4;
 	
 	--Ball Count Text Area Player 2
-	constant ball_count2_top    : integer := border_top + 5;
-	constant ball_count2_bottom : integer := border_top + 45;
-	constant ball_count2_left   : integer := column9_left + 4;
-	constant ball_count2_right  : integer := column9_right - 4;
+--	constant ball_count2_top    : integer := border_top + 5;
+--	constant ball_count2_bottom : integer := border_top + 45;
+--	constant ball_count2_left   : integer := column9_left + 4;
+--	constant ball_count2_right  : integer := column9_right - 4;
 	
 	--Game Over Text
 	constant CHAR_WIDTH   : integer := 30;
@@ -608,7 +610,6 @@ begin
 									  quad2 <= '0';
 									  quad3 <= '0';
 									  quad4 <= '1'; 
-									  --score1 <= score1 + 1;
 								end if;
                     end if;
                 end if;
@@ -639,26 +640,7 @@ begin
         blue  <= X"00"; 
 		  
 
-        if disp_ena = '1' then            -- Paddle position based on encoder_value
-            -- Paddle coloring (White)
-            if row >= paddle_top and row <= paddle_bottom and column >= paddle_posL  and column <= paddle_posR then
-                red   <= X"FF";
-                green <= X"FF";
-                blue  <= X"FF";  
-
-            -- Border coloring (White)
-            elsif row <= BORDER_TOP or column <= BORDER_LEFT or column >= BORDER_RIGHT then
-                red   <= X"FF";
-                green <= X"FF";
-                blue  <= X"FF";
-				else		
-                if row >= ball_posT and row <= ball_posB and column >= ball_posL and column <= ball_posR then
-                    red   <= "11111111";
-                    green <= "11111111";
-                    blue  <= "11111111";
-                end if;
-			end if;
-
+        if disp_ena = '1' then         
 ------------------------------------------------------------------------------------------------------
 ------------------------------------------- SCORING --------------------------------------------------
 ------------------------------------------------------------------------------------------------------ 
@@ -666,23 +648,23 @@ begin
             -- Score Calculations 
             hundreds1 := (score1 / 100);
             tens1     := ((score1 / 10) mod 10);
-            ones1		 := (score1 mod 10);
+            ones1	  := (score1 mod 10);
             
-            hundreds2 := (score2 / 100);
-            tens2     := ((score2 / 10) mod 10);
-            ones2		 := (score2 mod 10);
+--            hundreds2 := (score2 / 100);
+--            tens2     := ((score2 / 10) mod 10);
+--            ones2		 := (score2 mod 10);
             
             --Hundreds Player 1
             if (row >= score1_top and row <= score1_bottom) then
-            if (column >= score1_huns_left and column <= score1_huns_right) then
-            digit_row := row - score1_top;
-            digit_col := column - score1_huns_left;
-            if draw_digit(hundreds1, digit_row, digit_col) then
-                red   <= X"9D";
-                green <= X"00";
-                blue  <= X"FF";
+                if (column >= score1_huns_left and column <= score1_huns_right) then
+                    digit_row := row - score1_top;
+                    digit_col := column - score1_huns_left;
+                    if draw_digit(hundreds1, digit_row, digit_col) then
+                        red   <= X"9D";
+                        green <= X"00";
+                        blue  <= X"FF";
+                    end if;
                 end if;
-            end if;
             end if;
             
             --Tens Player 1
@@ -712,43 +694,43 @@ begin
             end if;
             
             --Hundreds Player 2
-            if (row >= score2_top and row <= score2_bottom) then
-            if (column >= score2_huns_left and column <= score2_huns_right) then
-            digit_row := row - score2_top;
-            digit_col := column - score2_huns_left;
-            if draw_digit(hundreds2, digit_row, digit_col) then
-                        red   <= X"FF";
-                        green <= X"DF";
-                        blue  <= X"00";
-                end if;
-            end if;
-            end if;
-            
-            --Tens Player 2
-            if (row >= score2_top and row <= score2_bottom) then
-                if (column >= score2_tens_left and column <= score2_tens_right) then
-                    digit_row := row - score2_top;
-                    digit_col := column - score2_tens_left;
-                    if draw_digit(tens2, digit_row, digit_col) then
-                        red   <= X"FF";
-                        green <= X"DF";
-                        blue  <= X"00";
-                    end if;
-                end if;
-            end if;
-            
-            --Ones Player 2
-            if (row >= score2_top and row <= score2_bottom) then
-                if (column >= score2_ones_left and column <= score2_ones_right) then
-                    digit_row := row - score2_top;
-                    digit_col := column - score2_ones_left;
-                    if draw_digit(ones2, digit_row, digit_col) then
-                        red   <= X"FF";
-                        green <= X"DF";
-                        blue  <= X"00";
-                    end if;
-                end if;
-            end if;
+--            if (row >= score2_top and row <= score2_bottom) then
+--            if (column >= score2_huns_left and column <= score2_huns_right) then
+--            digit_row := row - score2_top;
+--            digit_col := column - score2_huns_left;
+--            if draw_digit(hundreds2, digit_row, digit_col) then
+--                        red   <= X"FF";
+--                        green <= X"DF";
+--                        blue  <= X"00";
+--                end if;
+--            end if;
+--            end if;
+--            
+--            --Tens Player 2
+--            if (row >= score2_top and row <= score2_bottom) then
+--                if (column >= score2_tens_left and column <= score2_tens_right) then
+--                    digit_row := row - score2_top;
+--                    digit_col := column - score2_tens_left;
+--                    if draw_digit(tens2, digit_row, digit_col) then
+--                        red   <= X"FF";
+--                        green <= X"DF";
+--                        blue  <= X"00";
+--                  end if;
+--              end if;
+--          end if;
+--          
+--          --Ones Player 2
+--          if (row >= score2_top and row <= score2_bottom) then
+--              if (column >= score2_ones_left and column <= score2_ones_right) then
+--                  digit_row := row - score2_top;
+--                  digit_col := column - score2_ones_left;
+--                  if draw_digit(ones2, digit_row, digit_col) then
+--                      red   <= X"FF";
+--                      green <= X"DF";
+--                      blue  <= X"00";
+--                  end if;
+--              end if;
+--          end if;
             
             --Ball Count Player 1
             if (row >= ball_count1_top and row <= ball_count1_bottom) then
@@ -764,28 +746,52 @@ begin
             end if;
             
             --Ball Count Player 2
-            if (row >= ball_count2_top and row <= ball_count2_bottom) then
-                if (column >= ball_count2_left and column <= ball_count2_right) then
-                    digit_row := row - ball_count2_top;
-                    digit_col := column - ball_count2_left;
-                    if draw_digit(ball_count_p2, digit_row, digit_col) then
-                        red   <= X"FF";
-                        green <= X"DF";
-                        blue  <= X"00";
-                    end if;
-                end if;
-            end if;
+--          if (row >= ball_count2_top and row <= ball_count2_bottom) then
+--              if (column >= ball_count2_left and column <= ball_count2_right) then
+--                  digit_row := row - ball_count2_top;
+--                  digit_col := column - ball_count2_left;
+--                  if draw_digit(ball_count_p2, digit_row, digit_col) then
+--                      red   <= X"FF";
+--                      green <= X"DF";
+--                      blue  <= X"00";
+--                  end if;
+--              end if;
+--          end if;
 
 ------------------------------------------------------------------------------------------------------
 ------------------------------------- BLOCK GENERATION -----------------------------------------------
-------------------------------------------------------------------------------------------------------
+            ------------------------------------------------------------------------------------------------------
+            -- Paddle coloring (White)
+            if row >= paddle_top and row <= paddle_bottom and column >= paddle_posL  and column <= paddle_posR then
+                red   <= X"9D";
+                green <= X"00";
+                blue  <= X"FF";  
+
+            -- Border coloring (White)
+            elsif row <= BORDER_TOP or column <= BORDER_LEFT or column >= BORDER_RIGHT then
+                red   <= X"FF";
+                green <= X"FF";
+                blue  <= X"FF";
+            else 
+                if row >= ball_posT and row <= ball_posB and column >= ball_posL and column <= ball_posR then
+                    red   <= X"FF";
+                    green <= X"DF";
+                    blue  <= X"00";
+                end if;
+            end if;
  
                 -- Loop over rows and columns
                 for row_idx in 0 to 7 loop
                     for col_idx in 0 to 13 loop
                         if row >= row_tops(row_idx) and row <= row_bottoms(row_idx) and
                            column >= column_lefts(col_idx) and column <= column_rights(col_idx) and block_collision(((row_idx * 14) + col_idx)) = '0' then
+                            if (row_idx = 0 or row_idx = 2 or row_idx = 4 or row_idx = 6) and ((col_idx mod 2) = 0) then
+                                red <= X"FF"; green <= X"AB"; blue <= X"00";  -- Orange
+                            elsif (row_idx = 1 or row_idx = 3 or row_idx = 5 or row_idx = 7) and ((col_idx mod 2) = 1) then
+                                red <= X"FF"; green <= X"AB"; blue <= X"00";  -- Orange
+                            else
                                 red <= X"FF"; green <= X"FF"; blue <= X"FF";  -- Bright white
+                            end if;
                         end if;
                     end loop;
                 end loop;
