@@ -428,7 +428,7 @@ begin
 
     process(paddle_collision, delay_done, borderl_collision, borderr_collision, bordert_collision, block_colb_true, block_colt_true, block_coll_true, block_colr_true)
     variable temp_score1 : integer := 0;
-	 begin
+	begin
             if rising_edge(delay_done) then
                 if SW1 = '0' then 
                     ball_top_range <= ball_top_range;
@@ -520,7 +520,7 @@ begin
                         quad1 <= '0';
                         quad2 <= '0';
                         quad3 <= '0';
-						  else		
+					else		
                         ball_left_range <= ball_left_range;
                         ball_top_range  <= ball_top_range;
                         quad1 <= quad1;
@@ -631,7 +631,6 @@ begin
 		variable local_x       : integer;
 		variable local_y       : integer;
 		variable draw_pixel    : boolean := false;
-		variable background    : boolean := false;
     begin
 	 	 --if rising_edge(CLK) then
 	     -- Default color to black
@@ -799,7 +798,6 @@ begin
 				
 				if game_over = '1' then
 					draw_pixel := false;
-					background := false;
 					 for i in 0 to 8 loop
 							char_index := TEXT_START_X + i * (CHAR_WIDTH + CHAR_SPACING);
 							if (column >= char_index and column < char_index + CHAR_WIDTH) and
@@ -810,7 +808,6 @@ begin
 
 								 if draw_char(text_gameover(i + 1), local_y, local_x) then
 									  draw_pixel := true;
-									  background := true;
 								 end if;
 
 								 exit;
