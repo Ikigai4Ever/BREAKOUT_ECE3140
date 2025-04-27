@@ -488,6 +488,10 @@ begin
 					elsif ball_count_p1 = 1 then
 						ball_count_p1 <= ball_count_p1 - 1;
 						game_over <= '1';
+						quad1 <= quad1;
+						quad2 <= quad2;
+						quad3 <= quad3;
+						quad4 <= quad4;
 					end if;
 				else
                     if quad1 = '1' then
@@ -626,6 +630,7 @@ begin
 		variable local_x       : integer;
 		variable local_y       : integer;
 		variable draw_pixel    : boolean := false;
+		variable background    : boolean := false;
     begin
 	 	 --if rising_edge(CLK) then
 	     -- Default color to black
@@ -788,7 +793,7 @@ begin
 				
 				if game_over = '1' then
 					draw_pixel := false;
-					
+					background := false;
 					 for i in 0 to 8 loop
 							char_index := TEXT_START_X + i * (CHAR_WIDTH + CHAR_SPACING);
 							if (column >= char_index and column < char_index + CHAR_WIDTH) and
@@ -799,6 +804,7 @@ begin
 
 								 if draw_char(text_gameover(i + 1), local_y, local_x) then
 									  draw_pixel := true;
+									  background := true;
 								 end if;
 
 								 exit;
@@ -809,8 +815,12 @@ begin
 						  red   <= X"FF";
 						  green <= X"FF";
 						  blue  <= X"FF";
-					 else
+					 elsif background then
 						  red   <= X"FF";
+						  green <= X"00";
+						  blue  <= X"00";
+					 else
+						  red   <= X"00";
 						  green <= X"00";
 						  blue  <= X"00";
 					 end if;
