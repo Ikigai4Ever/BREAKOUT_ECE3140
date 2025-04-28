@@ -453,11 +453,9 @@ begin
                     quad4 <= '0';
                     player_turn <= '0';
                     temp_score1 := 0;
-                    temp_score2 := 0;
                     ball_count_p1 <= 5;
-                    ball_count_p2 <= 5;
                     game_over <= '0';
-                    
+
                 elsif SW1 = '0' then 
                     ball_top_range <= ball_top_range;
                     ball_left_range <= ball_left_range;

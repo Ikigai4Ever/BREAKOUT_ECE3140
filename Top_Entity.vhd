@@ -153,10 +153,10 @@ begin
             encoder_value <= paddle_start_x;
             prevA <= '0';
         end if;
-        
+
         if SW1 = '0' then
-            encoder_value <= paddle_start_x;
-            prevA <= '0';
+            encoder_value <= encoder_value;
+            prevA <= prevA;
         else
             -- Detect rising edge on ChA
             if (prevA = '0') and (ChA_clean = '1') then
