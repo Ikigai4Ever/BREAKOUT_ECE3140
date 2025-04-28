@@ -204,14 +204,14 @@ architecture behavior of hw_image_generator is
 	constant score1_ones_right  : integer := column4_right - 4;
 	
 	--Score Text Area for Player 2
---	constant score2_top         : integer := row1_top - 45;
---	constant score2_bottom      : integer := row1_top - 5;
---	constant score2_huns_left   : integer := column10_left + 4;
---	constant score2_huns_right  : integer := column10_right - 4;
---	constant score2_tens_left   : integer := column11_left + 4;
---	constant score2_tens_right  : integer := column11_right - 4;
---	constant score2_ones_left   : integer := column12_left + 4;
---	constant score2_ones_right  : integer := column12_right - 4;
+	constant score2_top         : integer := row1_top - 45;
+	constant score2_bottom      : integer := row1_top - 5;
+	constant score2_huns_left   : integer := column10_left + 4;
+	constant score2_huns_right  : integer := column10_right - 4;
+	constant score2_tens_left   : integer := column11_left + 4;
+	constant score2_tens_right  : integer := column11_right - 4;
+	constant score2_ones_left   : integer := column12_left + 4;
+	constant score2_ones_right  : integer := column12_right - 4;
 	
 	--Ball Count Text Area Player 1
 	constant ball_count1_top    : integer := border_top + 5;
@@ -220,10 +220,10 @@ architecture behavior of hw_image_generator is
 	constant ball_count1_right  : integer := column1_right - 4;
 	
 	--Ball Count Text Area Player 2
---	constant ball_count2_top    : integer := border_top + 5;
---	constant ball_count2_bottom : integer := border_top + 45;
---	constant ball_count2_left   : integer := column9_left + 4;
---	constant ball_count2_right  : integer := column9_right - 4;
+	constant ball_count2_top    : integer := border_top + 5;
+	constant ball_count2_bottom : integer := border_top + 45;
+	constant ball_count2_left   : integer := column9_left + 4;
+	constant ball_count2_right  : integer := column9_right - 4;
 	
 	--Game Over Text
 	constant CHAR_WIDTH   : integer := 30;
