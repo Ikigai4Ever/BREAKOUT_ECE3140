@@ -15,7 +15,7 @@ entity top is
         -- Clocks and control
         CLK         : in  STD_LOGIC;
         KEY0        : in  STD_LOGIC;
-		KEY2 	    : in  STD_LOGIC;
+		KEY1 	     : in  STD_LOGIC;
         SW1         : in  STD_LOGIC;
 		  
         ChA1         : in  STD_LOGIC; -- CLK on RE
@@ -84,6 +84,12 @@ architecture Behavioral of top is
 			reset_reset_n : in std_logic := 'X'  -- reset_n
 		);
 	end component dual_boot;
+    component dual_boot is
+		port (
+			clk_clk       : in std_logic := 'X'; -- clk
+			reset_reset_n : in std_logic := 'X'  -- reset_n
+		);
+	end component dual_boot;
 
     -- VGA Component
     component vga_pll_25_175
@@ -119,6 +125,12 @@ architecture Behavioral of top is
             encoder_value_player2   : in  INTEGER;
             delay_done      : in  STD_LOGIC;
             SW1             : in  STD_LOGIC;
+			HEX0            : out STD_LOGIC_VECTOR(6 downto 0);
+			HEX1            : out STD_LOGIC_VECTOR(6 downto 0);
+			HEX2            : out STD_LOGIC_VECTOR(6 downto 0);
+		  	HEX3            : out STD_LOGIC_VECTOR(6 downto 0);
+			HEX4            : out STD_LOGIC_VECTOR(6 downto 0);
+			HEX5            : out STD_LOGIC_VECTOR(6 downto 0);
             red             : out STD_LOGIC_VECTOR(7 downto 0);
             green           : out STD_LOGIC_VECTOR(7 downto 0);
             blue            : out STD_LOGIC_VECTOR(7 downto 0)
@@ -197,7 +209,7 @@ end process;
 
     U1: vga_pll_25_175 port map(CLK, pll_out_clk);
     U2: vga_controller port map(pll_out_clk, '1', h_sync_m, v_sync_m, dispEn, colSignal, rowSignal, open, open);
-    U3: hw_image_generator port map(dispEn, CLK, rowSignal, colSignal, encoder_value_player1, encoder_value_player2, delay_done, SW1, red_m, green_m, blue_m);
+    U3: hw_image_generator port map(dispEn, CLK, rowSignal, colSignal, encoder_value_player1, encoder_value_player2, delay_done, SW1, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, red_m, green_m, blue_m);
 
     -- Debouncers for the rortary encoder signals
     debounce_ChA1 : entity work.Debounce
