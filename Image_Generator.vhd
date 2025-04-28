@@ -447,7 +447,6 @@ begin
                     quad2 <= '0';
                     quad3 <= '1';
                     quad4 <= '0';
-                    player_turn <= '0';
                     temp_score1 := 0;
                     ball_count_p1 <= 5;
                     game_over <= '0';
@@ -521,50 +520,26 @@ begin
 					last_checkpoint_p1 <= temp_score1;
 					paddle_width <= 40;
 				else
-                    if quad1 = '1' and paddle_movement = '0' then
+                    if quad1 = '1' then
                         ball_left_range <= ball_left_range + 1;
                         ball_top_range  <= ball_top_range - 1;
                         quad2 <= '0';
                         quad3 <= '0';
                         quad4 <= '0';
-                    elsif quad2 = '1' and paddle_movement = '0' then
+                    elsif quad2 = '1' then
                         ball_left_range <= ball_left_range - 1;
                         ball_top_range  <= ball_top_range - 1;
                         quad1 <= '0';
                         quad3 <= '0';
                         quad4 <= '0';
-                    elsif quad3 = '1' and paddle_movement = '0' then
+                    elsif quad3 = '1' then
                         ball_left_range <= ball_left_range - 1;
                         ball_top_range  <= ball_top_range + 1;
                         quad1 <= '0';
                         quad2 <= '0';
                         quad4 <= '0';
-                    elsif quad4 = '1' and paddle_movement = '0' then
+                    elsif quad4 = '1' then
                         ball_left_range <= ball_left_range + 1;
-                        ball_top_range  <= ball_top_range + 1;
-                        quad1 <= '0';
-                        quad2 <= '0';
-                        quad3 <= '0';
-						elsif quad1 = '1' and paddle_movement = '1' then
-                        ball_left_range <= ball_left_range + 2;
-                        ball_top_range  <= ball_top_range - 1;
-                        quad2 <= '0';
-                        quad3 <= '0';
-                        quad4 <= '0';
-                    elsif quad2 = '1' and paddle_movement = '1' then
-                        ball_left_range <= ball_left_range - 2;
-                        ball_top_range  <= ball_top_range - 1;
-                        quad1 <= '0';
-                        quad3 <= '0';
-                        quad4 <= '0';
-                    elsif quad3 = '1' and paddle_movement = '1' then
-                        ball_left_range <= ball_left_range - 2;
-                        ball_top_range  <= ball_top_range + 1;
-                        quad1 <= '0';
-                        quad2 <= '0';
-                        quad4 <= '0';
-                    elsif quad4 = '1' and paddle_movement = '1' then
-                        ball_left_range <= ball_left_range + 2;
                         ball_top_range  <= ball_top_range + 1;
                         quad1 <= '0';
                         quad2 <= '0';
@@ -664,25 +639,10 @@ begin
                 end if;
             end loop;
         end loop;
-		
-		score1 <= temp_score1;
-		
-		if (temp_score1 - last_checkpoint_p1) >= 20 then
-			if paddle_width > minimum_paddle_width then
-				paddle_width <= paddle_width - 10;
-			end if;
-			
-			last_checkpoint_p1 <= temp_score1;
-		end if;
-		
-    end if;
-  end process;
-	 
+		  end if;
+		 end process;
 	 
 	process(disp_ena, row, column, encoder_value, CLK)
-        variable hundreds1, tens1, ones1 : integer;
-        variable hundreds2, tens2, ones2 : integer;
-        variable digit_row, digit_col    : integer;
 		variable text_gameover : string(1 to 9) := "GAME OVER";
 		variable char_index    : integer;
 		variable local_x       : integer;
@@ -697,122 +657,10 @@ begin
 		  
 
         if disp_ena = '1' then         
-------------------------------------------------------------------------------------------------------
-------------------------------------------- SCORING --------------------------------------------------
------------------------------------------------------------------------------------------------------- 
 
-            -- Score Calculations 
-            hundreds1 := (score1 / 100);
-            tens1     := ((score1 / 10) mod 10);
-            ones1	  := (score1 mod 10);
-            
---            hundreds2 := (score2 / 100);
---            tens2     := ((score2 / 10) mod 10);
---            ones2		 := (score2 mod 10);
-            
-            --Hundreds Player 1
-            if (row >= score1_top and row <= score1_bottom) then
-                if (column >= score1_huns_left and column <= score1_huns_right) then
-                    digit_row := row - score1_top;
-                    digit_col := column - score1_huns_left;
-                    if draw_digit(hundreds1, digit_row, digit_col) then
-                        red   <= X"9D";
-                        green <= X"00";
-                        blue  <= X"FF";
-                    end if;
-                end if;
-            end if;
-            
-            --Tens Player 1
-            if (row >= score1_top and row <= score1_bottom) then
-                if (column >= score1_tens_left and column <= score1_tens_right) then
-                    digit_row := row - score1_top;
-                    digit_col := column - score1_tens_left;
-                    if draw_digit(tens1, digit_row, digit_col) then
-                        red   <= X"9D";
-                        green <= X"00";
-                        blue  <= X"FF";
-                    end if;
-                end if;
-            end if;
-            
-            --Ones Player 1
-            if (row >= score1_top and row <= score1_bottom) then
-                if (column >= score1_ones_left and column <= score1_ones_right) then
-                    digit_row := row - score1_top;
-                    digit_col := column - score1_ones_left;
-                    if draw_digit(ones1, digit_row, digit_col) then
-                        red   <= X"9D";
-                        green <= X"00";
-                        blue  <= X"FF";
-                    end if;
-                end if;
-            end if;
-            
-            --Hundreds Player 2
---            if (row >= score2_top and row <= score2_bottom) then
---            if (column >= score2_huns_left and column <= score2_huns_right) then
---            digit_row := row - score2_top;
---            digit_col := column - score2_huns_left;
---            if draw_digit(hundreds2, digit_row, digit_col) then
---                        red   <= X"FF";
---                        green <= X"DF";
---                        blue  <= X"00";
---                end if;
---            end if;
---            end if;
---            
---            --Tens Player 2
---            if (row >= score2_top and row <= score2_bottom) then
---                if (column >= score2_tens_left and column <= score2_tens_right) then
---                    digit_row := row - score2_top;
---                    digit_col := column - score2_tens_left;
---                    if draw_digit(tens2, digit_row, digit_col) then
---                        red   <= X"FF";
---                        green <= X"DF";
---                        blue  <= X"00";
---                  end if;
---              end if;
---          end if;
---          
---          --Ones Player 2
---          if (row >= score2_top and row <= score2_bottom) then
---              if (column >= score2_ones_left and column <= score2_ones_right) then
---                  digit_row := row - score2_top;
---                  digit_col := column - score2_ones_left;
---                  if draw_digit(ones2, digit_row, digit_col) then
---                      red   <= X"FF";
---                      green <= X"DF";
---                      blue  <= X"00";
---                  end if;
---              end if;
---          end if;
-            
-            --Ball Count Player 1
-            if (row >= ball_count1_top and row <= ball_count1_bottom) then
-                if (column >= ball_count1_left and column <= ball_count1_right) then
-                    digit_row := row - ball_count1_top;
-                    digit_col := column - ball_count1_left;
-                    if draw_digit(ball_count_p1, digit_row, digit_col) then
-                        red   <= X"9D";
-                        green <= X"00";
-                        blue  <= X"FF";
-                    end if;
-                end if;
-            end if;
-            
-            --Ball Count Player 2
---          if (row >= ball_count2_top and row <= ball_count2_bottom) then
---              if (column >= ball_count2_left and column <= ball_count2_right) then
---                  digit_row := row - ball_count2_top;
---                  digit_col := column - ball_count2_left;
---                  if draw_digit(ball_count_p2, digit_row, digit_col) then
---                      red   <= X"FF";
---                      green <= X"DF";
---                      blue  <= X"00";
---                  end if;
---              end if;
---          end if;
+
+      
+   
 
 ------------------------------------------------------------------------------------------------------
 ------------------------------------- BLOCK GENERATION -----------------------------------------------
@@ -841,13 +689,7 @@ begin
                     for col_idx in 0 to 13 loop
                         if row >= row_tops(row_idx) and row <= row_bottoms(row_idx) and
                            column >= column_lefts(col_idx) and column <= column_rights(col_idx) and block_collision(((row_idx * 14) + col_idx)) = '0' then
-                            if (row_idx = 0 or row_idx = 2 or row_idx = 4 or row_idx = 6) and ((col_idx mod 2) = 0) then
-                                red <= X"FF"; green <= X"AB"; blue <= X"00";  -- Orange
-                            elsif (row_idx = 1 or row_idx = 3 or row_idx = 5 or row_idx = 7) and ((col_idx mod 2) = 1) then
-                                red <= X"FF"; green <= X"AB"; blue <= X"00";  -- Orange
-                            else
                                 red <= X"FF"; green <= X"FF"; blue <= X"FF";  -- Bright white
-                            end if;
                         end if;
                     end loop;
                 end loop;
@@ -953,18 +795,7 @@ end process;
 						 STD_LOGIC_VECTOR(to_unsigned(ones1, 4));
 	 end process;
 	 
-	 --Player 2 Score for seven seg
-	 process(score2)
-		variable hundreds2, tens2, ones2 : INTEGER;
-	 begin
-		hundreds2 := (score2 / 100);
-		tens2 	 := ((score2 / 10) mod 10);
-		ones2		 := (score2 mod 10);
-		
-		score2_bcd <= STD_LOGIC_VECTOR(to_unsigned(hundreds2, 4)) &
-						 STD_LOGIC_VECTOR(to_unsigned(tens2, 4)) &
-						 STD_LOGIC_VECTOR(to_unsigned(ones2, 4));
-	 end process;
+
 	 
      --Player 1 mode
 	 HEX0 <= to_seg7(score1_bcd(3 downto 0));
