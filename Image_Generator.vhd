@@ -12,6 +12,7 @@ entity hw_image_generator is
 		encoder_value   : in  INTEGER;
         delay_done      : in  STD_LOGIC;
         SW1             : in  STD_LOGIC;
+        KEY1            : in  STD_LOGIC;
         HEX0            : out STD_LOGIC_VECTOR(6 downto 0);
         HEX1            : out STD_LOGIC_VECTOR(6 downto 0);
         HEX2            : out STD_LOGIC_VECTOR(6 downto 0);
@@ -438,12 +439,20 @@ begin
 	 variable count : integer := 0;
 	begin
             if rising_edge(delay_done) then
-					--if encoder_prev = encoder_value then
-						--paddle_movement <= '0';
-					--else
-						--paddle_movement <= '1';
-						--end if;
-                if SW1 = '0' then 
+				if (KEY1 = '0') then 
+                    block_collision <= (others => '0');
+                    ball_left_range <= 0;
+                    ball_top_range <= 0;
+                    quad1 <= '0';
+                    quad2 <= '0';
+                    quad3 <= '1';
+                    quad4 <= '0';
+                    player_turn <= '0';
+                    temp_score1 := 0;
+                    ball_count_p1 <= 5;
+                    game_over <= '0';
+
+                elsif SW1 = '0' then 
                     ball_top_range <= ball_top_range;
                     ball_left_range <= ball_left_range;
                     quad1 <= quad1;
