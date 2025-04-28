@@ -83,13 +83,22 @@ architecture behavior of hw_image_generator is
 	signal prev_col_idx : integer := 1;
     signal paddle_posL : integer;
     signal paddle_posR : integer;
-
+	 
     signal block_colb_true : STD_LOGIC := '0';
 	signal block_coll_true : STD_LOGIC := '0';
 	signal block_colr_true : STD_LOGIC := '0';
 	signal block_colt_true : STD_LOGIC := '0';
 
     signal ball_prevL, ball_prevR, ball_prevT, ball_prevB : integer;
+	 
+	  signal paddlel_prev : integer := 0;
+	  signal paddler_prev : integer := 0;
+	  signal paddle_movement : STD_LOGIC := '0';
+	  signal movement : integer := 2;
+	  signal prev_movement : integer := 2;
+	  signal curr_movement : integer := 2;
+	  signal encoder_prev  : integer;
+
 
 
 
@@ -428,8 +437,14 @@ begin
 
     process(paddle_collision, delay_done, borderl_collision, borderr_collision, bordert_collision, block_colb_true, block_colt_true, block_coll_true, block_colr_true)
     variable temp_score1 : integer := 0;
+	 variable count : integer := 0;
 	 begin
             if rising_edge(delay_done) then
+					--if encoder_prev = encoder_value then
+						--paddle_movement <= '0';
+					--else
+						--paddle_movement <= '1';
+						--end if;
                 if SW1 = '0' then 
                     ball_top_range <= ball_top_range;
                     ball_left_range <= ball_left_range;
@@ -492,26 +507,50 @@ begin
 						game_over <= '1';
 					end if;
 				else
-                    if quad1 = '1' then
+                    if quad1 = '1' and paddle_movement = '0' then
                         ball_left_range <= ball_left_range + 1;
                         ball_top_range  <= ball_top_range - 1;
                         quad2 <= '0';
                         quad3 <= '0';
                         quad4 <= '0';
-                    elsif quad2 = '1' then
+                    elsif quad2 = '1' and paddle_movement = '0' then
                         ball_left_range <= ball_left_range - 1;
                         ball_top_range  <= ball_top_range - 1;
                         quad1 <= '0';
                         quad3 <= '0';
                         quad4 <= '0';
-                    elsif quad3 = '1' then
+                    elsif quad3 = '1' and paddle_movement = '0' then
                         ball_left_range <= ball_left_range - 1;
                         ball_top_range  <= ball_top_range + 1;
                         quad1 <= '0';
                         quad2 <= '0';
                         quad4 <= '0';
-                    elsif quad4 = '1' then
+                    elsif quad4 = '1' and paddle_movement = '0' then
                         ball_left_range <= ball_left_range + 1;
+                        ball_top_range  <= ball_top_range + 1;
+                        quad1 <= '0';
+                        quad2 <= '0';
+                        quad3 <= '0';
+						elsif quad1 = '1' and paddle_movement = '1' then
+                        ball_left_range <= ball_left_range + 2;
+                        ball_top_range  <= ball_top_range - 1;
+                        quad2 <= '0';
+                        quad3 <= '0';
+                        quad4 <= '0';
+                    elsif quad2 = '1' and paddle_movement = '1' then
+                        ball_left_range <= ball_left_range - 2;
+                        ball_top_range  <= ball_top_range - 1;
+                        quad1 <= '0';
+                        quad3 <= '0';
+                        quad4 <= '0';
+                    elsif quad3 = '1' and paddle_movement = '1' then
+                        ball_left_range <= ball_left_range - 2;
+                        ball_top_range  <= ball_top_range + 1;
+                        quad1 <= '0';
+                        quad2 <= '0';
+                        quad4 <= '0';
+                    elsif quad4 = '1' and paddle_movement = '1' then
+                        ball_left_range <= ball_left_range + 2;
                         ball_top_range  <= ball_top_range + 1;
                         quad1 <= '0';
                         quad2 <= '0';
@@ -821,54 +860,64 @@ begin
 						  blue  <= X"00";
 					 end if;
 				end if;
-
 		  end if;
     end process;
 	 
-	process(CLK)
-    begin
-        if rising_edge(CLK) then
-            -- Cache positions
-            paddle_posL <= encoder_value - paddle_width / 2;
-            paddle_posR <= encoder_value + paddle_width / 2;
+process(CLK)
+begin
+    if rising_edge(CLK) then
+        -- Cache positions
+        paddle_posL <= encoder_value - paddle_width / 2;
+        paddle_posR <= encoder_value + paddle_width / 2;
 
-            ball_posL <= ball_left + ball_left_range;
-            ball_posT <= ball_top + ball_top_range;
-            ball_posR <= ball_posL + 6;
-            ball_posB <= ball_posT + 6;
+        ball_posL <= ball_left + ball_left_range;
+        ball_posT <= ball_top + ball_top_range;
+        ball_posR <= ball_posL + 6;
+        ball_posB <= ball_posT + 6;
 
-            -- Collision detection
-            if ball_posB = paddle_top and ball_posR >= paddle_posL and ball_posL <= paddle_posR then
-                paddle_collision <= '1';
-				else		
-                paddle_collision <= '0';
-            end if;
-
-            if ball_posL = BORDER_LEFT then
-                borderl_collision <= '1';
-				else		
-                borderl_collision <= '0';
-            end if;
-
-            if ball_posR = BORDER_RIGHT then
-                borderr_collision <= '1';
-				else		
-                borderr_collision <= '0';
-            end if;
-
-            if ball_posT = BORDER_TOP then
-                bordert_collision <= '1';
-				else		
-                bordert_collision <= '0';
-            end if;
-				
-				if ball_posB >= BORDER_BOTTOM then
-					borderb_collision <= '1';
-				else		
-					borderb_collision <= '0';
-				end if;
+        -- Corner collision detection
+        if (ball_posR = paddle_posL+5 and (ball_posB >= paddle_top+5 and ball_posT <= paddle_top + paddle_height)) or 
+           (ball_posL = paddle_posR+5 and (ball_posB >= paddle_top+5 and ball_posT <= paddle_top + paddle_height)) then
+            paddle_movement <= '1';
+        else
+            paddle_movement <= '0';
         end if;
-    end process;
+
+        -- Regular paddle collision detection
+        if ball_posB = paddle_top and ball_posR >= paddle_posL and ball_posL <= paddle_posR then
+            paddle_collision <= '1';
+        else        
+            paddle_collision <= '0';
+        end if;
+
+        -- Border collision detection
+        if ball_posL = BORDER_LEFT then
+            borderl_collision <= '1';
+        else        
+            borderl_collision <= '0';
+        end if;
+
+        if ball_posR = BORDER_RIGHT then
+            borderr_collision <= '1';
+        else        
+            borderr_collision <= '0';
+        end if;
+
+        if ball_posT = BORDER_TOP then
+            bordert_collision <= '1';
+        else        
+            bordert_collision <= '0';
+        end if;
+
+        if ball_posB >= BORDER_BOTTOM then
+            borderb_collision <= '1';
+        else        
+            borderb_collision <= '0';
+        end if;
+    end if;
+end process;
+
+
 	 
 	  --Player 1 Score for seven seg
 	 process(score1)
