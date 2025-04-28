@@ -492,18 +492,28 @@ begin
             elsif (borderb_collision = '1') then
                 ball_left_range <= 0;
                 ball_top_range <= 0;
-
-                if ball_count_p1 > 1 then
-                    ball_count_p1 <= ball_count_p1 - 1;
+                if (ball_count_p1 > 1)  or (ball_count_p2 > 1) then
+                    if (player_hit = '0') then 
+                        ball_count_p1 <= ball_count_p1 - 1;
+                    else 
+                        ball_count_p2 <= ball_count_p2 - 1;
+                    end if;
                     quad1 <= '0';
                     quad2 <= '0';
                     quad3 <= '1';
                     quad4 <= '0';
                 elsif (ball_count_p1 = 1) or (ball_count_p2 = 1) then
-                    ball_count_p1 <= ball_count_p1 - 1;
+                    if (player_hit = '0') then 
+                        ball_count_p1 <= ball_count_p1 - 1;
+                    else 
+                        ball_count_p2 <= ball_count_p2 - 1;
+                    end if;
                     game_over <= '1';
+                    quad1 <= '0';
+                    quad2 <= '0';
+                    quad3 <= '1';
+                    quad4 <= '0';
                 end if;
-
             else 
                 if quad1 = '1' then
                     ball_left_range <= ball_left_range + 1;
@@ -538,7 +548,7 @@ begin
                     quad4 <= quad4;
                 end if;
             end if;
-                        -- Block collision detection
+        
                            
         for row_idx in 0 to 7 loop
             for col_idx in 0 to 13 loop
@@ -668,6 +678,7 @@ begin
         green <= X"00";
         blue  <= X"00"; 
 		              
+    if disp_ena = '1' then 
 ------------------------------------------------------------------------------------------------------
 ------------------------------------------- SCORING --------------------------------------------------
 ------------------------------------------------------------------------------------------------------ 
@@ -680,6 +691,35 @@ begin
             hundreds2   := (score2 / 100);
             tens2       := ((score2 / 10) mod 10);
             ones2		:= (score2 mod 10);
+
+            if game_over = '1' then
+                draw_pixel := false;
+                    for i in 0 to 8 loop
+                        char_index := TEXT_START_X + i * (CHAR_WIDTH + CHAR_SPACING);
+                        if (column >= char_index and column < char_index + CHAR_WIDTH) and
+                            (row >= TEXT_START_Y and row < TEXT_START_Y + CHAR_HEIGHT) then
+
+                                local_x := column - char_index;
+                                local_y := row - TEXT_START_Y;
+
+                                if draw_char(text_gameover(i + 1), local_y, local_x) then
+                                    draw_pixel := true;
+                                end if;
+
+                                exit;
+                        end if;
+                    end loop;
+
+                    if draw_pixel then
+                        red   <= X"FF";
+                        green <= X"FF";
+                        blue  <= X"FF";
+                    else
+                        red   <= X"FF";
+                        green <= X"00";
+                        blue  <= X"00";
+                    end if;
+            end if;
             
             --Hundreds Player 1
             if (row >= score1_top and row <= score1_bottom) then
@@ -788,8 +828,6 @@ begin
 ------------------------------------------------------------------------------------------------------
 ------------------------------------- BLOCK GENERATION -----------------------------------------------
 ------------------------------------------------------------------------------------------------------ 
-
-            
  
         -- Loop over rows and columns
         for row_idx in 0 to 7 loop
@@ -842,35 +880,8 @@ begin
             end if;
         end if;
             
-            if game_over = '1' then
-                draw_pixel := false;
-                
-                    for i in 0 to 8 loop
-                        char_index := TEXT_START_X + i * (CHAR_WIDTH + CHAR_SPACING);
-                        if (column >= char_index and column < char_index + CHAR_WIDTH) and
-                            (row >= TEXT_START_Y and row < TEXT_START_Y + CHAR_HEIGHT) then
-
-                                local_x := column - char_index;
-                                local_y := row - TEXT_START_Y;
-
-                                if draw_char(text_gameover(i + 1), local_y, local_x) then
-                                    draw_pixel := true;
-                                end if;
-
-                                exit;
-                        end if;
-                    end loop;
-
-                    if draw_pixel then
-                        red   <= X"FF";
-                        green <= X"FF";
-                        blue  <= X"FF";
-                    else
-                        red   <= X"FF";
-                        green <= X"00";
-                        blue  <= X"00";
-                    end if;
-            end if;
+            
+        end if; -- disp_ena
     end process;
 	 
 	COLLISION_DETECTION : process(CLK) 
@@ -894,8 +905,7 @@ begin
             if (ball_posB = paddle_top_player1 and ball_posR >= paddle_posL_player1 and ball_posL <= paddle_posR_player1) then
 				paddle_collision <= '1';
                 player_hit <= '0'; -- Player 1 hit the ball
-			elsif (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2) 
-                  and (quad3 = '1' or quad4 = '1') then
+			elsif (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2) and (quad3 = '1' or quad4 = '1') then
                 paddle_collision <= '1';
                 player_hit <= '1'; -- Player 2 hit the ball
             else 
