@@ -38,7 +38,8 @@ architecture behavior of hw_image_generator is
     constant block_height_spacing   : integer := 5;
 
     -- Paddle positioning
-    constant paddle_width   : integer := 40;
+    signal paddle_width   : integer := 40;
+	 constant minimum_paddle_width : integer := 20;
     constant paddle_height  : integer := 8;
 	constant paddle_top     : integer := 450;
     constant paddle_bottom  : integer := paddle_top + paddle_height;
@@ -79,6 +80,7 @@ architecture behavior of hw_image_generator is
     signal ball_count_p1 : integer range 0 to 5 := 5;
     signal ball_count_p2 : integer range 0 to 5 := 5;
 	signal game_over     : STD_LOGIC := '0';
+	signal last_checkpoint_p1 : integer := 0;
     signal block_col_true : STD_LOGIC := '0';
 	signal prev_col_idx : integer := 1;
     signal paddle_posL : integer;
@@ -438,7 +440,7 @@ begin
     process(paddle_collision, delay_done, borderl_collision, borderr_collision, bordert_collision, block_colb_true, block_colt_true, block_coll_true, block_colr_true)
     variable temp_score1 : integer := 0;
 	 variable count : integer := 0;
-	 begin
+	begin
             if rising_edge(delay_done) then
 					--if encoder_prev = encoder_value then
 						--paddle_movement <= '0';
@@ -505,7 +507,14 @@ begin
 					elsif ball_count_p1 = 1 then
 						ball_count_p1 <= ball_count_p1 - 1;
 						game_over <= '1';
+						quad1 <= quad1;
+						quad2 <= quad2;
+						quad3 <= quad3;
+						quad4 <= quad4;
 					end if;
+					
+					last_checkpoint_p1 <= temp_score1;
+					paddle_width <= 40;
 				else
                     if quad1 = '1' and paddle_movement = '0' then
                         ball_left_range <= ball_left_range + 1;
@@ -653,8 +662,16 @@ begin
 		
 		score1 <= temp_score1;
 		
-            end if;
-    end process;
+		if (temp_score1 - last_checkpoint_p1) >= 20 then
+			if paddle_width > minimum_paddle_width then
+				paddle_width <= paddle_width - 10;
+			end if;
+			
+			last_checkpoint_p1 <= temp_score1;
+		end if;
+		
+    end if;
+  end process;
 	 
 	 
 	process(disp_ena, row, column, encoder_value, CLK)
@@ -833,7 +850,6 @@ begin
 				
 				if game_over = '1' then
 					draw_pixel := false;
-					
 					 for i in 0 to 8 loop
 							char_index := TEXT_START_X + i * (CHAR_WIDTH + CHAR_SPACING);
 							if (column >= char_index and column < char_index + CHAR_WIDTH) and
