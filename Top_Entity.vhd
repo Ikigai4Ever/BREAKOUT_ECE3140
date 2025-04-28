@@ -15,19 +15,20 @@ entity top is
         -- Clocks and control
         CLK         : in  STD_LOGIC;
         KEY0        : in  STD_LOGIC;
-		  KEY1 	     : in  STD_LOGIC;
+		KEY1 	    : in  STD_LOGIC;
+        KEY2        : in  STD_LOGIC;
         SW1         : in  STD_LOGIC;
 
         ChA         : in  STD_LOGIC; -- CLK on RE
         ChB         : in  STD_LOGIC; -- DT on RE
 		  
-		  --7 segment 
-		  HEX0   : out STD_LOGIC_VECTOR(6 downto 0);
-		  HEX1   : out STD_LOGIC_VECTOR(6 downto 0);
-		  HEX2   : out STD_LOGIC_VECTOR(6 downto 0);
-		  HEX3   : out STD_LOGIC_VECTOR(6 downto 0);
-		  HEX4   : out STD_LOGIC_VECTOR(6 downto 0);
-		  HEX5   : out STD_LOGIC_VECTOR(6 downto 0);
+        --7 segment 
+        HEX0   : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX1   : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX2   : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX3   : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX4   : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX5   : out STD_LOGIC_VECTOR(6 downto 0);
 
 
         -- VGA Outputs
@@ -72,12 +73,12 @@ architecture Behavioral of top is
     signal delay_done : STD_LOGIC;
 
     -- Dual Boot Component
-  --  component dual_boot is
-	--	port (
-	--		clk_clk       : in std_logic := 'X'; -- clk
-	--		reset_reset_n : in std_logic := 'X'  -- reset_n
-	--	);
-	--end component dual_boot;
+    component dual_boot is
+		port (
+			clk_clk       : in std_logic := 'X'; -- clk
+			reset_reset_n : in std_logic := 'X'  -- reset_n
+		);
+	end component dual_boot;
 
     -- VGA Component
     component vga_pll_25_175
@@ -112,6 +113,7 @@ architecture Behavioral of top is
             encoder_value   : in  INTEGER;
             delay_done      : in  STD_LOGIC;
             sw1             : in  STD_LOGIC;
+            KEY1            : in  STD_LOGIC;
 			HEX0            : out STD_LOGIC_VECTOR(6 downto 0);
 			HEX1            : out STD_LOGIC_VECTOR(6 downto 0);
 			HEX2            : out STD_LOGIC_VECTOR(6 downto 0);
@@ -150,6 +152,11 @@ begin
         if KEY1 = '0' then
             encoder_value <= paddle_start_x;
             prevA <= '0';
+        end if;
+        
+        if SW1 = '0' then
+            encoder_value <= paddle_start_x;
+            prevA <= '0';
         else
             -- Detect rising edge on ChA
             if (prevA = '0') and (ChA_clean = '1') then
@@ -170,7 +177,7 @@ begin
 end process;
 
     
-     VGA Signal Routing
+    -- VGA Signal Routing
     U0 : component dual_boot
 	port map (
 		clk_clk       => CLK,  --   clk.clk
@@ -179,7 +186,7 @@ end process;
 
     U1: vga_pll_25_175 port map(CLK, pll_out_clk);
     U2: vga_controller port map(pll_out_clk, '1', h_sync_m, v_sync_m, dispEn, colSignal, rowSignal, open, open);
-    U3: hw_image_generator port map(dispEn, CLK, rowSignal, colSignal, encoder_value, delay_done, SW1, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, red_m, green_m, blue_m);
+    U3: hw_image_generator port map(dispEn, CLK, rowSignal, colSignal, encoder_value, delay_done, SW1, KEY1, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, red_m, green_m, blue_m);
 
     -- Debouncers for the rortary encoder signals
     debounce_ChA : entity work.Debounce
