@@ -17,6 +17,7 @@ entity hw_image_generator is
         encoder_value_player2   : in  INTEGER;
         delay_done      : in  STD_LOGIC;
         SW1             : in  STD_LOGIC;
+        KEY1            : in  STD_LOGIC;
         HEX0            : out STD_LOGIC_VECTOR(6 downto 0);
         HEX1            : out STD_LOGIC_VECTOR(6 downto 0);
         HEX2            : out STD_LOGIC_VECTOR(6 downto 0);
@@ -443,7 +444,22 @@ begin
     variable temp_score2 : integer := 0;
     begin
         if rising_edge(delay_done) then
-            if SW1 = '0' then 
+            if (KEY1 = '0') then 
+                block_collision <= (others => '0');
+                ball_left_range <= 0;
+                ball_top_range <= 0;
+                quad1 <= '0';
+                quad2 <= '0';
+                quad3 <= '1';
+                quad4 <= '0';
+                player_turn <= '0';
+                temp_score1 := 0;
+                temp_score2 := 0;
+                ball_count_p1 <= 5;
+                ball_count_p2 <= 5;
+                game_over <= '0';
+
+            elsif SW1 = '0' then 
                 ball_top_range <= ball_top_range;
                 ball_left_range <= ball_left_range;
                 quad1 <= quad1;
@@ -451,11 +467,21 @@ begin
                 quad3 <= quad3;
                 quad4 <= quad4;
             elsif (paddle_collision = '1') and (quad3 = '1') then
+                if (player_hit = '0') then 
+                    player_turn <= '1'; 
+                else 
+                    player_turn <= '0'; 
+                end if;
                 quad1 <= '0';
                 quad2 <= '1';
                 quad3 <= '0';
                 quad4 <= '0'; 
             elsif (paddle_collision = '1') and (quad4 = '1') then
+                if (player_hit = '0') then 
+                    player_turn <= '1'; 
+                else 
+                    player_turn <= '0'; 
+                end if;
                 quad1 <= '1';
                 quad2 <= '0';
                 quad3 <= '0';
@@ -832,13 +858,19 @@ begin
         else 
             if row >= ball_posT and row <= ball_posB and column >= ball_posL and column <= ball_posR then
                 if (player_hit = '0') then
+                    if score1 = 0 then 
+                        red   <= X"9D";
+                        green <= X"00";
+                        blue  <= X"FF";
+                    else 
+                        red   <= X"FF";
+                        green <= X"DF";
+                        blue  <= X"00";
+                    end if;
+                elsif (player_hit = '1') then
                     red   <= X"9D";
                     green <= X"00";
                     blue  <= X"FF";
-                elsif (player_hit = '1') then
-                    red   <= X"FF";
-                    green <= X"DF";
-                    blue  <= X"00";
                 else 
                     red   <= X"FF";
                     green <= X"FF";
@@ -897,10 +929,10 @@ begin
             ball_posB <= ball_posT + 6;
             
             -- Paddle Collision Detection
-            if (ball_posB = paddle_top_player1 and ball_posR >= paddle_posL_player1 and ball_posL <= paddle_posR_player1) then
+            if (ball_posB = paddle_top_player1 and ball_posR >= paddle_posL_player1 and ball_posL <= paddle_posR_player1 and player_turn = '0') then
 				paddle_collision <= '1';
                 player_hit <= '0'; -- Player 1 hit the ball
-			elsif (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2 and (quad3 = '1' or quad4 = '1')) then
+			elsif (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2 and player_turn = '1' and (quad3 = '1' or quad4 = '1')) then
                 paddle_collision <= '1';
                 player_hit <= '1'; -- Player 2 hit the ball
             else 

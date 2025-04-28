@@ -15,7 +15,8 @@ entity top is
         -- Clocks and control
         CLK         : in  STD_LOGIC;
         KEY0        : in  STD_LOGIC;
-		KEY1 	     : in  STD_LOGIC;
+		KEY1 	    : in  STD_LOGIC;
+        KEY2        : in  STD_LOGIC;
         SW1         : in  STD_LOGIC;
 		  
         ChA1         : in  STD_LOGIC; -- CLK on RE
@@ -119,6 +120,7 @@ architecture Behavioral of top is
             encoder_value_player2   : in  INTEGER;
             delay_done      : in  STD_LOGIC;
             SW1             : in  STD_LOGIC;
+            KEY1            : in  STD_LOGIC;
 			HEX0            : out STD_LOGIC_VECTOR(6 downto 0);
 			HEX1            : out STD_LOGIC_VECTOR(6 downto 0);
 			HEX2            : out STD_LOGIC_VECTOR(6 downto 0);
@@ -159,6 +161,11 @@ begin
             encoder_value_player2 <= paddle_start_x;
             prevA_player1 <= '0';
             prevA_player2 <= '0';
+        end if;
+
+        if SW1 = '0' then 
+            encoder_value_player1 <= encoder_value_player1;
+            encoder_value_player2 <= encoder_value_player2;
         else
             -- Detect if Player 1 is active
             if (prevA_player1 = '0') and (ChA_clean_player1 = '1') then
@@ -173,7 +180,6 @@ begin
                     end if;
                 end if;
             end if;
-
             -- Detect if Player 2 is active
             if (prevA_player2 = '0') and (ChA_clean_player2 = '1') then
                 -- Determine direction using ChB
@@ -198,12 +204,12 @@ end process;
     U0 : component dual_boot
 		port map (
 			clk_clk       => CLK,  --   clk.clk
-			reset_reset_n => KEY1  -- reset.reset_n
+			reset_reset_n => KEY2  -- reset.reset_n
 		);
 
     U1: vga_pll_25_175 port map(CLK, pll_out_clk);
     U2: vga_controller port map(pll_out_clk, '1', h_sync_m, v_sync_m, dispEn, colSignal, rowSignal, open, open);
-    U3: hw_image_generator port map(dispEn, CLK, rowSignal, colSignal, encoder_value_player1, encoder_value_player2, delay_done, SW1, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, red_m, green_m, blue_m);
+    U3: hw_image_generator port map(dispEn, CLK, rowSignal, colSignal, encoder_value_player1, encoder_value_player2, delay_done, SW1, KEY1, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, red_m, green_m, blue_m);
 
     -- Debouncers for the rortary encoder signals
     debounce_ChA1 : entity work.Debounce
