@@ -128,7 +128,7 @@ architecture Behavioral of top is
 
 begin
 
- process(clk)
+    process(clk)
     begin
         if rising_edge(clk) then
             if counter = 399999 then
