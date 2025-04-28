@@ -1,10 +1,4 @@
---Name: Ty Ahrens 
---Date: 4/13/2025
---Purpose: Top-level entity for the VGA image generator and Fibonacci sequence display
---         Integrates VGA image generation with Fibonacci computation and 7-segment display
---
--- Author: Based on work by Tyler McCormick and extended
--- Date: 2025-04-08
+-- Top-level entity for the VGA Pong game with rotary encoder control
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
