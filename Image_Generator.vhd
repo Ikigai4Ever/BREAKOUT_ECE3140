@@ -447,7 +447,6 @@ begin
                     quad2 <= '0';
                     quad3 <= '1';
                     quad4 <= '0';
-                    player_turn <= '0';
                     temp_score1 := 0;
                     ball_count_p1 <= 5;
                     game_over <= '0';
