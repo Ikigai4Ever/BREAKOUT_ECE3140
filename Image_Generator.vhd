@@ -90,6 +90,7 @@ architecture behavior of hw_image_generator is
     signal borderr_collision    : STD_LOGIC := '0';
     signal borderb_collision    : STD_LOGIC := '0';
     signal player_hit           : STD_LOGIC := '0'; -- 0 means player 1 hit the ball, 1 means player 2 hit the ball
+    signal player_turn          : STD_LOGIC := '0'; -- 0 means player 1's turn, 1 means player 2's turn
     signal block_collision      : STD_LOGIC_VECTOR(111 downto 0) := (OTHERS => '0');
     
     signal index    : integer := 0;
@@ -450,15 +451,15 @@ begin
                 quad3 <= quad3;
                 quad4 <= quad4;
             elsif (paddle_collision = '1') and (quad3 = '1') then
-                    quad1 <= '0';
-                    quad2 <= '1';
-                    quad3 <= '0';
-                    quad4 <= '0'; 
+                quad1 <= '0';
+                quad2 <= '1';
+                quad3 <= '0';
+                quad4 <= '0'; 
             elsif (paddle_collision = '1') and (quad4 = '1') then
-                    quad1 <= '1';
-                    quad2 <= '0';
-                    quad3 <= '0';
-                    quad4 <= '0'; 
+                quad1 <= '1';
+                quad2 <= '0';
+                quad3 <= '0';
+                quad4 <= '0'; 
             elsif ((borderl_collision = '1') and (quad3 = '1')) then
                 quad1 <= '0';
                 quad2 <= '0';
@@ -492,22 +493,17 @@ begin
             elsif (borderb_collision = '1') then
                 ball_left_range <= 0;
                 ball_top_range <= 0;
-                if (ball_count_p1 > 1)  or (ball_count_p2 > 1) then
-                    if (player_hit = '0') then 
-                        ball_count_p1 <= ball_count_p1 - 1;
-                    else 
-                        ball_count_p2 <= ball_count_p2 - 1;
-                    end if;
+                if (ball_count_p1 > 1) then
+                    ball_count_p1 <= ball_count_p1 - 1;
+                    ball_count_p2 <= ball_count_p2 - 1;
+                    game_over <= '0';
                     quad1 <= '0';
                     quad2 <= '0';
                     quad3 <= '1';
                     quad4 <= '0';
-                elsif (ball_count_p1 = 1) or (ball_count_p2 = 1) then
-                    if (player_hit = '0') then 
-                        ball_count_p1 <= ball_count_p1 - 1;
-                    else 
-                        ball_count_p2 <= ball_count_p2 - 1;
-                    end if;
+                elsif (ball_count_p1 = 1) then
+                    ball_count_p1 <= 0;
+                    ball_count_p2 <= 0;
                     game_over <= '1';
                     quad1 <= '0';
                     quad2 <= '0';
@@ -691,36 +687,7 @@ begin
             hundreds2   := (score2 / 100);
             tens2       := ((score2 / 10) mod 10);
             ones2		:= (score2 mod 10);
-
-            if game_over = '1' then
-                draw_pixel := false;
-                    for i in 0 to 8 loop
-                        char_index := TEXT_START_X + i * (CHAR_WIDTH + CHAR_SPACING);
-                        if (column >= char_index and column < char_index + CHAR_WIDTH) and
-                            (row >= TEXT_START_Y and row < TEXT_START_Y + CHAR_HEIGHT) then
-
-                                local_x := column - char_index;
-                                local_y := row - TEXT_START_Y;
-
-                                if draw_char(text_gameover(i + 1), local_y, local_x) then
-                                    draw_pixel := true;
-                                end if;
-
-                                exit;
-                        end if;
-                    end loop;
-
-                    if draw_pixel then
-                        red   <= X"FF";
-                        green <= X"FF";
-                        blue  <= X"FF";
-                    else
-                        red   <= X"FF";
-                        green <= X"00";
-                        blue  <= X"00";
-                    end if;
-            end if;
-            
+           
             --Hundreds Player 1
             if (row >= score1_top and row <= score1_bottom) then
                 if (column >= score1_huns_left and column <= score1_huns_right) then
@@ -879,7 +846,35 @@ begin
                 end if;
             end if;
         end if;
-            
+
+        if game_over = '1' then
+            draw_pixel := false;
+                for i in 0 to 8 loop
+                    char_index := TEXT_START_X + i * (CHAR_WIDTH + CHAR_SPACING);
+                    if (column >= char_index and column < char_index + CHAR_WIDTH) and
+                        (row >= TEXT_START_Y and row < TEXT_START_Y + CHAR_HEIGHT) then
+
+                            local_x := column - char_index;
+                            local_y := row - TEXT_START_Y;
+
+                            if draw_char(text_gameover(i + 1), local_y, local_x) then
+                                draw_pixel := true;
+                            end if;
+
+                            exit;
+                    end if;
+                end loop;
+
+                if draw_pixel then
+                    red   <= X"FF";
+                    green <= X"FF";
+                    blue  <= X"FF";
+                else
+                    red   <= X"FF";
+                    green <= X"00";
+                    blue  <= X"00";
+                end if;
+        end if;            
             
         end if; -- disp_ena
     end process;
@@ -905,11 +900,12 @@ begin
             if (ball_posB = paddle_top_player1 and ball_posR >= paddle_posL_player1 and ball_posL <= paddle_posR_player1) then
 				paddle_collision <= '1';
                 player_hit <= '0'; -- Player 1 hit the ball
-			elsif (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2) and (quad3 = '1' or quad4 = '1') then
+			elsif (ball_posB = paddle_top_player2 and ball_posR >= paddle_posL_player2 and ball_posL <= paddle_posR_player2 and (quad3 = '1' or quad4 = '1')) then
                 paddle_collision <= '1';
                 player_hit <= '1'; -- Player 2 hit the ball
             else 
                 paddle_collision <= '0';
+                player_hit <= player_hit; -- No collision, keep the previous value
             end if;
 
             if ball_posL = BORDER_LEFT then
@@ -939,31 +935,18 @@ begin
     end process;
 	 
 	  --Player 1 Score for seven seg
-	 process(score1)
+	 process(score1, score2)
 		variable hundreds1, tens1, ones1 : INTEGER;
 	 begin
-		hundreds1 := (score1 / 100);
-		tens1 	 := ((score1 / 10) mod 10);
-		ones1		 := (score1 mod 10);
+		hundreds1   := ((score1 + score2) / 100);
+		tens1 	    := (((score1 + score2) / 10) mod 10);
+		ones1       := ((score1 + score2) mod 10);
 		
 		score1_bcd <= STD_LOGIC_VECTOR(to_unsigned(hundreds1, 4)) &
 						 STD_LOGIC_VECTOR(to_unsigned(tens1, 4)) &
 						 STD_LOGIC_VECTOR(to_unsigned(ones1, 4));
 	 end process;
-	 
-	 --Player 2 Score for seven seg
-	 process(score2)
-		variable hundreds2, tens2, ones2 : INTEGER;
-	 begin
-		hundreds2 := (score2 / 100);
-		tens2 	 := ((score2 / 10) mod 10);
-		ones2		 := (score2 mod 10);
-		
-		score2_bcd <= STD_LOGIC_VECTOR(to_unsigned(hundreds2, 4)) &
-						 STD_LOGIC_VECTOR(to_unsigned(tens2, 4)) &
-						 STD_LOGIC_VECTOR(to_unsigned(ones2, 4));
-	 end process;
-	 
+		 
      --Player 1 mode
 	 HEX0 <= to_seg7(score1_bcd(3 downto 0));
 	 HEX1 <= to_seg7(score1_bcd(7 downto 4));
